@@ -1,0 +1,408 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ScrollView" 
+    android:layout_width="fill_parent" 
+    android:layout_height="fill_parent"
+    android:fillViewport="true">
+
+<LinearLayout 
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@drawable/background">
+
+    <LinearLayout
+        android:id="@+id/last_sync_details_title"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp" android:background="@color/pms_2747">
+        <TextView
+            android:id="@+id/log_last_sync"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/last_sync"
+            android:layout_alignParentTop="true"
+            android:textColor="@color/solid_white"
+            android:textSize="15sp">
+        </TextView>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/last_sync_details_panel"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:background="@drawable/ic_panel_background_sync_history">
+        <TextView
+            android:id="@+id/log_last_syncdate"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:text="@string/status_default_sync_date"
+            android:layout_below="@+id/status"
+            android:textColor="@color/solid_black"
+            android:textSize="15sp">
+        </TextView>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/sync_summary_details"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:id="@+id/sync_summary_details_title"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp" android:background="@color/pms_2747">
+            <TextView
+                android:id="@+id/log_sync_summary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/sync_summary"
+                android:layout_alignParentTop="true"
+                android:textColor="@color/solid_white"
+                android:textSize="15sp">
+            </TextView>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/sync_summary_details_panel"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:background="@drawable/ic_panel_background_sync_history">
+
+            <TableLayout
+                android:id="@+id/summary_table_title"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_marginTop="10dp">
+                <TableRow
+                    android:id="@+id/sync_summary_images_row"
+                    android:visibility="gone"
+                    android:layout_marginLeft="10dp">
+                    <LinearLayout
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1">
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" 
+                            android:background="@drawable/ic_list_summary_contacts"/>
+                    </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent">
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" 
+                            android:background="@drawable/ic_list_summary_phone"/>
+                    </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent">
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" 
+                            android:background="@drawable/ic_list_summary_server"/>
+                    </LinearLayout>
+                </TableRow>
+                <TableRow
+                    android:id="@+id/sync_summary_text_row"
+                    android:layout_marginLeft="10dp" android:layout_marginTop="5dp">
+                    <LinearLayout
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1">
+                        <TextView
+                            android:id="@+id/contacts"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/contacts"
+                            android:textColor="@color/solid_black"/>
+                    </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent"
+                        android:layout_marginRight="30dp">
+                        <TextView
+                            android:id="@+id/phone"
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/phone"
+                            android:textColor="@color/solid_black"/>
+                    </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent"
+                        android:layout_marginRight="30dp">
+                        <TextView
+                            android:id="@+id/server"
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/server"
+                            android:textColor="@color/solid_black"/>
+                    </LinearLayout>
+                </TableRow>
+            </TableLayout>
+            
+            <View
+                android:layout_width="fill_parent"
+                android:layout_height="1sp"
+                android:layout_marginTop="5dp"
+                android:background="@color/solid_black"/>
+
+            <TableLayout
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_marginTop="10dp"
+                android:id="@+id/summary_table_panel">
+                <TableRow
+                    android:id="@+id/sync_summary_added_row"
+                    android:layout_marginLeft="10dp">
+                    <LinearLayout
+                        android:id="@+id/sync_summary_added_image_text"
+                        android:layout_height="wrap_content"
+                        android:layout_width="fill_parent" android:layout_weight="0.4">
+                        <ImageView
+                            android:layout_height="wrap_content"
+                            android:layout_width="wrap_content"
+                            android:visibility="gone"
+                            android:background="@drawable/ic_list_summary_added"/>
+                        <TextView
+                            android:id="@+id/added"
+                            android:layout_width="fill_parent"
+                            android:layout_height="fill_parent"
+                            android:text="@string/added"
+                            android:textColor="@color/solid_black"
+                            android:gravity="left|center"
+                            android:layout_marginLeft="5dp"/>
+                    </LinearLayout>
+                    <LinearLayout
+                        android:id="@+id/sync_summary_added_phone"
+                        android:layout_width="fill_parent" android:layout_weight="0.3" android:layout_height="fill_parent">
+                        <TextView
+                            android:id="@+id/phone_added"
+                            android:text="@string/default_count"
+                            android:textColor="@color/solid_black" android:layout_height="fill_parent" android:layout_width="fill_parent" android:gravity="left|center"/>
+                    </LinearLayout>
+                    <LinearLayout
+                        android:id="@+id/sync_summary_added_server"
+                        android:layout_width="fill_parent"
+                        android:layout_weight="0.3" android:layout_height="fill_parent" android:gravity="left|center">
+                        <TextView
+                            android:id="@+id/server_added"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/default_count"
+                            android:textColor="@color/solid_black"/>
+                    </LinearLayout>
+                </TableRow>
+
+            <TableRow
+                android:id="@+id/sync_summary_edited_row"
+                android:layout_marginLeft="10dp">
+                <LinearLayout
+                    android:id="@+id/sync_summary_edited_image_text"
+                    android:layout_height="wrap_content"
+                    android:layout_width="fill_parent" android:layout_weight="0.4">
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:visibility="gone"
+                        android:background="@drawable/ic_list_summary_edited"/>
+                    <TextView
+                        android:id="@+id/edited"
+                        android:layout_width="fill_parent"
+                        android:text="@string/edited"
+                        android:textColor="@color/solid_black"
+                        android:layout_marginLeft="5dp"
+                        android:layout_height="fill_parent"
+                        android:gravity="left|center"/>
+                </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/sync_summary_edited_phone" android:layout_weight="0.3" android:layout_height="fill_parent" android:layout_width="fill_parent">
+                    <TextView
+                        android:id="@+id/phone_edited"
+                        android:layout_width="fill_parent"
+                        android:text="@string/default_count"
+                        android:textColor="@color/solid_black" android:layout_height="fill_parent" android:gravity="left|center"/>
+                </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/sync_summary_edited_server" android:layout_weight="0.3" android:layout_width="fill_parent" android:layout_height="fill_parent">
+                    <TextView
+                        android:id="@+id/server_edited"
+                        android:layout_width="fill_parent"
+                        android:text="@string/default_count"
+                        android:textColor="@color/solid_black" android:layout_height="fill_parent" android:gravity="left|center"/>
+                </LinearLayout>
+            </TableRow>
+
+            <TableRow
+                android:id="@+id/sync_summary_deleted_row"
+                android:layout_marginLeft="10dp">
+                <LinearLayout
+                    android:layout_height="wrap_content"
+                    android:id="@+id/sync_summary_deleted_image_text" android:layout_weight="0.4">
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:background="@drawable/ic_list_summary_deleted"
+                        android:visibility="gone"
+                        android:layout_height="wrap_content"/>
+                    <TextView
+                        android:id="@+id/deleted"
+                        android:layout_width="fill_parent"
+                        android:text="@string/deleted"
+                        android:textColor="@color/solid_black"
+                        android:layout_marginLeft="5dp" android:layout_height="fill_parent" android:gravity="left|center"/>
+                </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/sync_summary_deleted_phone" android:layout_weight="0.3" android:layout_height="fill_parent">
+                    <TextView
+                        android:id="@+id/phone_deleted"
+                        android:layout_width="fill_parent"
+                        android:text="@string/default_count"
+                        android:textColor="@color/solid_black" android:layout_height="fill_parent" android:gravity="left|center"/>
+                </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/sync_summary_deleted_server" android:layout_weight="0.3" android:layout_height="fill_parent">
+                    <TextView
+                        android:id="@+id/server_deleted"
+                        android:layout_width="fill_parent"
+                        android:text="@string/default_count"
+                        android:textColor="@color/solid_black" android:layout_height="fill_parent" android:gravity="left|center"/>
+                </LinearLayout>
+            </TableRow>
+
+            <TableRow
+                android:id="@+id/sync_summary_error_row"
+                android:layout_marginLeft="10dp">
+                <LinearLayout
+                    android:layout_height="wrap_content"
+                    android:id="@+id/sync_summary_error_image_text" android:layout_weight="0.4">
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:visibility="gone"
+                        android:background="@drawable/ic_list_summary_in_error"/>
+                    <TextView
+                        android:id="@+id/error"
+                        android:layout_width="fill_parent"
+                        android:text="@string/error"
+                        android:textColor="@color/solid_black" android:layout_marginLeft="5dp" android:gravity="left|center" android:layout_height="fill_parent"/>
+                </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/sync_summary_error_phone" android:layout_weight="0.3" android:layout_height="fill_parent">
+                    <TextView
+                        android:id="@+id/phone_error"
+                        android:layout_width="fill_parent"
+                        android:text="@string/default_count"
+                        android:textColor="@color/solid_black" android:layout_height="fill_parent" android:gravity="left|center"/>
+                </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/sync_summary_error_server" android:layout_weight="0.3" android:layout_height="fill_parent">
+                    <TextView
+                        android:id="@+id/server_error"
+                        android:layout_width="fill_parent"
+                        android:text="@string/default_count"
+                        android:textColor="@color/solid_black" android:layout_height="fill_parent" android:gravity="left|center"/>
+                </LinearLayout>
+            </TableRow>
+
+            <TableRow
+                android:id="@+id/sync_summary_conflict_row"
+                android:layout_marginLeft="10dp">
+                <LinearLayout
+                    android:layout_height="wrap_content"
+                    android:id="@+id/sync_summary_conflict_image_text" android:layout_weight="0.4">
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:visibility="gone"
+                        android:background="@drawable/ic_list_summary_in_conflict"/>
+                    <TextView
+                        android:id="@+id/conflict"
+                        android:layout_width="fill_parent"
+                        android:text="@string/conflict"
+                        android:textColor="@color/solid_black" android:layout_marginLeft="5dp" android:gravity="left|center" android:layout_height="fill_parent"/>
+                </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/sync_summary_conflict_phone" android:layout_weight="0.3" android:layout_height="fill_parent">
+                    <TextView
+                        android:id="@+id/phone_conflict"
+                        android:layout_width="fill_parent"
+                        android:text="@string/default_count"
+                        android:textColor="@color/solid_black" android:layout_height="fill_parent" android:gravity="left|center"/>
+                </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/sync_summary_conflict_server" android:layout_weight="0.3" android:layout_height="fill_parent">
+                    <TextView
+                        android:id="@+id/server_conflict"
+                        android:layout_width="fill_parent"
+                        android:text="@string/default_count"
+                        android:textColor="@color/solid_black" android:layout_height="fill_parent" android:gravity="left|center"/>
+                </LinearLayout>
+            </TableRow>
+
+        </TableLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/sync_to_date_layout_title"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="10dp" android:background="@color/pms_2747">
+        <TextView
+            android:id="@+id/sync_to_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/to_date"
+            android:layout_alignParentTop="true"
+            android:textColor="@color/solid_white"
+            android:textSize="15sp">
+        </TextView>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/sync_to_date_layout_details"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:background="@drawable/ic_panel_background_sync_history">
+        <TextView
+            android:id="@+id/log_sync_to_date"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:text="@string/status_default_sync_date"
+            android:layout_below="@+id/status"
+            android:textColor="@color/solid_black"
+            android:textSize="15sp">
+        </TextView>
+    </LinearLayout>
+</LinearLayout>
+</ScrollView>

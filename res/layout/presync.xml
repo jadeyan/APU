@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	    android:orientation="vertical"
+	    android:layout_width="fill_parent"
+	    android:layout_height="fill_parent"
+	    android:background="@drawable/background">
+	    
+	    <TextView android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:text="@string/app_name_bold"
+        android:textSize="15sp"
+        android:paddingTop="2dp"
+        android:paddingBottom="3dp"
+        android:background="@color/title_bar_bg"
+        android:textColor="@color/solid_white"/>
+	    
+	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	    android:orientation="vertical"
+	    android:layout_width="fill_parent"
+	    android:layout_height="fill_parent"
+	    android:background="@drawable/background"
+	    >
+	
+	    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	        android:orientation="vertical"
+	        android:gravity="center_horizontal"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_marginTop="10dp"
+	        android:layout_marginBottom="10dp">
+	
+	        <TextView
+	            android:id="@+id/post_sync_msg"
+	            android:layout_height="wrap_content"
+	            android:layout_width="wrap_content"
+	            android:text="@string/pre_sync_msg_text"
+	            android:textSize="18sp"
+	            android:textColor="@color/sync_font_deep_gray">
+	        </TextView>
+	
+	    </LinearLayout>
+	
+	    <LinearLayout
+	         android:id="@+id/buttons_layout"
+	         android:orientation="horizontal"
+	         android:layout_width="fill_parent"
+	         android:layout_height="fill_parent"
+	         android:paddingLeft="20dp"
+	         android:paddingRight="20dp"
+	         android:paddingBottom="20dp"
+	         android:layout_weight="3" android:layout_gravity="bottom">
+	         <Button
+	             android:text="@string/sync"
+	             android:id="@+id/pre_sync_ok_btn"
+	             android:layout_width="fill_parent"
+	             android:layout_height="wrap_content"
+            	 android:textColor="@color/solid_white"
+	             android:textSize="20sp"
+	             android:background="@drawable/ic_button_background"
+	             android:layout_weight="1" android:layout_gravity="bottom">
+	         </Button>
+	         <View android:layout_width="15dp"
+	             android:layout_height="10dp"/>
+	         <Button
+	             android:text="@string/cancel"
+	             android:id="@+id/pre_sync_cancel_btn"
+	             android:layout_width="fill_parent"
+	             android:layout_height="wrap_content"
+            	 android:textColor="@color/solid_white"
+	             android:textSize="20sp"
+	             android:background="@drawable/ic_button_background"
+	             android:layout_weight="1" android:layout_gravity="bottom">
+	         </Button>
+	     </LinearLayout>
+	</LinearLayout>
+</LinearLayout>

@@ -1,0 +1,102 @@
+/**
+ * Copyright © 2010 Critical Path, Inc. All Rights Reserved.
+ */
+
+package net.cp.mtk.j2me.tools.discovery;
+
+
+import javax.microedition.lcdui.*;
+
+import net.cp.mtk.j2me.tools.discovery.files.FileList;
+import net.cp.mtk.j2me.tools.discovery.files.FileSystem;
+
+
+public class SetupForm extends Form implements CommandListener, ItemCommandListener, FileList.SelectListener
+{
+    private static final String DEFAULT_LOGFILE_NAME =  "DiscoveryLog.txt";
+
+    
+    private DiscoveryMIDlet midlet;
+
+    private TextField textOutputUrl;
+
+    private Command okCommand;
+    private Command browseCommand;
+    private Command exitCommand;
+
+
+    public SetupForm(DiscoveryMIDlet midlet)
+    {
+        super("Setup");
+        this.midlet = midlet;
+        
+        textOutputUrl = null;
+        
+        okCommand = null;
+        browseCommand = null;
+        exitCommand = null;
+
+        addContent();
+    }
+
+    private void addContent()
+    {
+        deleteAll();
+        
+        DiscoveryMIDlet.addText(this, null, "Select the location of the test output file. If no output file is specified, output will be stored in-memory.");
+        DiscoveryMIDlet.addEmptyLine(this);
+
+        textOutputUrl = new TextField("Output URL: ", "", 256, TextField.ANY);
+        String logFileDir = System.getProperty("fileconn.dir.photos");
+        if ( (logFileDir != null) && (logFileDir.length() > 0) )
+        {
+            if (logFileDir.charAt(logFileDir.length() - 1) != '/')
+                logFileDir = logFileDir + "/";
+            textOutputUrl.setString(logFileDir + DEFAULT_LOGFILE_NAME);
+        }
+        append(textOutputUrl);
+        
+        DiscoveryMIDlet.addEmptyLine(this);
+        DiscoveryMIDlet.addText(this, null, "Select \"Start\" to start the tests.");
+        
+        //add commands
+        browseCommand = new Command("Browse", Command.ITEM, 1);
+        textOutputUrl.setDefaultCommand(browseCommand);
+        textOutputUrl.setItemCommandListener(this);
+        okCommand = new Command("Start", Command.OK, 1);
+        addCommand(okCommand);
+        exitCommand = new Command("Exit", Command.EXIT, 2);
+        addCommand(exitCommand);
+        setCommandListener(this);
+    }
+
+    public void onFileSelected(String selectedUrl)
+    {
+        if (selectedUrl.endsWith("/"))
+            selectedUrl = selectedUrl + DEFAULT_LOGFILE_NAME;
+
+        textOutputUrl.setString(selectedUrl);
+        Display.getDisplay(midlet).setCurrent(this);
+    }
+    
+    public void commandAction(Command command, Displayable d)
+    {
+        if (command == okCommand)
+        {
+            midlet.startTests( textOutputUrl.getString() );
+        }
+        else if (command == exitCommand)
+        {
+            midlet.quitApp();
+        }
+    }
+    
+    public void commandAction(Command command, Item item)
+    {
+        if (command == browseCommand)
+        {
+            FileList browseList = new FileList("Select Directory", midlet, this, this, FileSystem.getParentUrl(textOutputUrl.getString()));
+            Display.getDisplay(midlet).setCurrent(browseList);
+        }
+    }
+}

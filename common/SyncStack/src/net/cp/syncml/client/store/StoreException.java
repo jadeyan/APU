@@ -1,0 +1,79 @@
+/**
+ * Copyright © 2004-2007 Critical Path, Inc. All Rights Reserved.
+ */
+package net.cp.syncml.client.store;
+
+
+import net.cp.syncml.client.*;
+
+
+/**
+ * An exception indicating some problem with the local record store.
+ *
+ * @author Denis Evoy
+ */
+public class StoreException extends SyncException
+{
+    /** Creates a new exception with no message or cause. */
+    public StoreException()
+    {
+        super();
+    }
+
+    /**
+     * Creates a new exception with the specified message.
+     * 
+     * @param msg a textual description of the exception.
+     */
+    public StoreException(String msg)
+    {
+        super(msg);
+    }
+
+    /**
+     * Creates a new exception with the specified message and cause.
+     * 
+     * @param msg   a textual description of the exception.
+     * @param cause the underlying cause of this exception.
+     */
+    public StoreException(String msg, Throwable cause)
+    {
+        super(msg, cause);
+    }
+    
+    /**
+     * Creates a new exception with the specified message and SyncML status code.
+     * 
+     * @param msg           a textual description of the exception.
+     * @param statusCode    the {@link SyncML#STATUS_ACCEPTED status code} associated with the exception.
+     */
+    public StoreException(String msg, int statusCode)
+    {
+        super(msg, statusCode);
+    }
+    
+    /**
+     * Creates a new exception with the specified message and SyncML status information.
+     * 
+     * @param msg           a textual description of the exception.
+     * @param statusCode    the {@link SyncML#STATUS_ACCEPTED status code} associated with the exception.
+     * @param statusData    the {@link SyncML#REASON_TOTAL_DATA_LIMIT_EXCEEDED status data} associated with the exception.
+     */
+    public StoreException(String msg, int statusCode, String statusData)
+    {
+        super(msg, statusCode, statusData);
+    }
+    
+    /**
+     * Creates a new exception with the specified message, cause and SyncML status information.
+     * 
+     * @param msg           a textual description of the exception.
+     * @param statusCode    the {@link SyncML#STATUS_ACCEPTED status code} associated with the exception.
+     * @param statusData    the {@link SyncML#REASON_TOTAL_DATA_LIMIT_EXCEEDED status data} associated with the exception.
+     * @param cause         the underlying cause of this exception.
+     */
+    public StoreException(String msg, int statusCode, String statusData, Throwable cause)
+    {
+        super(msg, statusCode, statusData, cause);
+    }
+}

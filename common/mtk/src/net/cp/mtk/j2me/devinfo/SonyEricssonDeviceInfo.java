@@ -1,0 +1,167 @@
+/**
+ * Copyright © 2010 Critical Path, Inc. All Rights Reserved.
+ */
+
+package net.cp.mtk.j2me.devinfo;
+
+
+import net.cp.mtk.common.devinfo.DeviceInfo;
+import net.cp.mtk.common.devinfo.NetworkIdentifier;
+
+
+/**
+ * A class providing various details about a SonyEricsson device.
+ * 
+ * @author Denis Evoy
+ */
+public class SonyEricssonDeviceInfo extends DeviceInfo
+{
+    /** Create a new device info object. */
+    public SonyEricssonDeviceInfo()
+	{
+	    super();
+	}
+	
+    /** 
+     * Returns the manufacturer of the device.
+     * 
+     * @return the manufacturer of the device (i.e. "SonyEricsson").
+     */
+    public String getManufacturer()
+    {
+        return "SonyEricsson";
+    }
+
+    /** 
+     * Returns the model of the device.
+     * 
+     * @return the model of the device, or null if it is unknown.
+     */
+    public String getModel()
+    {
+        return super.getModel();
+    }
+
+    /** 
+     * Returns the type of network the device is connected to.
+     * 
+     * Note: determining the network type requires at least JP-7.3.
+     * 
+     * @return the type of network (NETWORK_TYPE_XXX) the device is connected to, or NETWORK_TYPE_UNKNOWN if it is not known.
+     */
+	public byte getNetworkType()
+	{
+        String rat = getProperty("com.sonyericsson.net.rat");
+        if (rat != null)
+        {
+            if ( (rat.equalsIgnoreCase("WCDMA")) || (rat.equalsIgnoreCase("GSM")) )
+                return NETWORK_TYPE_MOBILE;
+        }
+        
+        String status = getProperty("com.sonyericsson.net.status");
+        if (status != null)
+        {
+            if (status.equalsIgnoreCase("No Network"))
+                return NETWORK_TYPE_NONE;
+        }
+        
+		return super.getNetworkType();
+	}
+    
+    /** 
+     * Returns the identifier of the network that the device is currently connected.
+     * 
+     * Note: determining the network ID requires at least JP-7.3.
+     * 
+     * @return the identifier of the network that the device is currently connected to, or null if the network is unknown.
+     */
+	public NetworkIdentifier getNetworkId()
+    {
+        String mcc = getProperty("com.sonyericsson.net.cmcc");
+        if (mcc == null)
+            return null;
+        
+        String mnc = getProperty("com.sonyericsson.net.cmnc");
+        if (mnc == null)
+            return null;
+        
+        return new NetworkIdentifier(null, mcc, mnc);
+    }
+
+    /** 
+     * Returns the roaming state of the device.
+     * 
+     * Note: determining the roaming state requires at least JP-7.3.
+     * 
+     * @return the roaming state (ROAMING_XXX) of the device, or ROAMING_UNKNOWN if it is not known.
+     */
+    public byte getRoamingState()
+    {
+        String state = getProperty("com.sonyericsson.net.isonhomeplmn");
+        if (state != null)
+            return ((state.equalsIgnoreCase("true")) ? ROAMING_NO : ROAMING_YES);
+        
+        state = getProperty("com.sonyericsson.net.status");
+        if (state != null)
+        {
+            if (state.equalsIgnoreCase("Home PLMN"))
+                return ROAMING_NO;
+        }
+    
+        return super.getRoamingState();
+    }
+
+    /** 
+     * Returns the IEMI of the device.
+     * 
+     * @return the IEMI of the device, or null if it is not known.
+     */
+	public String getIMEI()
+	{
+        String imei = getProperty("com.sonyericsson.imei");
+        if (imei != null)
+            return imei;
+
+        return super.getIMEI();
+	}
+
+    /** 
+     * Returns the IMSI of the SIM card on the device.
+     * 
+     * Note: determining the IMSI requires at least JP-7.2.
+     * 
+     * @return the IMSI of the device, or null if it is not known.
+     */
+    public String getIMSI()
+    {
+        String imsi = getProperty("com.sonyericsson.sim.subscribernumber");
+        if (imsi != null)
+            return imsi;
+        
+        return super.getIMSI();
+    }
+
+    /** 
+     * Returns the MSISDN associated with the SIM card on the device.
+     * 
+     * Note: determining the MSISDN is not currently supported.
+     * 
+     * @return the users MSISDN, or null if it is not known.
+     */
+    public String getMSISDN()
+    {
+        return super.getMSISDN();
+    }
+
+    /** 
+     * Returns the Push-To-Talk ID associated with the SIM card on the device.
+     * 
+     * Note: determining the PTT ID is not currently supported.
+     * 
+     * @return the users Push-To-Talk ID, or null if it is not known.
+     */
+    public String getPTTId()
+    {
+        return super.getPTTId();
+    }
+}

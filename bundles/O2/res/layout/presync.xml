@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@drawable/background"
+    >
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/ic_panel_background_single_pre_sync">
+
+        <TextView
+            android:id="@+id/post_sync_msg"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:text="@string/pre_sync_msg_text"
+            android:textColor="@color/solid_black"
+            android:textSize="15sp">
+        </TextView>
+
+    </LinearLayout>
+
+    <LinearLayout
+         android:id="@+id/buttons_layout"
+         android:orientation="horizontal"
+         android:layout_width="fill_parent"
+         android:layout_height="fill_parent"
+         android:layout_weight="3" android:layout_gravity="bottom">
+         <Button
+             android:text="@string/sync"
+             android:id="@+id/pre_sync_ok_btn"
+             android:layout_width="fill_parent"
+             android:layout_height="wrap_content"
+             android:background="@drawable/button_softgradient"
+             android:layout_weight="1"
+             android:layout_gravity="bottom">
+         </Button>
+         <Button
+             android:text="@string/cancel"
+             android:id="@+id/pre_sync_cancel_btn"
+             android:layout_width="fill_parent"
+             android:layout_height="wrap_content"
+             android:background="@drawable/button_softgradient"
+             android:layout_weight="1"
+             android:layout_gravity="bottom">
+         </Button>
+     </LinearLayout>
+</LinearLayout>

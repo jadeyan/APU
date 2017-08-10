@@ -1,0 +1,79 @@
+#!/bin/sh
+
+#
+# This script pulls in JAD/JAR files from i05 that need to be signed.
+# Once the files have been copied over, they are removed from i05.
+# It also pushes any signed files back to i05 if necessary.
+#
+
+# Note that this script relies on passwordless auth for sftp to i05.
+# This is achieved using public/private keypairs.
+
+#get all the files from the signing inbox on i05
+
+if test ! -e get_remote_files
+then
+	echo "cd /home/sign_req/signing_inbox" > get_remote_files
+	echo "lcd remote_signing_inbox" >> get_remote_files
+	echo "mget *.*" >> get_remote_files
+fi
+
+#get the files
+sftp -b get_remote_files sign_req@i05.cpth.ie
+
+cd ./remote_signing_inbox/
+
+#this must be outside the for loop!
+echo "cd /home/sign_req/signing_inbox" > ~/clean_remote_files
+
+#process all files that have a "ready file"
+for I in `ls *.ready.* 2>/dev/null`
+do
+
+	COOKIE=`echo $I | cut -f4 -d'.'`
+	CERT_OPTS=`echo $I | cut -f4 -d'.'`
+
+	echo Remote Files Downloaded
+	echo Cookie: $COOKIE
+	echo Cert options: $CERT_OPTS
+
+	JAR=`ls *.jar.$COOKIE | head -n 1`
+	JAD=`ls *.jad.$COOKIE | head -n 1`
+
+	echo JAD: $JAD
+	echo JAR: $JAR
+
+	echo "rm \"$I\"" >> ~/clean_remote_files
+	echo "rm \"$JAR\"" >> ~/clean_remote_files
+	echo "rm \"$JAD\"" >> ~/clean_remote_files
+
+done
+
+#delete files from i05 that we are going to process (that have ready files)
+sftp -b ~/clean_remote_files sign_req@i05.cpth.ie
+
+#now prepare to copy back any signed files
+echo "cd /home/sign_req/signing_outbox" > ~/put_remote_files
+
+cd ../remote_signing_outbox
+
+for I in `ls *.ready.* 2>/dev/null`
+do
+
+COOKIE=`echo $I | cut -f4 -d'.'`
+JAD=`ls *.jad.$COOKIE | head -n 1`
+JAR=`ls *.jar.$COOKIE | head -n 1`
+
+if test -z $JAD
+then #no JAD present, send the JAR
+	echo "put \"$JAR\"" >> ~/put_remote_files
+else
+	echo "put \"$JAD\"" >> ~/put_remote_files
+fi
+
+echo "put \"$I\"" >> ~/put_remote_files
+
+done
+
+#execute the sftp batch file to copy the files back to i05
+sftp -b ~/put_remote_files sign_req@i05.cpth.ie

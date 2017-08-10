@@ -1,0 +1,138 @@
+/**
+ * Copyright © 2010 Critical Path, Inc. All Rights Reserved.
+ */
+
+package net.cp.mtk.j2me.tools.discovery.basic;
+
+
+import net.cp.mtk.j2me.tools.discovery.Logger;
+import net.cp.mtk.j2me.tools.discovery.DiscoveryMIDlet;
+
+
+public class Midlet
+{
+    private static final String[] PERMISSIONS_MIDP_20 = { "javax.microedition.pim.ContactList.read",
+                                                          "javax.microedition.pim.ContactList.write",
+                                                          "javax.microedition.io.Connector.file.read",
+                                                          "javax.microedition.io.Connector.file.write",
+                                                          "javax.microedition.io.Connector.http",
+                                                          "javax.microedition.io.Connector.https",
+                                                          "javax.microedition.io.Connector.ssl",
+                                                          "javax.microedition.io.Connector.socket",
+                                                          "javax.microedition.io.Connector.serversocket",
+                                                          "javax.microedition.io.Connector.datagram",
+                                                          "javax.microedition.io.Connector.datagramreceiver",
+                                                          "javax.microedition.io.Connector.comm",
+                                                          "javax.microedition.io.PushRegistry"
+                                                        };
+
+    private static final String[] PROPERTIES = { "MIDlet-Name",
+                                                 "MIDlet-Version",
+                                                 "MIDlet-Vendor",
+                                                 "MIDlet-Jar-URL",
+                                                 "MIDlet-Jar-Size",
+                                                 "MIDlet-1",
+                                                 "MIDlet-2",
+                                                 "MIDlet-3",
+                                                 "MicroEdition-Profile",
+                                                 "MicroEdition-Configuration",
+                                                 "MIDlet-Description",
+                                                 "MIDlet-Icon",
+                                                 "MIDlet-Info-URL",
+                                                 "MIDlet-Data-Size",
+                                                 "MIDlet-Permissions",
+                                                 "MIDlet-Permissions-Opt",
+                                                 "MIDlet-Push-1",
+                                                 "MIDlet-Push-2",
+                                                 "MIDlet-Push-3",
+                                                 "MIDlet-Install-Notify",
+                                                 "MIDlet-Delete-Notify",
+                                                 "MIDlet-Delete-Confirm"
+                                               };
+    
+    
+    public static void evaluate(DiscoveryMIDlet midlet)
+    {
+        Logger.log("");
+        Logger.log("-----------------------------------");
+        Logger.log("MIDLET:");
+        Logger.log("");
+
+        //show MIDlet details
+        midlet.setTestStatus("Testing midlet...");
+        logMidlet(midlet);
+
+        Logger.log("-----------------------------------");
+    }
+
+    
+    private Midlet()
+    {
+        super();
+    }
+
+    private static void logMidlet(DiscoveryMIDlet midlet)
+    {
+        Logger.log("+ CURRENT TIME:");
+        Logger.log("    " + DiscoveryMIDlet.dateToString(System.currentTimeMillis()));
+
+        Logger.log("");
+        Logger.log("+ MIDLET PROPERTIES:");
+        logAppProperties(midlet, PROPERTIES);
+
+        Logger.log("");
+        Logger.log("+ MIDLET PERMISSIONS:");
+        logPermissions(midlet, PERMISSIONS_MIDP_20);
+    }
+    
+    private static void logPermissions(DiscoveryMIDlet midlet, String[] permissions)
+    {
+        for (int i = 0; i < permissions.length; i++)
+            logPermission(midlet, permissions[i]);
+    }
+
+    private static void logPermission(DiscoveryMIDlet midlet, String permission)
+    {
+        try
+        {
+            Logger.log("    " + permission + ":");
+
+            int granted = midlet.checkPermission(permission);
+            if (granted == 0)
+                Logger.log("        [Denied]");
+            else if (granted == 1)
+                Logger.log("        [Allowed]");
+            else if (granted == -1)
+                Logger.log("        [Prompt]");
+            else
+                Logger.logIssue(Logger.SEVERITY_HIGH, "Midlet: midlet permission ('" + permission + "') has an invalid value ('" + granted + "')");
+        }
+        catch (Throwable e)
+        {
+            Logger.logIssue(Logger.SEVERITY_LOW, "Midlet: failed to check MIDlet permission ('" + permission + "')", e);
+        }
+    }
+    
+    private static void logAppProperties(DiscoveryMIDlet midlet, String[] properties)
+    {
+        for (int i = 0; i < properties.length; i++)
+            logAppProperty(midlet, properties[i]);
+    }
+
+    private static void logAppProperty(DiscoveryMIDlet midlet, String property)
+    {
+        try
+        {
+            String propertyValue = midlet.getAppProperty(property);
+            if (propertyValue != null)
+            {
+                Logger.log("    " + property + ":");
+                Logger.log("        [" + propertyValue + "]");
+            }
+        }
+        catch (Throwable e)
+        {
+            Logger.logIssue(Logger.SEVERITY_LOW, "Midlet: failed to read MIDlet property ('" + property + "')", e);
+        }
+    }
+}

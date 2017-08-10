@@ -1,0 +1,366 @@
+/**
+ * Copyright © 2004-2007 Critical Path, Inc. All Rights Reserved.
+ */
+package net.cp.syncml.client;
+
+
+/**
+ * A utility class defining various SyncML static data and definitions.
+ *
+ * @author Denis Evoy
+ */
+public class SyncML
+{
+    /** Defines a two-way sync where both the client and the server exchange modifications. */
+    public static final int SYNC_TYPE_TWO_WAY =         1;
+    
+    /** Defines a two-way slow sync where the client sends all records to the server and the server returns any computed modifications. */
+    public static final int SYNC_TYPE_TWO_WAY_SLOW =    2;
+    
+    /** Defines a one-way sync from the client where only the client sends its modifications to the server. */
+    public static final int SYNC_TYPE_ONE_WAY_CLIENT =  3;
+    
+    /** Defines a refresh sync from the client where only the client sends all its records to the server (overwriting all records on the server). */
+    public static final int SYNC_TYPE_REFRESH_CLIENT =  4;
+    
+    /** Defines a one-way sync from the server where only the server sends its modifications to the client. */
+    public static final int SYNC_TYPE_ONE_WAY_SERVER =  5;
+    
+    /** Defines a refresh sync from the server where only the server sends all its records to the client (overwriting all records on the client). */
+    public static final int SYNC_TYPE_REFRESH_SERVER =  6;
+    
+    /** Defines a server alerted sync. */
+    public static final int SYNC_TYPE_SERVER_ALERTED =  7;
+
+    
+    /** Defines a status indicating that the command was successful. */
+    public static final int STATUS_OK =                         200;
+
+    /** Defines a status indicating that the requested record was added. */
+    public static final int STATUS_ITEM_ADDED =                 201;
+
+    /** Defines a status indicating that the request was accepted for processing. */
+    public static final int STATUS_ACCEPTED =                   202;
+
+    /** Defines a status indicating that the request is being responded to by an entity other than the one targeted. */
+    public static final int STATUS_NON_AUTH_RESPONSE =          203;
+
+    /** Defines a status indicating that the request was successfully completed but no data is being returned. */
+    public static final int STATUS_NO_CONTENT =                 204;
+
+    /** Defines a status indicating that the client should synchronize its content to get an up-to-date version. */
+    public static final int STATUS_RESET_CONTENT =              205;
+
+    /** Defines a status indicating that only part of the command was completed. */
+    public static final int STATUS_PARTIAL_CONTENT =            206;
+
+    /** Defines a status indicating that the conflict caused by the request was resolved by merging the client and server data. */
+    public static final int STATUS_CONFLICT_MERGED =            207;
+
+    /** Defines a status indicating that the conflict caused by the request was resolved by having the clients data win. */
+    public static final int STATUS_CONFLICT_CLIENT_WON =        208;
+
+    /** Defines a status indicating that the conflict caused by the request was resolved by duplicating the clients data. */
+    public static final int STATUS_CONFLICT_DUPLICATED =        209;
+
+    /** Defines a status indicating that the delete request was successful but that archiving is not supported. */
+    public static final int STATUS_DELETE_WITHOUT_ARCHIVE =     210;
+
+    /** Defines a status indicating that the requested record was not deleted as it no longer exists. */
+    public static final int STATUS_ITEM_NOT_DELETED =           211;
+
+    /** Defines a status indicating that the previous authentication credentials were accepted. */
+    public static final int STATUS_AUTH_ACCEPTED =              212;
+
+    /** Defines a status indicating that chunked data has been accepted and buffered. */
+    public static final int STATUS_DATA_CHUNK_ACCEPTED =        213;
+
+    /** Defines a status indicating that the operation was a success, but that no more operations will be processed in the session. */
+    public static final int STATUS_SUCCESS_CANCELLED =          214;
+
+    /** Defines a status indicating that the command was not executed (for example, as a result of user refusal). */
+    public static final int STATUS_NOT_EXECUTED =               215;
+
+    /** Defines a status indicating that the command failed and that the atomic roll-back was successful. */
+    public static final int STATUS_ATOMIC_ROLLBACK_OK =         216;
+
+    /** Defines a status indicating that the target was one of multiple alternatives. */
+    public static final int STATUS_MULTIPLE_CHOICE =            300;
+
+    /** Defines a status indicating that the target has been permanently moved and has a new URI. */
+    public static final int STATUS_MOVED_PERMANENTLY =          301;
+
+    /** Defines a status indicating that the target has been temporarily moved and has a different URI. */
+    public static final int STATUS_FOUND =                      302;
+
+    /** Defines a status indicating that the target can also be found at a different URI. */
+    public static final int STATUS_SEE_OTHER =                  303;
+
+    /** Defines a status indicating that the command was not executed on the target. */
+    public static final int STATUS_NOT_MODIFIED =               304;
+
+    /** Defines a status indicating that the requested target must be accessed through the specified proxy URI. */
+    public static final int STATUS_USE_PROXY =                  305;
+
+    /** Defines a status indicating that the requested command was malformed. */
+    public static final int STATUS_BAD_REQUEST =                400;
+
+    /** Defines a status indicating that the specified authentication credentials were incorrect. */
+    public static final int STATUS_INVALID_CREDENTIALS =        401;
+
+    /** Defines a status indicating that the command failed because proper payment is required. */
+    public static final int STATUS_PAYMENT_REQUIRED =           402;
+
+    /** Defines a status indicating that the command failed because of incorrect user permissions. */
+    public static final int STATUS_FORBIDDEN =                  403;
+
+    /** Defines a status indicating that the requested record cannot be found. */
+    public static final int STATUS_NOT_FOUND =                  404;
+
+    /** Defines a status indicating that the requested command is not allowed on the target. */
+    public static final int STATUS_NOT_ALLOWED =                405;
+
+    /** Defines a status indicating that an optional feature is not supported. */
+    public static final int STATUS_NOT_SUPPORTED =              406;
+
+    /** Defines a status indicating that no authentication credentials were provided. */
+    public static final int STATUS_MISSING_CREDENTIALS =        407;
+
+    /** Defines a status indicating that an expected message was not received within the required period of time. */
+    public static final int STATUS_TIMEOUT =                    408;
+
+    /** Defines a status indicating that the requested failed because of an update conflict between the client and server versions of the data. */
+    public static final int STATUS_CONFLICT =                   409;
+
+    /** Defines a status indicating that the requested record no longer exists. */
+    public static final int STATUS_ITEM_GONE =                  410;
+
+    /** Defines a status indicating that the size of the record is required. */
+    public static final int STATUS_SIZE_REQUIRED =              411;
+
+    /** Defines a status indicating that the request was incomplete. */
+    public static final int STATUS_INCOMPLETE_COMMAND =         412;
+
+    /** Defines a status indicating that the request contained data that was too large for the recipient to handle. */
+    public static final int STATUS_DATA_TOO_LARGE =             413;
+
+    /** Defines a status indicating that the request contained a target URI that was too long for the recipient to handle. */
+    public static final int STATUS_URI_TOO_LONG =               414;
+
+    /** Defines a status indicating that the request contained an unsupported content type. */
+    public static final int STATUS_UNSUPPORTED_MEDIA_TYPE =     415;
+
+    /** Defines a status indicating that the specified data size is larger that what the recipient could handle. */
+    public static final int STATUS_SIZE_TOO_LARGE =             416;
+
+    /** Defines a status indicating that the request failed but should be retried later. */
+    public static final int STATUS_RETRY_LATER =                417;
+
+    /** Defines a status indicating that the specified record already exists. */
+    public static final int STATUS_ITEM_ALREADY_EXISTS =        418;
+
+    /** Defines a status indicating that the conflict caused by the request was resolved by having the servers data win. */
+    public static final int STATUS_CONFLICT_SERVER_WON =        419;
+
+    /** Defines a status indicating that the recipient has no more storage space. */
+    public static final int STATUS_DEVICE_FULL =                420;
+
+    /** Defines a status indicating that the command failed because the specified search grammar was not known. */
+    public static final int STATUS_UNKNOWN_SEARCH_GRAMMAR =     421;
+
+    /** Defines a status indicating that the command failed because the specified CGI script was incorrectly formed. */
+    public static final int STATUS_BAD_CGI_SCRIPT =             422;
+
+    /** Defines a status indicating that the command failed because the "soft deleted" item was previously "hard deleted". */
+    public static final int STATUS_SOFT_DELETE_CONFLICT =       423;
+
+    /** Defines a status indicating that the final size of chunked data doesn't match the original declared size. */
+    public static final int STATUS_DATA_CHUNK_SIZE_MISMATCH =   424;
+
+    /** Defines a status indicating that requested command failed because the sender does not have adequate access control permissions (ACL) on the recipient. */
+    public static final int STATUS_PERMISSION_DENIED =          425;
+
+    /** Defines a status indicating that the receiver is unable to process a partial item update (for example, the item does not exist on receiver). */
+    public static final int STATUS_PARTIAL_ITEM_REJECTED =      426;
+    
+    /** Defines a status indicating that a delete failed because the hierarchy underneath it was not empty */
+    public static final int STATUS_DELETE_FAILED_NOT_EMPTY =    427;
+
+    /** Defines a status indicating that a record could not be moved within a record store. */
+    public static final int STATUS_MOVE_FAILED =                428;
+
+    /** Defines a status indicating that the command failed because of an an unexpected condition. */
+    public static final int STATUS_COMMAND_FAILED =             500;
+
+    /** Defines a status indicating that the command is not implemented on the recipient. */
+    public static final int STATUS_COMMAND_NOT_IMPLEMENTED =    501;
+
+    /** Defines a status indicating that the command failed because the recipient received an invalid response from the upstream recipient. */
+    public static final int STATUS_BAD_GATEWAY =                502;
+
+    /** Defines a status indicating that the SyncML service is not available. */
+    public static final int STATUS_SERVICE_UNAVAILABLE =        503;
+
+    /** Defines a status indicating that the command failed because the recipient did not receive a timely response from the upstream recipient. */
+    public static final int STATUS_GATEWAY_TIMEOUT =            504;
+
+    /** Defines a status indicating that the recipient does not support the specified version of SyncML DTD used in the request SyncML message. */
+    public static final int STATUS_UNSUPPORTED_DTD_VERSION =    505;
+
+    /** Defines a status indicating that an application error occurred while processing the request. */
+    public static final int STATUS_PROCESSING_ERROR =           506;
+
+    /** Defines a status indicating that an error caused all atomic SyncML commands to fail. */
+    public static final int STATUS_ATOMIC_FAILED =              507;
+
+    /** Defines a status indicating that a slow sync is required. */
+    public static final int STATUS_REFRESH_REQUIRED =           508;
+
+    //Status code reserved for future use
+    //public static final int STATUS_RESERVED =                 509;
+
+    /** Defines a status indicating some problem with the local record store. */
+    public static final int STATUS_DATA_STORE_FAILURE =         510;
+
+    /** Defines a status indicating that a severe error occurred in the server while processing the request. */
+    public static final int STATUS_SERVER_FAILURE =             511;
+
+    /** Defines a status indicating that an application error occurred during the sync session. */
+    public static final int STATUS_SYNC_FAILURE =               512;
+
+    /** Defines a status indicating that the recipient does not support the specified version of SyncML protocol used in the request SyncML message. */
+    public static final int STATUS_UNSUPPORTED_PROTO_VERSION =  513;
+
+    /** Defines a status indicating that the operation was cancelled. */
+    public static final int STATUS_OPERATION_CANCELLED =        514;
+
+    /** Defines a status indicating that the command failed and that atomic roll-back also failed. */
+    public static final int STATUS_ATOMIC_ROLLBACK_FAILED =     516;
+
+
+    /** Defines an alert indicating that the client should display the message to the user. */
+    public static final int ALERT_DISPLAY =                     	100;
+
+    /** Defines an alert indicating a client-initiated, two-way synchronization. */
+    public static final int ALERT_SYNC_CLIENT_TWO_WAY =             200;
+
+    /** Defines an alert indicating a client-initiated, two-way slow-synchronization. */
+    public static final int ALERT_SYNC_CLIENT_TWO_WAY_SLOW =        201;
+
+    /** Defines an alert indicating a client-initiated, one-way only synchronization from the client to the server. */
+    public static final int ALERT_SYNC_CLIENT_ONE_WAY_TO_SERVER =   202;
+
+    /** Defines an alert indicating a client-initiated, refresh operation from the client to the server. */
+    public static final int ALERT_SYNC_CLIENT_REFRESH_TO_SERVER =   203;
+
+    /** Defines an alert indicating a client-initiated, one-way only synchronization from the server to the client. */
+    public static final int ALERT_SYNC_CLIENT_ONE_WAY_FROM_SERVER = 204;
+
+    /** Defines an alert indicating a client-initiated, refresh operation from the server to the client. */
+    public static final int ALERT_SYNC_CLIENT_REFRESH_FROM_SERVER = 205;
+
+    /** Defines an alert indicating a server-initiated, two-way synchronization. */
+    public static final int ALERT_SYNC_SERVER_TWO_WAY =             206;
+
+    /** Defines an alert indicating a server-initiated, one-way only synchronization from the client to the server. */
+    public static final int ALERT_SYNC_SERVER_ONE_WAY_FROM_CLIENT = 207;
+
+    /** Defines an alert indicating a server-initiated, refresh operation from the client to the server. */
+    public static final int ALERT_SYNC_SERVER_REFRESH_FROM_CLIENT = 208;
+
+    /** Defines an alert indicating a server-initiated, one-way only synchronization from the server to the client. */
+    public static final int ALERT_SYNC_SERVER_ONE_WAY_TO_CLIENT =   209;
+
+    /** Defines an alert indicating a server-initiated, refresh operation from the server to the client. */
+    public static final int ALERT_SYNC_SERVER_REFRESH_TO_CLIENT =   210;
+
+    /** Defines an alert indicating a request for synchronization results. */
+    public static final int ALERT_SYNC_RESULT =                     221;
+
+    /** Defines an alert indicating a request for for the next message in the package. */
+    public static final int ALERT_NEXT_MESSAGE =                    222;
+
+    /** Defines an alert indicating that the "End of Data" tag for chunked object was not received. */
+    public static final int ALERT_NO_END_OF_DATA =                  223;
+
+    /** Defines an alert indicating that the current session should be suspended. */
+    public static final int ALERT_SUSPEND =                         224;
+
+    /** Defines an alert indicating that the currently suspended session should be resumed. */
+    public static final int ALERT_RESUME =                          225;
+
+
+    /** Defines a status reason indicating that the amount of data being exchanged during the session exceeds the configured limit. */
+    public static final String REASON_TOTAL_DATA_LIMIT_EXCEEDED =   "TotalDataLimitExceeded";
+
+    /** Defines a status reason indicating that the amount of data which the client will receive will exceed the amount of free memory on the client. */
+    public static final String REASON_DEVICE_MEMORY_EXCEEDED =      "DSMemExceeded";
+
+    /** Defines a status reason indicating that the name of a file/folder was not valid for the file system. */
+    public static final String REASON_INVALID_FILENAME =            "InvalidFileName";
+    
+    
+    /** Private constructor to prevent instantiation. */
+    private SyncML() { super(); }
+    
+    
+    /** 
+     * Returns the {@link #SYNC_TYPE_ONE_WAY_CLIENT sync type} represented by the specified alert code.
+     * 
+     * @param alertCode the SyncML alert code. 
+     * @return the sync type represented by the alert code or 0 if the alert code doesn't represent a sync type.
+     */
+    public static int alertToSyncType(int alertCode)
+    {
+        if (alertCode == ALERT_SYNC_CLIENT_TWO_WAY)
+            return SYNC_TYPE_TWO_WAY;
+        else if (alertCode == ALERT_SYNC_CLIENT_TWO_WAY_SLOW)
+            return SYNC_TYPE_TWO_WAY_SLOW;
+        else if (alertCode == ALERT_SYNC_CLIENT_ONE_WAY_TO_SERVER)
+            return SYNC_TYPE_ONE_WAY_CLIENT;
+        else if (alertCode == ALERT_SYNC_CLIENT_REFRESH_TO_SERVER)
+            return SYNC_TYPE_REFRESH_CLIENT;
+        else if (alertCode == ALERT_SYNC_CLIENT_ONE_WAY_FROM_SERVER)
+            return SYNC_TYPE_ONE_WAY_SERVER;
+        else if (alertCode == ALERT_SYNC_CLIENT_REFRESH_FROM_SERVER)
+            return SYNC_TYPE_REFRESH_SERVER;
+        
+        return 0;
+    }
+    
+    /** 
+     * Returns the alert code which represents the specified {@link #SYNC_TYPE_ONE_WAY_CLIENT sync type}.
+     * 
+     * @param syncType  the SyncML sync type.
+     * @return the alert code which represents the specified sync type.
+     */
+    public static int syncTypeToAlert(int syncType)
+    {
+        if (syncType == SYNC_TYPE_TWO_WAY)
+            return ALERT_SYNC_CLIENT_TWO_WAY;
+        else if (syncType == SYNC_TYPE_TWO_WAY_SLOW)
+            return ALERT_SYNC_CLIENT_TWO_WAY_SLOW;
+        else if (syncType == SYNC_TYPE_ONE_WAY_CLIENT)
+            return ALERT_SYNC_CLIENT_ONE_WAY_TO_SERVER;
+        else if (syncType == SYNC_TYPE_REFRESH_CLIENT)
+            return ALERT_SYNC_CLIENT_REFRESH_TO_SERVER;
+        else if (syncType == SYNC_TYPE_ONE_WAY_SERVER)
+            return ALERT_SYNC_CLIENT_ONE_WAY_FROM_SERVER;
+        else if (syncType == SYNC_TYPE_REFRESH_SERVER)
+            return ALERT_SYNC_CLIENT_REFRESH_FROM_SERVER;
+        else
+            throw new IllegalArgumentException("invalid sync type specified: " + syncType);
+    }
+
+    
+    /** 
+     * Returns whether or not the specified {@link #STATUS_OK status code} indicates a successful response.
+     * 
+     * @param statusCode    the SyncML status code. 
+     * @return <code>true</code> if the specified status code indicates a successful response.
+     */
+    public static boolean isSuccessStatus(int statusCode)
+    {
+        return ( (statusCode >= 200) && (statusCode < 300) ); 
+    }
+}

@@ -1,0 +1,88 @@
+/**
+ * Copyright © 2004-2007 Critical Path, Inc. All Rights Reserved.
+ */
+package net.cp.syncml.client.engine;
+
+import java.util.Vector;
+
+
+/**
+ * A class representing a Meta information used during a SyncML session.
+ *
+ * @author Denis Evoy
+ */
+public class Metinf
+{
+    public static final String ENC_BIN =    "bin";
+    public static final String ENC_BOOL =   "bool";
+    public static final String ENC_BASE64 = "b64";
+    public static final String ENC_CHAR =   "chr";
+    public static final String ENC_INT =    "int";
+    public static final String ENC_NODE =   "node";
+    public static final String ENC_NULL =   "null";
+    public static final String ENC_XML =    "xml";
+    public static final String ENC_DATE =   "date";
+    public static final String ENC_TIME =   "time";
+    public static final String ENC_FLOAT =  "float";
+    
+    public static final String MARK_DRAFT =     "draft";
+    public static final String MARK_FINAL =     "final";
+    public static final String MARK_DELETE =    "delete";
+    public static final String MARK_UNDELETE =  "undelete";
+    public static final String MARK_READ =      "read";
+    public static final String MARK_UNREAD =    "unread";
+    
+    
+    public boolean fieldLevelReplace;               //indicates that the content information in the Data element replaces only part of an item
+    public String encoding;                         //the encoding format of the content information in the Data element
+    public String contentType;                      //the media type of the content information in the Data element
+    public String markAs;                           //specifies a meta-information "mark" on the data object
+    public long size;                               //the byte size of a data object
+    public String lastAnchor;                       //the sync anchor for the last successful synchronization session
+    public String nextAnchor;                       //the sync anchor for the current synchronization session
+    public String version;                          //the revision identifier of a data object
+    public String nextNonce;                        //the nonce string to be used in any subsequent communication
+    public long maxMsgSize;                         //the maximum byte size of any response message to a given SyncML request
+    public long maxObjSize;                         //the maximum size in bytes of a data object that the device is able to receive
+    public Vector emiExtensions;                    //the non-standard, experimental meta information (EMI) extensions supported by a device - a collection of String objects
+    public boolean sharedMem;                       //specifies if the data store memory is shared
+    public long freeMem;                            //the amount of free memory, in bytes, available in a local data store
+    public long freeId;                             //the number of free item identifiers available for adding new items to a local data store
+    
+    
+    public Metinf()
+    {
+        super();
+        
+        clear();
+    }
+    
+    
+    public void clear()
+    {
+        fieldLevelReplace = false;
+        encoding = null;
+        contentType = null;
+        markAs = null;
+        size = -1;
+        lastAnchor = null;
+        nextAnchor = null;
+        version = null;
+        nextNonce = null;
+        maxMsgSize = -1;
+        maxObjSize = -1;
+        emiExtensions = new Vector();
+        sharedMem = false;
+        freeMem = -1;
+        freeId = -1;
+    }
+    
+    public void addExtensions(String[] extensions)
+    {
+        if (extensions == null)
+            return;
+        
+        for (int i = 0; i < extensions.length; i++)
+            emiExtensions.addElement( extensions[i] );
+    }
+}

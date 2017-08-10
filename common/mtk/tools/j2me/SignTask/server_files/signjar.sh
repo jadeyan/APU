@@ -1,0 +1,39 @@
+#!/bin/sh
+
+JAR="$1"
+
+#Certificate options. Should be a number
+#bit 0 = Verisign
+#bit 1 = Thawte
+#bit 2 = GlobalSign
+
+OPT="$2"
+
+if test -z $JAR
+then
+	echo usage: $0 JAR CERT_OPTS
+	exit
+fi
+
+read -s -p "Password: " PASSWORD
+
+echo
+
+#bit 0 set - VeriSign
+if [ "$OPT" = "1" ] || [ "$OPT" = "3" ] || [ "$OPT" = "5" ] || [ "$OPT" = "7" ]
+then
+    jarsigner -keystore CriticalPathKeyStore -storepass $PASSWORD -signedjar "$JAR.signed" "$JAR" criticalpathcodesigningkey
+fi
+#bit 1 set - Thawte
+if [ "$OPT" = "2" ] || [ "$OPT" = "3" ] || [ "$OPT" = "6" ] || [ "$OPT" = "7" ]
+then
+jarsigner -keystore CriticalPathKeyStore -storepass $PASSWORD -signedjar "$JAR.signed" "$JAR" criticalpathcodesigningkey_thawte
+fi
+
+#bit 2 set - GlobalSign
+if [ "$OPT" = "4" ] || [ "$OPT" = "5" ] || [ "$OPT" = "6" ] || [ "$OPT" = "7" ]
+then
+jarsigner -keystore CriticalPathKeyStore -storepass $PASSWORD -signedjar "$JAR.signed" "$JAR" criticalpathcodesigningkey_globalsign
+fi
+
+echo Done

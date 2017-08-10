@@ -1,0 +1,12 @@
+<resources>
+<color name="solid_white">#ffffff</color>
+<color name="solid_black">#000000</color>
+<color name="memova_green">#42c700</color>
+<color name="synclog_green">#a4d388</color>
+<color name="title_bar_bg">#005c84</color>
+<color name="history_bg_top">#f4fbff</color>
+<color name="history_bg_end">#d3e5f1</color>
+<color name="splash_font_blue">#00517a</color>
+<color name="sync_font_deep_gray">#333333</color>
+<color name="history_table_line_blue">#d4e6f2</color>
+</resources>

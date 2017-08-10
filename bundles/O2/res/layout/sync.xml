@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:gravity="center_horizontal"
+    android:background="@drawable/background"
+    android:orientation="vertical">
+    <ScrollView
+        android:id="@+id/scrollview"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:gravity="center_horizontal"
+            android:orientation="vertical" android:visibility="visible">
+
+            <LinearLayout
+                android:id="@+id/last_sync_status"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp" android:background="@color/pms_2747">
+                <TextView
+                    android:id="@+id/log_last_sync"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/status"
+                    android:layout_alignParentTop="true"
+                    android:textColor="@color/solid_white"
+                    android:textSize="15sp">
+                </TextView>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/last_sync_details_panel"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:background="@drawable/ic_panel_background_sync_history">
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
+                <!-- For progress bar area -->
+                <LinearLayout
+                    android:id="@+id/progress_layout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="7sp">
+                    <FrameLayout
+                        android:layout_width="fill_parent"
+                        android:layout_height="fill_parent">
+                        <ProgressBar
+                            android:id="@+id/status_progress_bar"
+                            android:layout_marginTop="10sp"
+                            android:layout_width="50sp"
+                            android:layout_height="50sp">
+                        </ProgressBar>
+                    </FrameLayout>
+                </LinearLayout>
+
+                <!-- For information area (title, details etc) -->
+                <LinearLayout
+                    android:id="@+id/info_layout"
+                    android:orientation="vertical"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1">
+
+                    <!-- For title area -->
+                    <LinearLayout
+                        android:id="@+id/title_info"
+                        android:orientation="horizontal"
+                        android:layout_width="fill_parent"
+                        android:layout_height="fill_parent"
+                        android:layout_weight="3">
+
+                        <TextView
+                            android:id="@+id/sync_in_progress"
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:textStyle="bold"
+                            android:text="@string/sync_in_progress"
+                            android:textSize="12px"
+                            android:textColor="@color/solid_black"
+                            android:layout_weight="1"
+                            android:gravity="center">
+                        </TextView>
+                    </LinearLayout>
+
+                    <!-- For progress information area (heading and details) -->
+                    <LinearLayout
+                        android:id="@+id/progress_heading_details"
+                        android:orientation="vertical"
+                        android:layout_width="fill_parent"
+                        android:layout_height="fill_parent"
+                        android:layout_weight="1">
+                        <TextView
+                            android:id="@+id/status_progressheading"
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2sp"
+                            android:text="@string/heading_placeholder"
+                            android:textSize="12px"
+                            android:textColor="@color/solid_black" android:gravity="center">
+                        </TextView>
+                        <TextView
+                            android:text="@string/details_placeholder"
+                            android:id="@+id/status_progressdetails"
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:textSize="12px"
+                            android:layout_marginTop="2sp"
+                            android:textColor="@color/solid_black" android:gravity="center">
+                        </TextView>
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+            <TextView
+                android:text="@string/status_received"
+                android:id="@+id/status_received"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/solid_black"
+                android:visibility="invisible">
+            </TextView>
+            <TextView
+                android:text="@string/status_sent"
+                android:id="@+id/status_sent"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/solid_black"
+                android:visibility="invisible">
+            </TextView>
+            <TextView
+                android:text="@string/status_errors"
+                android:id="@+id/status_errors"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/solid_black"
+                android:visibility="invisible"
+                android:layout_marginBottom="40dp">
+            </TextView>
+
+            <LinearLayout
+                android:id="@+id/buttons_layout"
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_gravity="bottom|center">
+                <Button
+                    android:text="@string/suspend"
+                    android:id="@+id/sync_suspend_resume_btn"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/solid_white"
+                    android:background="@drawable/button_softgradient"
+                    android:layout_weight="1"
+                    android:layout_gravity="bottom"
+                    android:paddingBottom="10sp"
+                    android:paddingTop="10sp">
+                </Button>
+                <Button
+                    android:text="@string/abort"
+                    android:id="@+id/sync_abort_btn"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/solid_white"
+                    android:background="@drawable/button_softgradient"
+                    android:layout_weight="1"
+                    android:layout_gravity="bottom"
+                    android:paddingBottom="10sp"
+                    android:paddingTop="10sp">
+                </Button>
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>
+

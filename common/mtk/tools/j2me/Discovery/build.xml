@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<!-- 
+     Top-level ANT build file used to build the Discovery tool
+-->
+
+
+<project 
+    name="discovery-tool" 
+    default="all">
+    
+    <!-- The base directory -->
+    <dirname property="base.dir" file="${ant.file}"/>
+
+    <!-- The location of the source code -->
+    <property name="src.dir" location="${base.dir}/src"/>
+    
+    <!-- The location of the resources -->
+    <property name="res.dir" location="${base.dir}/res"/>
+    
+    <!-- The build output -->
+    <property name="output.dir" location="${base.dir}"/>
+    <property name="output.classes.dir" location="${output.dir}/classes"/>
+    <property name="output.jad.name" value="Discovery.jad"/>
+    <property name="output.jar.name" value="Discovery.jar"/>
+
+    
+    <!-- Target for performing a build -->
+    <target name="all" depends="clean">
+        <!-- Compile the classes -->
+        <echo/>
+        <echo message="Building Discovery Tool at '${src.dir}' to '${output.classes.dir}'..."/>
+        <wtkbuild srcdir="${src.dir}" destdir="${output.classes.dir}" classpath="${mtk.j2me.classes.dir}"/>
+
+        <!-- Create the JAD file --> 
+        <wtkjad jadfile="${output.dir}/${output.jad.name}" name="Discovery Tool" vendor="Critical Path" version="1.0.0">
+            <midlet name="Discovery Tool" icon="" class="net.cp.mtk.j2me.tools.discovery.DiscoveryMIDlet"/>
+            <attribute name="MicroEdition-Profile" value="MIDP-2.0"/>
+            <attribute name="MicroEdition-Configuration" value="CLDC-1.1"/>
+            <attribute name="MIDlet-Description" value="Evaluates the J2ME environment on a phone"/>
+            <attribute name="MIDlet-Permissions" value="javax.microedition.io.Connector.file.read,javax.microedition.io.Connector.file.write,javax.microedition.pim.ContactList.read,javax.microedition.pim.ContactList.write"/>
+        </wtkjad>
+
+        <!-- Create the JAR file -->
+        <wtkpackage jarfile="${output.dir}/${output.jar.name}" jadfile="${output.dir}/${output.jad.name}">
+            <fileset dir="${mtk.j2me.classes.dir}"/>
+            <fileset dir="${output.classes.dir}"/>
+            <fileset dir="${res.dir}"/>
+        </wtkpackage>
+        
+        <!-- Sign the application if requested -->
+        <mtk.signtask.signMidlet localDir="${output.dir}" JADFileName="${output.jad.name}" JARFileName="${output.jar.name}"/>
+    </target>
+
+    
+    <!-- Target for removing the build -->
+	<target name="clean">
+        <delete dir="${output.classes.dir}"/>
+        <delete dir="${output.dir}" includes="*.jar, *.jad"/>
+	</target>
+
+</project>

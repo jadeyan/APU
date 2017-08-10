@@ -1,0 +1,13 @@
+    <!-- The following asset strings are used to localize the AD file for the Phone Backup 
+         Client. 
+         
+         Please copy these assets and place them into your deployed "DM.xml" file (replacing
+         any assets with the same name that might already exist.
+    
+         Example:
+         
+         <asset>
+             <string name="ph-backup-download-title-str">Memova</string>
+         </asset>
+    -->
+    

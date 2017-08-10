@@ -1,0 +1,249 @@
+/**
+ * Copyright © 2004-2007 Critical Path, Inc. All Rights Reserved.
+ */
+package net.cp.syncml.client.util.content;
+
+
+import net.cp.syncml.client.devinfo.*;
+import net.cp.syncml.client.util.DateTime;
+
+
+/**
+ * An abstract class representing a base content object for the purposes of data sync. <br/><br/>
+ * 
+ * The following definition conforms to the following specifications:
+ * <ul>
+ *      <li> File data object specification Approved Version 1.2.1 – 10 August 2007
+ *      <li> Folder data object specification Approved Version 1.2.1 – 10 August 2007
+ * </ul>
+ *
+ * @author Denis Evoy
+ */
+public abstract class ContentObject
+{
+    /** Defines a field representing the name of a file/folder. */
+    public static final int FIELD_NAME	=           0x01;
+
+    /** Defines a field representing the attributes of a file/folder. */
+    public static final int FIELD_ATTRIBUTES =      0x02;
+    
+    /** Defines a field representing the created time of a file/folder. */
+    public static final int FIELD_CREATED_TIME =	0x04;
+    
+    /** Defines a field representing the access time of a file/folder. */
+    public static final int FIELD_ACCESS_TIME =     0x08;
+    
+    /** Defines a field representing the modified time of a file/folder. */
+    public static final int FIELD_MODIFIED_TIME =   0x10;
+    
+    /** Defines a field representing the extensions of a file/folder. */
+    public static final int FIELD_EXTENSIONS =      0x20;
+    
+    /** Defines a field representing the contents of a file. */
+    public static final int FIELD_FILE_CONTENTS =   0x40;
+
+    /** Defines a field representing the role of a folder. */
+    public static final int FIELD_FOLDER_ROLE =	    0x80;
+    
+    
+    String objectName;                                  //the name of the object
+    DateTime objectCreatedTime;                         //the date/time when the object was created
+    DateTime objectAccessedTime;                        //the date/time when the object was last accessed
+    DateTime objectModifiedTime;                        //the date/time when the object was last modified
+    Attributes objectAttributes;                        //the attributes of the object
+    Extension[] objectExtensions;                       //the extensions associated with the object
+    int fields;							                //the bit mask defining the relevant fields of the object 
+
+    
+    /** Creates an empty object. */
+    ContentObject()
+    {
+        super();
+    }
+
+    /** 
+     * Creates an object with the specified name.
+     * 
+     *  @param name the name of the object. May not be null or empty.
+     */
+    public ContentObject(String name)
+    {
+        super();
+        
+        setName(name);
+    }
+
+    
+    /**
+     * Returns the name of the object.
+     * 
+     * @return The name of the object. Will not be null or empty.
+     */
+    public String getName()
+    {
+        return objectName;
+    }
+
+    /**
+     * Sets the name of the object.
+     * 
+     * @param name the name of the object. May not be null or empty.
+     */
+    public void setName(String name)
+    {
+        if ( (name == null) || (name.length() <= 0) )
+            throw new IllegalArgumentException("no name specified");
+        
+        objectName = name;
+    }
+
+
+    /**
+     * Returns the date when the object was first created. 
+     * 
+     * @return The date when the object was first created. May be null.
+     */
+    public DateTime getCreatedTime()
+    {
+        return objectCreatedTime;
+    }
+
+    /**
+     * Sets the date when the object was first created.
+     * 
+     * @param createdTime the date when the object was first created. May be null.
+     */
+    public void setCreatedTime(DateTime createdTime)
+    {
+        objectCreatedTime = createdTime;
+    }
+
+
+    /**
+     * Returns the date when the object was last accessed.
+     * 
+     * @return The date when the object was last accessed. May be null.
+     */
+    public DateTime getAccessedTime()
+    {
+        return objectAccessedTime;
+    }
+
+    /**
+     * Sets the date when the object was last accessed.
+     * 
+     * @param accessedTime the date when the object was last accessed. May be null.
+     */
+    public void setAccessedTime(DateTime accessedTime)
+    {
+        objectAccessedTime = accessedTime;
+    }
+
+
+    /**
+     * Returns the date when the object was last modified.
+     * 
+     * @return The date when the object was last modified. May be null.
+     */
+    public DateTime getModifiedTime()
+    {
+        return objectModifiedTime;
+    }
+
+    /**
+     * Sets the date when the object was last modified.
+     * 
+     * @param modifiedTime the date when the object was last modified. May be null.
+     */
+    public void setModifiedTime(DateTime modifiedTime)
+    {
+        objectModifiedTime = modifiedTime;
+    }
+
+
+    /**
+     * Returns the attributes of the object.
+     * 
+     * @return The attributes of the object. May be null.
+     */
+    public Attributes getAttributes()
+    {
+        return objectAttributes;
+    }
+
+    /**
+     * Sets the attributes of the object.
+     * 
+     * @param attributes the attributes of the object. May be null.
+     */
+    public void setAttributes(Attributes attributes)
+    {
+        objectAttributes = attributes;
+    }
+
+    
+    /**
+     * Returns the non-standard experimental extension associated with the object.
+     * 
+     * @return The non-standard experimental extension associated with the object. May be null or empty.
+     */
+    public Extension[] getExtensions()
+    {
+        return objectExtensions;
+    }
+
+    /**
+     * Sets the non-standard experimental extension associated with the object.
+     * 
+     * @param extensions the non-standard experimental extension associated with the object. May be null or empty.
+     */
+    public void setExtensions(Extension[] extensions)
+    {
+        objectExtensions = extensions;
+    }
+    
+    
+    /**
+     * Sets the specified {@link #FIELD_ACCESS_TIME field} as a field of the object that we are interested in.
+     * 
+     * @param field the {@link #FIELD_ACCESS_TIME field} of the object to set. 
+     */
+    public void setField(int field)
+    {
+        fields = fields | field;
+    }
+    
+    /**
+     * Sets the specified {@link #FIELD_ACCESS_TIME fields} as the fields of the object that we are interested in.
+     * 
+     * @param fieldMask a bit-mask defining the relevant {@link #FIELD_ACCESS_TIME fields} of the object.
+     */
+    public void setFields(int fieldMask)
+    {
+        fields = fieldMask;
+    }
+    
+    /**
+     * Returns the {@link #FIELD_ACCESS_TIME fields} of the object that we are interested in.
+     * 
+     * @return The bit-mask defining the relevant {@link #FIELD_ACCESS_TIME fields} of the object.
+     */
+    public int getFields()
+    {
+        return fields;
+    }
+    
+    /**
+     * Returns whether or not the specified {@link #FIELD_ACCESS_TIME field} of the object is set.
+     *  
+     * @param field the {@link #FIELD_ACCESS_TIME field} of the object to check. 
+     * @return <code>true</code> if the specified field is set.
+     */
+    public boolean isFieldSet(int field)
+    {
+        if (fields == 0)
+    		return true;
+        
+    	return ((fields & field) != 0);
+    }
+}

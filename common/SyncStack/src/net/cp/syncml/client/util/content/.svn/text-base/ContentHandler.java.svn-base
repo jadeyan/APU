@@ -1,0 +1,66 @@
+/**
+ * Copyright © 2004-2007 Critical Path, Inc. All Rights Reserved.
+ */
+package net.cp.syncml.client.util.content;
+
+
+/**
+ * An interface defining how incoming content should be handled.
+ *
+ * @author Denis Evoy
+ */
+public interface ContentHandler
+{
+    /**
+     * Called to indicate that a folder has been received.
+     * 
+     * @param folder the folder information that has been received. Will not be null.
+     */
+    public void onFolder(ContentFolder folder);
+
+    
+    /**
+     * Called to indicate that we have begun receiving a file. <br/><br/>
+     * 
+     * This method will be followed by zero or more calls to {@link #onFileData(ContentFile, byte[], int)}
+     * which will contain the actual file data itself and a call to {@link #onFileEnd(ContentFile, boolean)}.
+     * 
+     * @param file          the file information that has been received. Will not be null.
+     * @param bodyPresent   set to <code>true</code> if the content of the file is present.
+     * 
+     * @see #onFileData(ContentFile, byte[], int)
+     * @see #onFileEnd(ContentFile, boolean)
+     */
+    public void onFileBegin(ContentFile file, boolean bodyPresent);
+
+    /**
+     * Called to indicate that we have received some of the content of the file. <br/><br/>
+     * 
+     * This method will be followed by a call to {@link #onFileEnd(ContentFile, boolean)}. The specified data 
+     * should be cached and not acted upon until {@link #onFileEnd(ContentFile, boolean) onFileEnd(file, true)}
+     * is called.
+     * 
+     * @param file      the file information that has been received. Will not be null.
+     * @param data      a buffer containing the data of the file. Will not be null or empty.
+     * @param length    the number of bytes contained in the buffer.
+     * 
+     * @see #onFileBegin(ContentFile, boolean)
+     * @see #onFileEnd(ContentFile, boolean)
+     */
+    public void onFileData(ContentFile file, byte[] data, int length);
+
+    /**
+     * Called when no more file data is to be read. <br/><br/>
+     * 
+     * Implementations should only act on the data that has been read so far if
+     * <code>commit</code> is <code>true</code>. If <code>commit</code> is <code>false</code>,
+     * any data that has been read so far should be discarded.
+     * 
+     * @param file      the file information that has been received. Will not be null.
+     * @param commit    set to <code>true</code> if all data has been read.
+     * 
+     * @see #onFileBegin(ContentFile, boolean)
+     * @see #onFileData(ContentFile, byte[], int)
+     */
+    public void onFileEnd(ContentFile file, boolean commit);
+}

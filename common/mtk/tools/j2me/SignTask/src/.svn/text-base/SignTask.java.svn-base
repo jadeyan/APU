@@ -1,0 +1,452 @@
+import org.apache.tools.ant.Task;
+import net.sf.jftp.net.*;
+import com.sshtools.j2ssh.configuration.*;
+import java.util.Vector;
+import net.sf.jftp.net.ConnectionListener;
+import java.io.File;
+
+public class SignTask extends Task implements ConnectionListener
+{
+	//xml attributes
+	String enabled;
+	String userName;
+	String password;
+	String JADFileName;
+	String JARFileName;
+	String server;
+	String putPath;
+	String getPath;
+	String localDir;
+	String certs;
+	String waitBeforeDownload;
+
+	int filesUploaded;
+	int totalFiles;
+	SshConnectionProperties props;
+	boolean finishedUploading;
+	boolean finishedDownloading;
+	boolean downloadMode;
+	Vector listeners;
+	String sessionCookie;
+	String readyFileName;
+	String fullReadyFileName;
+	SftpConnection con;
+
+	public SignTask()
+	{
+		super();
+	}
+
+	public void setEnabled(String str)
+	{
+        enabled = str;
+    }
+	 
+
+    public void setUserName(String str)
+	{
+        userName = str;
+    }
+	 
+	public void setPassword(String str)
+	{
+        password = str;
+    }
+	
+	public void setCerts(String str)
+    {
+        certs = str;
+    }
+	
+	public void setWaitBeforeDownload(String str)
+    {
+        waitBeforeDownload = str;
+    }
+
+	public void setJADFileName(String str)
+	{
+        JADFileName = str;
+    }
+
+	public void setJARFileName(String str)
+	{
+        JARFileName = str;
+    }
+
+	public void setServer(String str)
+	{
+        server = str;
+    }
+
+	public void setPutPath(String str)
+	{
+        putPath = str;
+    }
+
+	public void setGetPath(String str)
+	{
+        getPath = str;
+    }
+
+	public void setLocalDir(String str)
+	{
+        localDir = str;
+    }
+
+	public void execute()
+	{
+
+		filesUploaded = 0;
+		totalFiles = 3; //JAD, JAR and ready file
+		finishedUploading = false;
+		finishedDownloading = false;
+		downloadMode = false;
+		con = null;
+		sessionCookie = "." + getRandomString();
+		readyFileName = "memova.ready";
+		fullReadyFileName = "";
+
+		if(enabled == null || (!enabled.equals("true")))
+		{
+			log("signing disabled");
+			return;
+		}
+
+		try
+		{
+			renameFiles();
+			
+			//opent the SFTP connection
+			if(!openConnection())
+			{
+				log("failed to login");
+				return;
+			}
+
+			//Upload the JAD, JAR, and a "ready" file to the signing_inbox
+			if(!uploadFiles())
+			{
+				log("failed to upload files");
+				return;
+			}
+	
+			//give the server a few seconds to do the signing
+			try{Thread.sleep(Integer.parseInt(waitBeforeDownload));}
+			catch (Exception e)
+			{
+			    log("failed while waiting to download files. check waitBeforeDownload attribute!");
+                return;
+			}
+			
+			//download signed JAD
+			if(!downloadSignedJAD())
+			{
+				log("failed to download files");
+				return;
+			}
+		}
+		
+		catch(Throwable e)
+		{
+			log(e.toString());
+		}
+		
+		finally
+		{
+			if(con != null)
+				con.disconnect();
+			
+			restoreFiles();
+
+			//clean up
+			deleteExtraFiles();
+		}
+
+    }
+	
+	private boolean renameFiles()
+	{
+		try
+		{
+			//create the "ready" file.
+		    fullReadyFileName = readyFileName + "." + certs + sessionCookie;
+			File file = new File(localDir + "/" + fullReadyFileName);
+			
+			// Create file if it does not exist
+			boolean success = file.createNewFile();
+			
+			//rename the file to prevent clashes on the server
+			File jad = new File(localDir + "/" + JADFileName);
+			jad.renameTo(new File(localDir + "/" + JADFileName + sessionCookie));
+	
+			//rename the file to prevent clashes on the server
+			File jar = new File(localDir + "/" + JARFileName);
+			jar.renameTo(new File(localDir + "/" + JARFileName + sessionCookie));
+		}
+		
+		catch(Throwable e)
+		{
+			log("Error preparing files: " + e.toString());
+			return false;
+		}
+		
+		return true;
+	}
+	
+	private void restoreFiles()
+	{
+		// rename the file back to original
+		File jad = new File(localDir + "/" + JADFileName + sessionCookie);
+		jad.renameTo(new File(localDir + "/" + JADFileName));
+
+		File jar = new File(localDir + "/" + JARFileName + sessionCookie);
+		jar.renameTo(new File(localDir + "/" + JARFileName));
+	}
+	
+	private boolean openConnection()
+	{
+		props = new SshConnectionProperties();
+		props.setHost(server);
+		props.setPort(22);
+		
+		//setup the connection
+		try
+		{
+			con = new SftpConnection(props, null);
+			con.addConnectionListener(this);
+			
+			con.login(userName, password);
+		}
+		
+		catch (Throwable e)
+		{
+			if(con != null)
+				con.disconnect();
+			
+			con = null;
+			
+			log("openConnection failed: " + e.toString());
+			return false;
+		}
+		return true;
+	}
+
+	/** Upload the JAD, JAR, and a "ready" file to the signing_inbox*/
+	private boolean uploadFiles()
+	{
+		try
+		{
+			if(con != null && con.isConnected())
+			{
+				con.setLocalPath(localDir);
+				con.chdir(putPath);
+
+				con.upload(JADFileName + sessionCookie);
+				con.upload(JARFileName + sessionCookie);
+			}
+
+			else
+			{	
+				if(con != null)
+					log("uploadFiles: con.isConnected()" + con.isConnected());
+				return false;
+			}
+
+			//wait for JAD + JAR upload to complete
+			while(filesUploaded < 2)
+			{
+				try{Thread.sleep(200);}
+				catch (InterruptedException e){}
+			}
+
+			log("uploading ready file");
+			if(con != null && con.isConnected())
+			{
+				con.setLocalPath(localDir);
+				con.chdir(putPath);
+
+				con.upload(fullReadyFileName);
+				
+				//wait for ready file to complete
+				while(!finishedUploading)
+				{
+					try{Thread.sleep(200);}
+					catch (InterruptedException e){}
+				}
+			}
+
+			else
+				return false;
+		}
+
+		catch (Throwable e)
+		{
+			if(con != null)
+				con.disconnect();
+			
+			log(e.toString());
+			return false;
+		}
+		
+		return true;
+
+	}
+
+	/** Download the signed JAD */
+	private boolean downloadSignedJAD()
+	{
+		downloadMode = true;
+		String[] files;
+
+		//setup the connection
+		try
+		{
+			if(con != null && con.isConnected())
+			{
+				con.setLocalPath(localDir);
+				con.chdir(getPath);
+
+				//list the files
+				files = con.sortLs();
+			}
+
+			else
+				return false;
+
+
+			boolean jadPresent = false;
+			boolean readyPresent = false;
+		
+			//make sure we are ready to download
+			for(int i=0; i<files.length; i++)
+			{
+	
+				log("Found file on server: " + files[i]);
+	
+				if(files[i].equals(fullReadyFileName))
+					readyPresent = true;
+	
+				if(files[i].equals(JADFileName + sessionCookie))
+					jadPresent = true;
+	
+				if(jadPresent && readyPresent)
+					break;
+			}
+
+			if(jadPresent && readyPresent)
+			{
+				if(con != null && con.isConnected())
+				{
+					con.setLocalPath(localDir);
+					con.chdir(getPath);
+
+					con.download(JADFileName + sessionCookie);
+					
+				}
+
+				else
+					return false;
+				
+				while(!finishedDownloading)
+				{
+					try{Thread.sleep(200);}
+					catch (InterruptedException e){}
+				}
+
+			}
+			
+			else
+			{
+				log("signing failed, could not find ready file or file: " + getPath + "/" + JADFileName + sessionCookie);
+				return false;
+			}
+		}
+
+		catch (Throwable e)
+		{
+			log(e.toString());
+			finishedDownloading = true;
+			return false;
+		}
+	
+		return true;
+	}
+
+	private String getRandomString()
+	{
+		int lower = 10000000;
+		int upper = 99999999;
+		double rand = Math.random();
+		int result = lower + (int)((upper - lower) * rand);
+
+		return result + "";
+	}
+
+	private void deleteExtraFiles()
+	{
+		//delete ready file from local machine
+		File f = new File(localDir + "/" + readyFileName + sessionCookie);
+		f.delete();
+		
+	}
+
+	//ConnectionListener interface methods
+
+	//Notification that an action has completed (file uploaded/downloaded)
+    public void actionFinished(BasicConnection con)
+	{
+		if(!downloadMode)
+		{
+			filesUploaded++;
+			log("Finshed uploading file " + filesUploaded);
+
+			if(filesUploaded >= totalFiles)
+				finishedUploading = true;
+		}
+
+		else	//download phase
+			finishedDownloading = true;
+	}
+
+	/**
+    * Called if the remote directory has changed by a chdir() or a finished upload for example.
+    */
+    public void updateRemoteDirectory(BasicConnection con){}
+
+    /**
+    * Called every n bytes, where n is defined by Settings
+    */
+    public void updateProgress(String file, String type, long bytes){}
+
+    public void connectionInitialized(BasicConnection con){}
+
+    public void connectionFailed(BasicConnection con, String why)
+	{
+		finishedUploading = true;
+		finishedDownloading = true;
+
+		log("Connection failed: " + why);
+		if(con != null)
+			con.disconnect();
+	}
+
+	//test
+	public static void main(String[] args)
+	{
+		/*
+		SignTask s = new SignTask();
+
+		s.userName="sign_request";
+		s.password="";
+		s.JADFileName="CP_Phone_Backup-Samsung-SGH-D900i.jad";
+		s.JARFileName="CP_Phone_Backup-Samsung-SGH-D900i.jar";
+		s.server="mob385-2.eng.cpth.ie";
+		s.localDir="./";
+		s.putPath="/home/signer/signing_inbox";
+		s.getPath="/home/signer/signing_outbox";
+
+		s.execute();
+		*/
+	}
+
+}

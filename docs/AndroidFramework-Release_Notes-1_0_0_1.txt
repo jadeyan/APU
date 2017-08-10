@@ -1,0 +1,125 @@
+Release Notes for Android Framework (PBC) 1.0.0.1
+November 13th 2009
+
+
+Contents
+========
+AndroidFramework-Release_Notes-1_0_0_1.txt (this file)
+CP_AndroidFramework-*.tar.gz
+
+
+Release Summary
+===============
+Drop of Phone Backup Client v1.0.0.1
+
+This is the first drop of this client.
+It contains all the functionality specified in Android-framework-FS-v1.5.doc.
+This drop is roughly based on the smartphone PRD.
+The client contains:
+
+A test UI, allowing a sync to be initiated manually, and offering feedback on sync sessions.
+Server Initiated Sync, including support for vendor specific text.
+Client Initiated Sync, whereby a change to the native addressbook can initiate a sync session.
+Default nonce support.
+
+
+Known Issues in this Release
+============================
+The included UI is a test UI, and only presents the functionality necessary to test the framework.
+
+The syncML server needs to be updated to properly handle the ADDR field. The address is stored as a freeform string on the device, 
+which has to be converted to/form a structed string array during sync. Addresses cannot be properly synced until the server is updated.
+
+The name field is stored on the device as a freeform string, which has to be converted to/from a structed string array during sync.
+Complex or unusual names may not maintain their structure after being synced with the device.
+
+If the client is configured to sync automatically with no prompt, then there will be no visual feedback when a sync is in progress.
+
+The client currently does not support upgrades.
+
+Device Limitations
+==================
+None.
+
+
+Install Instructions
+====================
+To install the application for use with CP Download Manager, perform the following steps:
+    1. Expand the "CP_AndroidFramework-1_0_0_1-Android-Cupcake.tar.gz" package into the Download Manager web application folder. For example:
+           /opt/criticalpath/tomcat/webapps/cp/download
+    2. Edit the "<WebAppsDir>/cp/WEB-INF/etc/dm-devices-conf.xml" file and ensure that the "cfg" parameter of the 
+       "location" tag of the "downloader" element points to the "features.properties" file. For example:
+            <downloaders>
+                ...
+                <downloader name='pbc-android-1.0.0.1-downloader'
+                plugin='net.cp.ps.dm.business.downloader.PhoneBackupAndroidDownloader' 
+                downloadable='true'>
+                    <location cfg='pbc-android-1.0.0.1/cfg/features.properties' />
+	        </downloader>
+                ...
+            </downloaders>
+    3. Expand the device-specific "CP_Phone_Backup-<Manufacturer>-<Model>.tar.gz" package into the folder.
+    4. Edit the "<WebAppsDir>/cp/WEB-INF/etc/dm-devices-conf.xml" file and ensure that the "bin", "ad" and "cfg" 
+       parameters of the corresponding "device" element points to the correct locations. Also ensure that the "name" of 
+       the "client" element is identical to the application folder name (e.g. "phone-backup"). For example:
+            <devices>
+                ...
+                <device user_agent="Android 1.5" id="AndroidCupcake" mfg="Android" model="Cupcake" display-name="Android 1.5 (Cupcake)" >
+
+		    <client name='pbc-android-1.0.0.1' version='1.0.0' display='1.0.0 Android' type='pbc-android'>
+				<download downloader='pbc-android-1.0.0.1-downloader' >
+					<location bin='pbc-android-1.0.0.1/bin/CP_Phone_Backup-Android-Cupcake.apk'
+						  ad='pbc-android-1.0.0.1/ad/CP_Phone_Backup-Android-Cupcake.ad' />
+				</download>
+			</client>
+		</device>
+                ...
+            </devices>
+    5. Edit the "<WebAppsDir>/cp/dm/WEB-INF/assets/<CoS>/<Language>/DM.xml" asset file(s) and ensure that they contain 
+       all the assets needed to localize the Phone Backup Client AD files. For convenience, these assets can be found
+       in the "<WebAppsDir>/cp/dm/phone-backup/dm/DM_en.xml" file - copy the assets from this file an place them in 
+       the deployed "DM.xml" file(s) (replacing any assets with the same name that might already exist there). If any
+       "DM.xml" file has been modified, you must restart the web server for the changes to be applied.
+    6. Please refer to http://gforge.cpth.ie/gf/download/docmanfileversion/380/1229/DMclientsdeploymentrules.doc
+       and the following Download Manager Deployment Guide for additional details:
+            https://intranet.corp.cp.net/document_downloader.php?t=D&f=58057
+
+
+Changes Since 0.0.0.0
+=====================
+First Release
+
+
+UPS Requirements
+================
+None.
+
+
+Provisioning Changes
+====================
+None.
+
+
+Dependency List
+===============
+None.
+
+
+Components
+==========
+None.
+
+
+System Requirements
+===================
+1. Android OS 1.5 (Cupcake) or greater
+
+
+Contact Email
+=============
+technical.support@criticalpath.net
+
+
+Document Addendum
+=================
+None.

@@ -1,0 +1,101 @@
+/**
+ * Copyright © 2010 Critical Path, Inc. All Rights Reserved.
+ */
+
+package net.cp.mtk.common;
+
+
+/**
+ * A class representing the segment of an array.
+ * 
+ * An array segment encapsulates a source array, a start index and an end index.
+ */
+public class ArraySegment
+{
+    private int startIndex;
+    private int endIndex;
+    private byte[] sourceData;
+
+    
+    /**
+     * Creates a new array segment.
+     * 
+     * @param array      the source array containing the segment. Must not be null.
+     * @param startIndex the index of the first element of the segment. Must be >=0 and <array.length.
+     * @param endIndex   the index of the last element of the segment. Must be >=startIndex and <array.length.
+     */
+    public ArraySegment(byte[] array, int startIndex, int endIndex)
+    {
+        super();
+     
+        if (array == null)
+            throw new IllegalArgumentException("Invalid array specified");
+        if ( (startIndex < 0) || (startIndex >= array.length) )
+            throw new IllegalArgumentException("Invalid start index '" + startIndex + "' specified");
+        if ( (endIndex < startIndex) || (endIndex >= array.length) )
+            throw new IllegalArgumentException("Invalid end index '" + endIndex + "' specified");
+
+        this.sourceData = array;
+        this.startIndex = startIndex;
+        this.endIndex = endIndex;
+    }
+
+    
+    /**
+     * Returns the source array containing the segment. 
+     * 
+     * @return the source array containing the segment. Will not be null.
+     */
+    public byte[] getArray()
+    {
+        return sourceData;
+    }
+
+    /**
+     * Returns the index of the first element of the segment.
+     * 
+     * @return the index of the first element of the segment.
+     */
+    public int getStartIndex()
+    {
+        return startIndex;
+    }
+
+    /**
+     * Returns the index of the last element of the segment.
+     * 
+     * @return the index of the last element of the segment.
+     */
+    public int getEndIndex()
+    {
+        return endIndex;
+    }
+
+    /**
+     * Returns the length of the segment.
+     * 
+     * @return the number of bytes in the segment.
+     */
+    public int getLength()
+    {
+        return endIndex - startIndex;
+    }
+
+
+    /**
+     * Returns the actual array segment from the original source array.
+     *   
+     * @return a copy of the segment in the original array. May be empty.
+     */
+    public synchronized byte[] getSegment()
+    {
+        //if the segment is the entire array - just return the original array
+        if ( (startIndex == 0) && (endIndex == (sourceData.length - 1)) )
+            return sourceData;
+
+        //extract the required segment
+        byte[] segmentData = new byte[endIndex - startIndex];
+        System.arraycopy(sourceData, startIndex, segmentData, 0, segmentData.length);
+        return segmentData;
+    }
+}

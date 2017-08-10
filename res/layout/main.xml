@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	    android:orientation="vertical"
+	    android:layout_width="fill_parent"
+	    android:layout_height="fill_parent">
+	    
+	    <TextView android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:paddingTop="2dp"
+        android:paddingBottom="3dp"
+        android:text="@string/app_name_bold"
+        android:textSize="15sp"
+        android:background="@color/title_bar_bg"
+        android:textColor="@color/solid_white"/>
+	    
+    <LinearLayout 
+	    android:orientation="vertical"
+	    android:layout_width="fill_parent"
+	    android:layout_height="fill_parent"
+	    android:background="@drawable/main_background">
+	<ScrollView 
+	    android:layout_width="fill_parent"
+	    android:layout_height="fill_parent">
+	<LinearLayout 
+	    android:orientation="vertical"
+	    android:layout_width="fill_parent"
+	    android:layout_height="fill_parent"
+	    android:paddingTop="50dp">
+	
+	    <LinearLayout
+	        android:orientation="vertical"
+	        android:gravity="center_horizontal"
+	        android:layout_width="fill_parent"
+	        android:paddingLeft="10dp"
+	        android:paddingRight="10dp"
+	        android:layout_height="wrap_content">
+	
+	        <ImageView android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:src="@drawable/logo"/>
+	        <!-- <TextView
+	            android:id="@+id/status"
+	            android:layout_width="fill_parent"
+	            android:layout_height="wrap_content"
+	            android:gravity="center_horizontal"
+	            android:text="@string/status_last"
+	            android:layout_alignParentTop="true"
+	            android:textColor="@color/solid_white"
+	            android:textSize="15sp"
+	            android:background="@drawable/ic_title_background_last_sync">
+	        </TextView> -->
+	        <View android:layout_width="fill_parent"
+	            android:layout_height="20dp"/>
+	
+	        <TextView
+	            android:id="@+id/syncdate"
+	            android:layout_height="wrap_content"
+	            android:layout_width="fill_parent"
+	            android:gravity="center_horizontal"
+	            android:text="@string/status_sync_notes"
+	            android:textColor="@color/sync_font_deep_gray"
+	            android:lineSpacingMultiplier="1"
+	            android:textSize="18sp">
+	        </TextView>
+	
+	    </LinearLayout>
+	
+	    <!-- <LinearLayout
+	        android:layout_width="fill_parent"
+	        android:gravity="center"
+	        android:orientation="horizontal" android:layout_height="wrap_content" android:layout_marginTop="80dp">
+	        <ImageView
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:background="@drawable/memova_logo"/>
+	    </LinearLayout> -->
+	
+	    <LinearLayout
+	        android:layout_width="fill_parent"
+	        android:gravity="center"
+	        android:layout_height="wrap_content"
+	        android:paddingTop="20dp"
+	        android:orientation="vertical">
+	
+	        <Button android:id="@+id/sync_btn"
+	            android:text="@string/sync"
+	            android:layout_width="250sp"
+	            android:layout_height="wrap_content"
+            	android:textColor="@color/solid_white"
+	            android:background="@drawable/ic_button_background"
+            	android:textSize="20sp"
+	            android:paddingBottom="10dp"
+	            android:paddingTop="10dp"/>
+	        
+			<!-- <TextView
+	            android:layout_height="wrap_content"
+	            android:layout_width="fill_parent"
+	            android:layout_marginTop="20dp"
+	            android:gravity="center_horizontal"
+	            android:text="@string/status_notes"
+	            android:textColor="@color/sync_font_deep_gray"
+	            android:lineSpacingMultiplier="1"
+	            android:textSize="18sp"/> -->
+	    </LinearLayout>
+	
+	</LinearLayout>
+	</ScrollView>
+	</LinearLayout>
+</LinearLayout>

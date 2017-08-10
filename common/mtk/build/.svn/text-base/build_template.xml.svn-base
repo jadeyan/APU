@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<!-- 
+     Top-level ANT build file used to build MyProject
+-->
+
+
+<project 
+    name="myproject-j2me" 
+    basedir="."
+    default="release">
+
+    <!-- The SVN server details -->
+    <property name="svn.username" value=""/>
+    <property name="svn.password" value=""/>
+
+
+    <!-- The version number of the application -->
+    <property name="version" value="1.0.0"/>
+    
+    <!-- The location of the build files -->
+    <property name="build.dir" location="build"/>
+    <property name="build.devices.dir" location="${build.dir}/devices"/>
+    
+    <!-- The location of the source code -->
+    <property name="src.dir" location="src"/>
+    <property name="src.target" value="CP_MyProject-J2ME-${version}-Src.tar.gz"/>
+
+    <!-- The location of any additional libraries used -->
+    <property name="lib.dir" location="lib"/>
+
+    <!-- The location of the application resources -->
+    <property name="res.dir" location="res"/>
+
+    <!-- The target device to create the application for - all devices if not specified -->
+    <property name="device" value=""/>
+
+
+    <!-- Get the Mobile Toolkit from the SVN server (requires the Svnant libraries in the "lib" directory) --> 
+    <property name="mtk.dir" location="common/mtk"/>
+    <property name="mtk.url" value="http://gforge.cpth.ie/svn/mobiletools/Java/trunk"/>
+    <echo message="Getting Mobile Toolkit from '${mtk.url}' to '${mtk.dir}'..."/>
+    <delete dir="${mtk.dir}" quiet="true"/>
+    <typedef resource="org/tigris/subversion/svnant/svnantlib.xml" classpath="${lib.dir}/svnant.jar:${lib.dir}/svnClientAdapter.jar"/>
+    <svn username="${svn.username}" password="${svn.password}" javahl="false" failonerror="true">
+        <export srcUrl="${mtk.url}" destPath="${mtk.dir}"/>
+    </svn>
+    <import file="${mtk.dir}/build/buildtools.xml"/>
+
+    
+    <!-- Load any external build tools we need from the Mobile Toolkit -->
+    <mtk.antenna.load/>
+    <mtk.signtask.load/>
+    
+
+    <!-- Target for performing a release build -->
+    <target name="release" depends="clean">
+        <!-- Check the version of any external libraries that we are using -->
+        <mtk.svn.checkVersion url="${mtk.url}"/>
+
+        <!-- Package the source -->
+        <mtk.tar.src destfile="${src.target}" srcDir="${basedir}" excludes="**/*.class,**/*.tar.gz"/>
+
+        <!-- TODO: perform release build -->
+    </target>
+
+    <!-- Target for performing a debug build -->
+    <target name="debug" depends="clean">
+        <!-- TODO: perform debug build -->
+    </target>
+
+    <!-- Target for removing the built application -->
+	<target name="clean">
+        <delete dir="." includes="*.tar.gz" includeemptydirs="true"/>
+        <delete dir="${build.dir}" includes="**/*.class" includeemptydirs="true"/>
+	</target>
+</project>

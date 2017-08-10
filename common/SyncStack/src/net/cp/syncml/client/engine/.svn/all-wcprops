@@ -1,0 +1,83 @@
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/svn/syncmobilestack/!svn/ver/463/tags/SYNCMLLIB-2_1_009/java/src/net/cp/syncml/client/engine
+END
+Metinf.java
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/svn/syncmobilestack/!svn/ver/463/tags/SYNCMLLIB-2_1_009/java/src/net/cp/syncml/client/engine/Metinf.java
+END
+Cmd.java
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/svn/syncmobilestack/!svn/ver/463/tags/SYNCMLLIB-2_1_009/java/src/net/cp/syncml/client/engine/Cmd.java
+END
+DevInfCodepage.java
+K 25
+svn:wc:ra_dav:version-url
+V 113
+/svn/syncmobilestack/!svn/ver/463/tags/SYNCMLLIB-2_1_009/java/src/net/cp/syncml/client/engine/DevInfCodepage.java
+END
+Session.java
+K 25
+svn:wc:ra_dav:version-url
+V 106
+/svn/syncmobilestack/!svn/ver/463/tags/SYNCMLLIB-2_1_009/java/src/net/cp/syncml/client/engine/Session.java
+END
+Status.java
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/svn/syncmobilestack/!svn/ver/463/tags/SYNCMLLIB-2_1_009/java/src/net/cp/syncml/client/engine/Status.java
+END
+Chal.java
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/svn/syncmobilestack/!svn/ver/463/tags/SYNCMLLIB-2_1_009/java/src/net/cp/syncml/client/engine/Chal.java
+END
+MetInfCodepage.java
+K 25
+svn:wc:ra_dav:version-url
+V 113
+/svn/syncmobilestack/!svn/ver/463/tags/SYNCMLLIB-2_1_009/java/src/net/cp/syncml/client/engine/MetInfCodepage.java
+END
+SyncHdr.java
+K 25
+svn:wc:ra_dav:version-url
+V 106
+/svn/syncmobilestack/!svn/ver/463/tags/SYNCMLLIB-2_1_009/java/src/net/cp/syncml/client/engine/SyncHdr.java
+END
+SyncItem.java
+K 25
+svn:wc:ra_dav:version-url
+V 107
+/svn/syncmobilestack/!svn/ver/463/tags/SYNCMLLIB-2_1_009/java/src/net/cp/syncml/client/engine/SyncItem.java
+END
+MapItem.java
+K 25
+svn:wc:ra_dav:version-url
+V 106
+/svn/syncmobilestack/!svn/ver/463/tags/SYNCMLLIB-2_1_009/java/src/net/cp/syncml/client/engine/MapItem.java
+END
+Cred.java
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/svn/syncmobilestack/!svn/ver/463/tags/SYNCMLLIB-2_1_009/java/src/net/cp/syncml/client/engine/Cred.java
+END
+SyncMLCodepage.java
+K 25
+svn:wc:ra_dav:version-url
+V 113
+/svn/syncmobilestack/!svn/ver/463/tags/SYNCMLLIB-2_1_009/java/src/net/cp/syncml/client/engine/SyncMLCodepage.java
+END
+package.html
+K 25
+svn:wc:ra_dav:version-url
+V 106
+/svn/syncmobilestack/!svn/ver/463/tags/SYNCMLLIB-2_1_009/java/src/net/cp/syncml/client/engine/package.html
+END

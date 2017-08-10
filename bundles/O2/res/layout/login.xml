@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ScrollView" 
+    android:layout_width="fill_parent" 
+    android:layout_height="fill_parent"
+    android:fillViewport="true">
+    <LinearLayout
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+        android:background="@drawable/background">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/pms_2747"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp">
+
+        <TextView
+            android:layout_height="wrap_content"
+            android:text="@string/enter_account_details"
+            android:layout_alignParentTop="true"
+            android:textSize="15sp"
+            android:layout_width="fill_parent"
+            android:gravity="center_horizontal"
+            android:textColor="@color/solid_white">
+        </TextView>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/loginview"
+        android:background="@drawable/ic_panel_background_login"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_width="fill_parent" android:layout_height="wrap_content">
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
+            <View
+                android:layout_width="fill_parent"
+                android:layout_height="10dp">
+            </View>
+            <TextView
+                android:text="@string/acc_username"
+                android:id="@+id/text_acc_username"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/solid_black">
+            </TextView>
+            <EditText
+                android:text=""
+                android:id="@+id/login_acc_username"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content">
+            </EditText>
+            <View
+                android:layout_width="fill_parent"
+                android:layout_height="10dp">
+            </View>
+            <TextView
+                android:text="@string/acc_password"
+                android:id="@+id/text_acc_password"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/solid_black">
+            </TextView>
+            <View
+                android:layout_width="fill_parent"
+                android:id="@+id/view1"
+                android:layout_height="10dp">
+            </View>
+            <EditText
+                android:text=""
+                android:id="@+id/login_acc_password"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPassword">
+            </EditText>
+            <View
+                android:layout_width="fill_parent"
+                android:layout_height="10dp">
+            </View>
+            <CheckBox
+                android:text="@string/acc_rem_password"
+                android:visibility="gone"
+                android:id="@+id/login_rem_password"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/solid_black">
+            </CheckBox>
+            <View
+                android:layout_width="fill_parent"
+                android:layout_height="10dp">
+            </View>
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/terms_textviews"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp">
+
+        <TextView
+            android:layout_height="wrap_content"
+            android:text="@string/registered_account"
+            android:layout_alignParentTop="true"
+            android:textSize="15sp"
+            android:autoLink="web"
+            android:layout_width="fill_parent"
+            android:gravity="center_horizontal"
+            android:paddingBottom="10dp"
+            android:textColor="@color/solid_white"
+            android:textColorLink ="@color/pms_2747">
+        </TextView>
+
+        <TextView
+            android:layout_height="wrap_content"
+            android:text="@string/agree_terms_and_conditions"
+            android:layout_alignParentTop="true"
+            android:textSize="15sp"
+            android:layout_width="fill_parent"
+            android:gravity="center_horizontal"
+            android:textColor="@color/solid_white">
+        </TextView>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:orientation="horizontal"
+        android:layout_height="fill_parent"
+        android:gravity="bottom">
+        <Button android:text="@string/sign_in"
+            android:id="@+id/login_ok_btn"
+            android:layout_height="wrap_content"
+            android:textColor="@color/solid_white"
+            android:background="@drawable/button_softgradient"
+            android:paddingBottom="10sp"
+            android:paddingTop="10sp" android:layout_width="match_parent" android:layout_gravity="center_horizontal" android:layout_marginLeft="100dip" android:layout_marginRight="100dip">
+        </Button>
+        <Button
+            android:id="@+id/login_cancel_btn"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
+        </Button>
+    </LinearLayout>
+</LinearLayout>
+</ScrollView>

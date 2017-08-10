@@ -1,0 +1,36 @@
+# view AndroidManifest.xml #generated:88
+-keep class net.cp.ac.core.SyncBroadcastReceiver { <init>(...); }
+
+# view AndroidManifest.xml #generated:80
+-keep class net.cp.ac.core.SyncEngineService { <init>(...); }
+
+# view AndroidManifest.xml #generated:47
+-keep class net.cp.ac.test.ui.HelpActivity { <init>(...); }
+
+# view AndroidManifest.xml #generated:36
+-keep class net.cp.ac.test.ui.LoginActivity { <init>(...); }
+
+# view AndroidManifest.xml #generated:30
+-keep class net.cp.ac.test.ui.MainActivity { <init>(...); }
+
+# view AndroidManifest.xml #generated:74
+-keep class net.cp.ac.test.ui.PostSyncActivity { <init>(...); }
+
+# view AndroidManifest.xml #generated:69
+-keep class net.cp.ac.test.ui.PreSyncActivity { <init>(...); }
+
+# view AndroidManifest.xml #generated:53
+-keep class net.cp.ac.test.ui.SettingsActivity { <init>(...); }
+
+# view AndroidManifest.xml #generated:18
+-keep class net.cp.ac.test.ui.SplashScreen { <init>(...); }
+
+# view AndroidManifest.xml #generated:64
+-keep class net.cp.ac.test.ui.SyncActivity { <init>(...); }
+
+# view AndroidManifest.xml #generated:59
+-keep class net.cp.ac.test.ui.SyncLogActivity { <init>(...); }
+
+# view AndroidManifest.xml #generated:41
+-keep class net.cp.ac.test.ui.TermsAndConditionsActivity { <init>(...); }
+

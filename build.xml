@@ -1,0 +1,958 @@
+<?xml version="1.0"?>
+<!-- Top-level ANT build file used to build the Phone Backup client -->
+
+<project
+    name="AndroidFramework"
+    basedir="."
+    default="debug" >
+
+    <!-- The location of the build files -->
+
+    <property
+        name="build.dir"
+        location="build" />
+
+    <property
+        name="build.manifest"
+        location="AndroidManifest.xml" />
+
+    <property
+        name="build.lib.dir"
+        location="${build.dir}/lib" />
+
+    <!--
+         The build.properties file can be created by you and is never touched
+         by activitycreator. If you want to manually set properties, this is
+         the best place to set them.
+    -->
+
+    <property file="build.properties" />
+
+    <!--
+         The default.properties file is created and updated by activitycreator.
+         It will set any properties not already defined by build.properties.
+    -->
+
+    <property file="default.properties" />
+
+    <!-- Indicate whether or not we should bundle the resources into the package -->
+
+    <property
+        name="bundle.enable"
+        value="true" />
+
+    <!-- The location of the input files/directories -->
+
+    <property
+        name="src.dir"
+        location="src" />
+
+    <property
+        name="res.dir"
+        location="res" />
+
+    <property
+        name="asset.dir"
+        location="assets" />
+
+    <property
+        name="libs.external.dir"
+        location="libs" />
+
+    <property
+        name="libs.native.dir"
+        location="libs" />
+
+    <property
+        name="application-package"
+        value="net.cp.ac.test.ui" />
+
+    <!-- The location of the output files/directories -->
+
+    <property
+        name="bin.dir"
+        value="bin" />
+
+    <property
+        name="bin.classes.dir"
+        location="${bin.dir}/classes" />
+
+    <property
+        name="bin.dexfile"
+        location="${bin.dir}/classes.dex" />
+
+    <property
+        name="bin.package.name"
+        value="${ant.project.name}.ap_" />
+
+    <property
+        name="bin.package.tmp"
+        location="${bin.dir}/${bin.package.name}" />
+
+    <property
+        name="bin.package.apk"
+        value="Android_PBC-unsigned.apk" />
+
+    <!-- Properties used as pre-processing symbols -->
+
+
+    <!-- <property -->
+    <!-- name="preprocess.properties" -->
+    <!-- location="preprocess.properties" /> -->
+
+    <property
+        name="service.businessLogic.classname"
+        value="net.cp.ac.test.logic.DefaultBusinessLogic" />
+
+    <!-- Android SDK properties -->
+
+    <property
+        name="android.tools.dir"
+        location="${sdk-folder}/tools" />
+
+    <property
+        name="android.platform"
+        value="${platform-version}" />
+
+    <property
+        name="android.platform.dir"
+        location="${sdk-folder}/platforms/${android.platform}" />
+
+    <!-- Determine the location of the platform tools - either "<SDKDir>/platforms/<Platform>/tools" (if present) or "<SDKDir>/platform-tools" -->
+
+    <available
+        file="${android.platform.dir}/tools"
+        property="android.platform.tools.dir"
+        type="dir"
+        value="${android.platform.dir}/tools" />
+
+    <property
+        name="android.platform.tools.dir"
+        value="${sdk-folder}/platform-tools" />
+
+    <property
+        name="android.framework"
+        location="${android.platform.dir}/framework.aidl" />
+
+    <property
+        name="android.jar"
+        value="${android.platform.dir}/android.jar" />
+
+    <condition
+        else="${android.platform.tools.dir}/aapt"
+        property="android.aapt"
+        value="${android.platform.tools.dir}/aapt.exe" >
+
+        <os family="windows" />
+    </condition>
+
+    <condition
+        else="${android.platform.tools.dir}/aidl"
+        property="android.aidl"
+        value="${android.platform.tools.dir}/aidl.exe" >
+
+        <os family="windows" />
+    </condition>
+
+    <condition
+        else="${android.tools.dir}/adb"
+        property="android.adb"
+        value="${android.tools.dir}/adb.exe" >
+
+        <os family="windows" />
+    </condition>
+
+    <condition
+        else="${android.platform.tools.dir}/dx"
+        property="android.dx"
+        value="${android.platform.tools.dir}/dx.bat" >
+
+        <os family="windows" />
+    </condition>
+
+    <condition
+        else="${android.tools.dir}/apkbuilder"
+        property="android.apkbuilder"
+        value="${android.tools.dir}/apkbuilder.bat" >
+
+        <os family="windows" />
+    </condition>
+
+    <!-- The details of the SVN server containing the common libraries -->
+
+    <property
+        name="svn.user"
+        value="" />
+
+    <property
+        name="svn.password"
+        value="" />
+
+    <!-- The location of any required common libraries -->
+
+    <property
+        name="commonLibs.src.dir"
+        location="${basedir}/common" />
+
+    <property
+        name="commonLibs.syncml.dir"
+        location="${commonLibs.src.dir}/SyncStack" />
+
+    <property
+        name="commonLibs.syncml.url"
+        value="http://gforge.cpth.ie/svn/syncmobilestack/tags/SYNCMLLIB-2_1_009/java" />
+
+    <property
+        name="commonLibs.mtk.dir"
+        location="${commonLibs.src.dir}/mtk" />
+
+    <property
+        name="commonLibs.mtk.url"
+        value="http://gforge.cpth.ie/svn/mobiletools/Java/tags/MTK-1_0_004" />
+
+    <!-- Signing task properties -->
+
+    <property
+        name="sign.server"
+        value="mob385-2.eng.cpth.ie" />
+
+    <property
+        name="sign.user"
+        value="sign_request" />
+
+    <property
+        name="sign.put.path"
+        value="/home/signer/signing_inbox" />
+
+    <property
+        name="sign.get.path"
+        value="/home/signer/signing_outbox" />
+
+    <property
+        name="sign.wait"
+        value="10000" />
+
+    <property
+        name="sign.certs"
+        value="32" />
+
+    <!-- Allow access to environment variables -->
+
+    <property environment="env" />
+
+    <!--
+         Custom Android task to deal with the project target, and import the proper rules.
+         This requires ant 1.6.0 or above.
+    -->
+
+    <path id="android.antlibs" >
+
+        <pathelement path="${build.lib.dir}/sdklib.jar" />
+
+        <pathelement path="${android.tools.dir}/lib/androidprefs.jar" />
+
+        <pathelement path="${build.lib.dir}/anttasks.jar" />
+    </path>
+
+    <!-- load the Svnant task -->
+
+    <typedef
+        classpath="${build.lib.dir}/svnant.jar:${build.lib.dir}/svnClientAdapter.jar"
+        resource="org/tigris/subversion/svnant/svnantlib.xml" />
+
+    <!-- Define a task to retrieve the source of a common library from SVN (requires a command-line "svn" client on the path) -->
+
+    <macrodef
+        name="getCommonLib"
+        description="Checks out a common library from SVN into the specified directory" >
+
+        <attribute
+            name="url"
+            description="The URL of the common library to retrieve" />
+
+        <attribute
+            name="dir"
+            description="The directory to create" />
+
+        <sequential>
+
+            <echo message="" />
+
+            <echo message="Checking out common library &apos;@{url}&apos;..." />
+
+            <!-- Make sure we don't try to build with an untagged module (but still allow this for Dev builds) -->
+
+            <fail message="Refusing to retrieve untagged module - all common libraries must be properly tagged before performing a Release build." >
+
+                <condition>
+
+                    <and>
+
+                        <isfalse value="${build.dev}" />
+
+                        <or>
+
+                            <contains
+                                casesensitive="false"
+                                string="@{url}"
+                                substring="trunk" />
+
+                            <contains
+                                casesensitive="false"
+                                string="@{url}"
+                                substring="branches" />
+                        </or>
+                    </and>
+                </condition>
+            </fail>
+
+            <!-- Perform a clean export (using our own private directory to avoid destroying any external working copies) -->
+            <!--
+            <delete dir="@{dir}" quiet="true"/>
+            <svn username="${svn.user}" password="${svn.password}" javahl="false" failonerror="true">
+                <export srcUrl="@{url}" destPath="@{dir}"/>
+            </svn>
+            -->
+        </sequential>
+    </macrodef>
+
+    <target name="clean" >
+
+        <echo message="Cleaning application sources..." />
+
+        <delete
+            dir="${bin.dir}/src"
+            quiet="true" />
+
+        <delete
+            dir="${bin.classes.dir}"
+            quiet="true" />
+
+        <delete
+            file="${bin.package.tmp}"
+            quiet="true" />
+
+        <delete
+            file="${bin.dir}/unoptimized.jar"
+            quiet="true" />
+
+        <delete
+            file="${bin.dir}/optimized.jar"
+            quiet="true" />
+
+        <delete
+            file="${bin.dir}/${bin.package.apk}"
+            quiet="true" />
+
+        <delete
+            file="${bin.dexfile}"
+            quiet="true" />
+    </target>
+
+    <!--
+         Preprocess java source files.
+         This uses the preprocessor from antenna,which in turn requires Sun WTK.
+         Edit build.properties to set the paths for these tools.
+    -->
+
+
+    <!-- <target -->
+    <!-- name="preprocess" -->
+
+
+    <!-- description="Preprocess the source files" > -->
+
+
+    <!-- <echo message="preprocessing source" /> -->
+
+
+    <!-- <taskdef resource="antenna.properties" > -->
+
+
+    <!-- <classpath location="${build.lib.dir}/antenna-bin-1.2.1-beta.jar" /> -->
+    <!-- </taskdef> -->
+
+
+    <!-- <wtkpreprocess -->
+    <!-- debuglevel="fatal" -->
+    <!-- destdir="${bin.dir}/src" -->
+    <!-- device="Generic/Java" -->
+    <!-- srcdir="${basedir}/src" -->
+    <!-- symbols="service.businessLogic.classname=${service.businessLogic.classname}" -->
+    <!-- version="2" > -->
+
+
+    <!-- <symbols_file name="${preprocess.properties}" /> -->
+    <!-- </wtkpreprocess> -->
+    <!-- </target> -->
+
+
+    <!-- Create the output directories if they don't exist yet. -->
+
+    <target name="dirs" >
+
+        <echo>
+AndroidFramework: Creating output directories if needed...
+        </echo>
+
+        <mkdir dir="${bin.classes.dir}" />
+
+        <mkdir dir="${bin.dir}/bin" />
+
+        <mkdir dir="${commonLibs.syncml.dir}/src" />
+
+        <mkdir dir="${commonLibs.mtk.dir}/src" />
+    </target>
+
+    <!-- Generate the R.java file for this project's resources. -->
+
+    <target
+        name="resource-src"
+        depends="dirs" >
+
+        <echo>
+AndroidFramework: Generating R.java / Manifest.java from the resources using '${android.aapt}'...
+        </echo>
+
+        <exec
+            executable="${android.aapt}"
+            failonerror="true" >
+
+            <arg value="package" />
+
+            <arg value="-m" />
+
+            <arg value="-J" />
+
+            <arg value="${src.dir}" />
+
+            <arg value="-M" />
+
+            <arg value="${build.manifest}" />
+
+            <arg value="-S" />
+
+            <arg value="${res.dir}" />
+
+            <arg value="-I" />
+
+            <arg value="${android.jar}" />
+        </exec>
+
+        <copy todir="${bin.dir}/src" >
+
+            <fileset dir="${basedir}/src" >
+
+                <include name="**/*.java" />
+            </fileset>
+        </copy>
+    </target>
+
+    <!-- Generate java classes from .aidl files. -->
+
+    <target
+        name="aidl"
+        depends="dirs" >
+
+        <echo>
+AndroidFramework: Compiling aidl files into Java classes...
+        </echo>
+
+        <copy todir="${bin.dir}/src" >
+
+            <fileset dir="${basedir}/aidl" >
+
+                <include name="**/*.aidl" />
+            </fileset>
+        </copy>
+
+        <copy todir="${bin.dir}/src" >
+
+            <fileset dir="${basedir}/src" >
+
+                <include name="**/*.aidl" />
+            </fileset>
+        </copy>
+
+        <apply
+            executable="${android.aidl}"
+            failonerror="true" >
+
+            <arg value="-p${android.framework}" />
+
+            <arg value="-I${bin.dir}/src" />
+
+            <fileset dir="${bin.dir}/src" >
+
+                <include name="**/*.aidl" />
+            </fileset>
+        </apply>
+    </target>
+
+    <!-- Compile this project's .java files into .class files. -->
+
+
+    <!-- <target -->
+    <!-- name="compile" -->
+    <!-- depends="clean, dirs, resource-src, preprocess, get.commonLibs, aidl" > -->
+
+    <target
+        name="compile"
+        depends="clean, dirs, resource-src, copy.commonLibs, aidl" >
+
+        <javac
+            bootclasspath="${android.jar}"
+            debug="true"
+            destdir="${bin.classes.dir}"
+            encoding="ISO-8859-2"
+            extdirs=""
+            source="1.5"
+            srcdir="${bin.dir}/src"
+            target="1.5" >
+
+            <sourcePath path="./src" />
+
+            <!-- this is for anything that might be passed in by a branded UI -->
+
+            <sourcePath path="${src.extra}" />
+        </javac>
+    </target>
+
+    <target
+        name="jar"
+        depends="compile" >
+
+        <echo message="make unoptimized.jar file" />
+
+        <jar
+            basedir="${bin.classes.dir}"
+            destfile="${bin.dir}/unoptimized.jar"
+            includes="**/*.class" />
+    </target>
+
+    <!-- class path for packaging includes only libs needed by each configuration -->
+
+    <path id="proguard.classpath" >
+
+        <fileset
+            dir="${build.lib.dir}"
+            includes="*.jar" />
+    </path>
+
+    <target name="optimize" >
+
+        <java
+            failonerror="true"
+            fork="true"
+            jar="${build.lib.dir}/proguard.jar" >
+
+            <jvmarg value="-Dmaximum.inlined.code.length=32" />
+
+            <arg value="@proguard.config" />
+
+            <arg value="-injars ${bin.dir}/unoptimized.jar" />
+
+            <arg value="-outjars ${bin.dir}/optimized.jar" />
+
+            <arg value="-libraryjars ${android.jar}" />
+        </java>
+
+        <delete file="${bin.dir}/unoptimized.jar" />
+
+        <delete dir="${bin.dir}/classes" />
+
+        <mkdir dir="${bin.dir}/classes" />
+    </target>
+
+    <!-- Convert this project's .class files into .dex files. -->
+
+    <target
+        name="dex"
+        depends="jar" >
+
+        <echo>
+AndroidFramework: Converting compiled files and external libraries into ${bin.dexfile}...
+        </echo>
+
+        <apply
+            executable="${android.dx}"
+            failonerror="true"
+            parallel="true" >
+
+            <arg value="--dex" />
+
+            <arg value="--no-optimize" />
+
+            <arg value="--output=${bin.dexfile}" />
+            <!-- Note: only one of these should ever exist at a time! -->
+
+            <fileset
+                dir="${bin.dir}"
+                includes="optimized.jar" />
+
+            <fileset
+                dir="${bin.dir}"
+                includes="unoptimized.jar" />
+
+            <fileset
+                dir="${libs.external.dir}"
+                includes="*.jar" />
+        </apply>
+    </target>
+
+    <!-- Put the project's resources into the output package file. -->
+
+    <target name="package-res-and-assets" >
+
+        <echo>
+AndroidFramework: Packaging resources and assets...
+        </echo>
+
+        <exec
+            executable="${android.aapt}"
+            failonerror="true" >
+
+            <arg value="package" />
+
+            <arg value="-f" />
+
+            <arg value="-M" />
+
+            <arg value="${build.manifest}" />
+
+            <arg value="-S" />
+
+            <arg value="${res.dir}" />
+
+            <arg value="-A" />
+
+            <arg value="${asset.dir}" />
+
+            <arg value="-I" />
+
+            <arg value="${android.jar}" />
+
+            <arg value="-F" />
+
+            <arg value="${bin.package.tmp}" />
+        </exec>
+    </target>
+
+    <!-- Same as package-res-and-assets, but without "-A ${asset.dir}" -->
+
+    <target name="package-res-no-assets" >
+
+        <echo>
+AndroidFramework: Packaging resources... 
+        </echo>
+
+        <exec
+            executable="${android.aapt}"
+            failonerror="true" >
+
+            <arg value="package" />
+
+            <arg value="-f" />
+
+            <arg value="-M" />
+
+            <arg value="${build.manifest}" />
+
+            <arg value="-S" />
+
+            <arg value="${res.dir}" />
+            <!-- No assets directory -->
+
+            <arg value="-I" />
+
+            <arg value="${android.jar}" />
+
+            <arg value="-F" />
+
+            <arg value="${bin.package.tmp}" />
+        </exec>
+    </target>
+
+    <!--
+         Invoke the proper target depending on whether or not
+         an assets directory is present and we choose to include it.
+    -->
+
+    <target name="package-res" >
+
+        <condition
+            else="no-assets"
+            property="res-target"
+            value="and-assets" >
+
+            <and>
+
+                <equals
+                    arg1="${bundle.enable}"
+                    arg2="true" />
+
+                <available
+                    file="${asset.dir}"
+                    type="dir" />
+            </and>
+        </condition>
+
+        <echo message="Bundling assets: ${bundle.enable}" />
+
+        <antcall target="package-res-${res-target}" />
+    </target>
+
+    <taskdef
+        name="apkbuilder"
+        classname="com.android.ant.ApkBuilderTask"
+        classpathref="android.antlibs" />
+
+    <target name="package-release-apk" >
+
+        <echo>
+AndroidFramework: Packaging ${bin.package.name} for release...
+        </echo>
+
+        <sequential>
+
+            <apkbuilder
+                apkfilepath="${bin.dir}/${bin.package.apk}"
+                debugpackaging="false"
+                debugsigning="false"
+                outfolder="${bin.dir}"
+                resourcefile="${bin.package.name}"
+                verbose="false" >
+
+                <dex path="${bin.dexfile}" />
+            </apkbuilder>
+        </sequential>
+    </target>
+
+    <!--
+         Package the application and sign it with a debug key.
+         This is the default target when building. It is used for debug.
+    -->
+
+    <target
+        name="debug"
+        depends="compile, dex, package-res" >
+
+        <echo>
+AndroidFramework: Packaging ${bin.package.name}, and signing it with a debug key...
+        </echo>
+
+        <sequential>
+
+            <apkbuilder
+                apkfilepath="${bin.dir}/${bin.package.apk}"
+                debugpackaging="true"
+                debugsigning="true"
+                outfolder="${bin.dir}"
+                resourcefile="${bin.package.name}"
+                verbose="true" >
+
+                <dex path="${bin.dexfile}" />
+            </apkbuilder>
+        </sequential>
+    </target>
+
+    <!-- Package the application and sign with an official publishing key. -->
+
+    <target
+        name="release"
+        depends="compile, jar, dex, package-res, package-release-apk" />
+
+    <!-- Install the package on the default emulator -->
+
+    <target
+        name="install"
+        depends="debug" >
+
+        <echo>
+AndroidFramework: Installing ${bin.package} onto default emulator...
+        </echo>
+
+        <exec
+            executable="${android.adb}"
+            failonerror="true" >
+
+            <arg value="install" />
+
+            <arg value="${bin.package}" />
+        </exec>
+    </target>
+
+    <target
+        name="reinstall"
+        depends="debug" >
+
+        <echo>
+AndroidFramework: Installing ${bin.package} onto default emulator...
+        </echo>
+
+        <exec
+            executable="${android.adb}"
+            failonerror="true" >
+
+            <arg value="install" />
+
+            <arg value="-r" />
+
+            <arg value="${bin.package}" />
+        </exec>
+    </target>
+
+    <!-- Uinstall the package from the default emulator -->
+
+    <target name="uninstall" >
+
+        <echo>
+AndroidFramework: Uninstalling ${application-package} from the default emulator...
+        </echo>
+
+        <exec
+            executable="${android.adb}"
+            failonerror="true" >
+
+            <arg value="uninstall" />
+
+            <arg value="${application-package}" />
+        </exec>
+    </target>
+
+    <!-- Target for retrieving all common libraries used by the application (requires a command-line "svn" client on the path) -->
+
+    <target name="get.commonLibs" >
+
+        <getCommonLib
+            dir="${commonLibs.syncml.dir}"
+            url="${commonLibs.syncml.url}" />
+
+        <copy todir="${bin.dir}/src/" >
+
+            <fileset dir="${commonLibs.syncml.dir}/src/" >
+
+                <exclude name="**/.svn/**" />
+
+                <exclude name="**/net/cp/syncml/client/test/**" />
+
+                <include name="**/*.java" />
+            </fileset>
+        </copy>
+
+        <getCommonLib
+            dir="${commonLibs.mtk.dir}"
+            url="${commonLibs.mtk.url}" />
+
+        <copy todir="${bin.dir}/src/" >
+
+            <fileset dir="${commonLibs.mtk.dir}/src/" >
+
+                <exclude name="**/.svn/**" />
+
+                <exclude name="**/net/cp/mtk/j2me/**" />
+
+                <include name="**/*.java" />
+            </fileset>
+        </copy>
+    </target>
+
+    <target name="copy.commonLibs" >
+
+        <copy todir="${bin.dir}/src/" >
+
+            <fileset dir="../syncml/src/" >
+
+                <exclude name="**/.svn/**" />
+
+                <exclude name="**/net/cp/syncml/client/test/**" />
+
+                <include name="**/*.java" />
+            </fileset>
+        </copy>
+
+        <copy todir="${bin.dir}/src/" >
+
+            <fileset dir="../mtk/src/" >
+
+                <exclude name="**/.svn/**" />
+
+                <exclude name="**/net/cp/mtk/j2me/**" />
+
+                <include name="**/*.java" />
+            </fileset>
+        </copy>
+    </target>
+
+    <taskdef
+        name="signtask"
+        classname="SignTask" >
+
+        <classpath>
+
+            <pathelement location="${build.lib.dir}/SignTask.jar" />
+
+            <pathelement location="${build.lib.dir}/jftp.jar" />
+        </classpath>
+    </taskdef>
+
+    <!-- sign the application with a production key if necessary -->
+
+    <target name="sign-production" >
+
+        <sequential>
+
+            <echo message="username: ${sign.user}" />
+
+            <signtask
+                ArchiveFileName="${bin.package.apk}"
+                ArchiveOnly="true"
+                certs="${sign.certs}"
+                enabled="true"
+                getPath="${sign.get.path}"
+                localDir="${basedir}/bin"
+                password="${sign.password}"
+                putPath="${sign.put.path}"
+                server="${sign.server}"
+                userName="${sign.user}"
+                waitBeforeDownload="${sign.wait}" />
+        </sequential>
+    </target>
+
+    <!--
+         This is macro which zipaligns in.package and outputs it to out.package. Used by targets
+         debug, -debug-with-emma and release.
+    -->
+
+    <target
+        name="sign"
+        description="Sign a build" >
+
+        <!-- only create apk if *not* a library project -->
+
+        <sequential>
+
+            <!-- Signs the APK -->
+
+            <echo>
+Signing final apk...
+            </echo>
+
+            <signjar
+                alias="${key.alias}"
+                jar="${bin.dir}/${bin.package.apk}"
+                keypass="${key.alias.password}"
+                keystore="${key.store}"
+                signedjar="${bin.dir}/${out.final.file}"
+                storepass="${key.store.password}"
+                verbose="${verbose}" />
+
+            <!-- Zip aligns the APK -->
+
+            <echo>
+Signed Package: ${out.final.file}
+            </echo>
+        </sequential>
+    </target>
+
+</project>

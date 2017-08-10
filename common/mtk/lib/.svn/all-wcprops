@@ -1,0 +1,53 @@
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/mobiletools/!svn/ver/112/Java/tags/MTK-1_0_005/lib
+END
+svnClientAdapter.jar
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/mobiletools/!svn/ver/112/Java/tags/MTK-1_0_005/lib/svnClientAdapter.jar
+END
+svnant.jar
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/mobiletools/!svn/ver/112/Java/tags/MTK-1_0_005/lib/svnant.jar
+END
+zkmObfuscator.jar
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/mobiletools/!svn/ver/112/Java/tags/MTK-1_0_005/lib/zkmObfuscator.jar
+END
+antenna-bin-1.2.1-beta.jar
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/mobiletools/!svn/ver/112/Java/tags/MTK-1_0_005/lib/antenna-bin-1.2.1-beta.jar
+END
+ant-contrib-1.0b3.jar
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/mobiletools/!svn/ver/112/Java/tags/MTK-1_0_005/lib/ant-contrib-1.0b3.jar
+END
+SignTask.jar
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/mobiletools/!svn/ver/112/Java/tags/MTK-1_0_005/lib/SignTask.jar
+END
+jftp.jar
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/mobiletools/!svn/ver/112/Java/tags/MTK-1_0_005/lib/jftp.jar
+END
+proguard.jar
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/mobiletools/!svn/ver/112/Java/tags/MTK-1_0_005/lib/proguard.jar
+END

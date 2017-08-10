@@ -1,0 +1,652 @@
+/**
+ * Copyright © 2004-2007 Critical Path, Inc. All Rights Reserved.
+ */
+package net.cp.syncml.client.store;
+
+import net.cp.syncml.client.*;
+import net.cp.syncml.client.devinfo.*;
+import net.cp.syncml.client.util.ConsumableStack;
+
+
+/**
+ * An interface defining how a local record store may be accessed. <br/><br/>
+ *
+ * Implementations should provide the ability to add/delete/modify records, retrieve all the 
+ * records in the store, compute the changes that have occurred since the last sync, etc. <br/><br/>
+ * 
+ * The SyncML client will typically use RecordStore instances during a sync session as follows:
+ * <pre>
+ *      RecordStore activeStore = getActiveStore();
+ *      ...
+ *      
+ *      //start the session
+ *      activeStore.onSyncStart();
+ *      ...
+ *      
+ *      //get static store information
+ *      activeStore.getClientURI();
+ *      activeStore.getServerURI();
+ *      activeStore.getLastAnchor();
+ *      activeStore.getNextAnchor();
+ *      activeStore.getDisplayName();
+ *      activeStore.getCapabilities();
+ *      activeStore.getMetaInfoExtensions();
+ *      ...
+ *      
+ *      //do initialization
+ *      syncType = activeStore.getSyncType();
+ *      response = sendInitAlertToServer( activeStore.getSyncType(), activeStore.getMetaInfoExtensions(), ...);
+ *      activeStore.setSyncType( response.getSyncType() );
+ *      activeStore.setMetaInfoExtensions( response.getExtensions() );
+ *      ...
+ *      
+ *      //send the client updates to the server
+ *      if ( (syncType == TWO_WAY_SLOW) || (syncType == REFRESH_FROM_CLIENT) )
+ *          records = getAllRecords();
+ *      else if ( (syncType == TWO_WAY) || (syncType == ONE_WAY_FROM_CLIENT) )
+ *          records = getChangedRecords();
+ *      sendRecordsToServer(records);
+ *      ...
+ *      
+ *      //process the servers response to the clients updates
+ *      while (serverResponsesToProcess)
+ *      {
+ *          response = getResponseToProcess();
+ *          if (response.command == "Add")
+ *              activeStore.onAddResult( response.getId(), response.getStatusCode(), response.getStatusData() );
+ *          else if (update.changeType == "Replace")
+ *              activeStore.onReplaceResult( response.getId(), response.getStatusCode(), response.getStatusData() );
+ *          else if (update.changeType == "Delete")
+ *              activeStore.onDeleteResult( response.getId(), response.getStatusCode(), response.getStatusData() );
+ *          else if (update.changeType == "Move")
+ *              activeStore.onMoveResult( response.getId(), response.getStatusCode(), response.getStatusData() );
+ *          else if (update.changeType == "Copy")
+ *              activeStore.onCopyResult( response.getId(), response.getTragetId(), response.getStatusCode(), response.getStatusData() );
+ *      }
+ *      
+ *      //receive updates from server
+ *      while (updatesToProcess)
+ *      {
+ *          update = getUpdateToProcess();
+ *          if (update.changeType == CHANGE_TYPE_ADD)
+ *          {
+ *              if (update.isFirstChunk())
+ *                  activeStore.addRecordBegin( update.getSourceParentUri(), update.getTargetParentUri(), update.getSourceUri(), update.getContentType() );
+ *                  
+ *              activeStore.addRecordData( update.getData() );
+ *              
+ *              if (update.isLastChunk())
+ *              {
+ *                  String localId = activeStore.addRecordEnd( true );
+ *                  sendMapToServer( update.getSourceUri(), localId );
+ *              }
+ *          }
+ *          else if (update.changeType == CHANGE_TYPE_REPLACE)
+ *          {
+ *              if (update.isFirstChunk())
+ *                  activeStore.replaceRecordBegin( update.getTargetUri(), update.getContentType(), update.isFieldLevelReplace() );
+ *                  
+ *              activeStore.replaceRecordData( update.getData() );
+ *              
+ *              if (update.isLastChunk())
+ *                  activeStore.replaceRecordEnd( true );
+ *          }
+ *          else if (update.changeType == CHANGE_TYPE_DELETE)
+ *          {
+ *              activeStore.deleteRecord( update.getTargetUri() );
+ *      }
+ *          else if (update.changeType == CHANGE_TYPE_MOVE)
+ *          {
+ *              activeStore.moveRecord( update.getTargetUri(), update.getTargetParentUri(), update.getSourceParentUri() );
+ *          }
+ *          else if (update.changeType == CHANGE_TYPE_COPY)
+ *          {
+ *              String localId = activeStore.copyRecord( update.getTargetUri(), update.getTargetParentUri(), update.getSourceParentUri() );
+ *              sendMapToServer( update.getSourceUri(), localId );
+ *          }
+ *      }
+ *      ...
+ *      
+ *      //finish the session
+ *      activeStore.onSyncEnd(sessionWasSuccessfull, sessionStatusCode, sessionStatusData);
+ *      ...
+ * </pre>
+ * 
+ * @see Record
+ * @see RecordStoreCapabilities
+ * @see SyncManager#startSync(RecordStore[], String)
+ *
+ * @author Denis Evoy
+ */
+public interface RecordStore
+{
+    /** 
+     * Defines an EMI extension specifying the current date/time on the SyncML client (in ISO88601 format). <br/><br/>
+     * 
+     * Only applies for contact sync when using the "most recent win" conflict resolution method. 
+     */ 
+    public final String EMI_PARAM_CLIENT_TIME =        "ClientTime";
+    
+    
+    /** Defines an EMI extension specifying how conflicts should be resolved. */
+    public final String EMI_PARAM_CONFLICT_RES =       "ConflictRes";
+    
+    /** Defines an EMI extension value specifying the number of milliseconds taken by the client to calculate the changelogs for this sync */
+    public final String EMI_PARAM_CHANGELOG_TIME =     "ClientChangelogTime";
+ 
+    /** Defines an EMI extension value specifying that, if there is a conflict, duplicate records should be created. */
+    public final String EMI_CONFLICT_RES_DUPLICATE =   "duplicate";
+    
+    /** Defines an EMI extension value specifying that, if there is a conflict, the clients record wins. */
+    public final String EMI_CONFLICT_RES_CLIENT_WINS = "client_wins";
+    
+    /** Defines an EMI extension value specifying that, if there is a conflict, the servers record wins. */
+    public final String EMI_CONFLICT_RES_SERVER_WINS = "server_wins";
+    
+    /** Defines an EMI extension value specifying that, if there is a conflict, the conflicting records should be ignored. */
+    public final String EMI_CONFLICT_RES_IGNORE =      "ignore";
+    
+    /** Defines an EMI extension value specifying that, if there is a conflict, the most recent record wins. */
+    public final String EMI_CONFLICT_RES_RECENT_WINS = "recent_wins";
+
+    
+    /** 
+     * Called to retrieve the URI of the remote store that is associated with the local store. <br/><br/>
+     * 
+     * Implementations must return a non-null, non-empty string which identifies the store on the 
+     * remote server that is associated with (and will therefore be synced to) this local store.
+     *   
+     * @return The URI of the associated remote store. Must not be null or empty.
+     */
+    public String getServerURI();
+
+    /** 
+     * Called to retrieve the URI of the local store. <br/><br/>
+     * 
+     * Implementations must return a non-null, non-empty string which identifies the local store.
+     *   
+     * @return The URI of the local store. Must not be null or empty.
+     */
+    public String getClientURI();
+
+    /** 
+     * Called to retrieve the display name of the local store. <br/><br/>
+     * 
+     * Implementations may return a string containing the display name of the local store.
+     *   
+     * @return The display name of the local store. May be null or empty.
+     */
+    public String getDisplayName();
+
+    /** 
+     * Called to retrieve the capabilities of the local store.  <br/><br/>
+     * 
+     * Implementations must return the capabilities of the local store.
+     *   
+     * @return The capabilities of the local store. Must not be null.
+     */
+    public RecordStoreCapabilities getCapabilities();
+
+    
+    /** 
+     * Called to retrieve the anchor of the last successful sync session. <br/><br/>
+     * 
+     * Implementations must return either a non-empty string identifying the anchor used by the 
+     * last successful sync session or <code>null</code> if the last anchor is not known.
+     *   
+     * @return The anchor of the last successful sync session or <code>null</code> if it's not available.
+     */
+    public String getLastAnchor();
+
+    /** 
+     * Called to retrieve the next anchor that should be used during the sync session. <br/><br/>
+     * 
+     * Implementations must return a non-null, non-empty string which identifies the anchor to 
+     * use during the current sync session. Any changes made after this anchor point should not be 
+     * considered during the sync session. If the sync session is successful, this anchor should 
+     * then become the last anchor for the next sync session. 
+     *   
+     * @return The anchor of the current sync session. Must not be null or empty.
+     */
+    public String getNextAnchor();
+    
+
+    /** 
+     * Called to retrieve the type of sync that should be performed during the sync session. <br/><br/>
+     * 
+     * Implementations must return a valid {@link SyncML#SYNC_TYPE_ONE_WAY_CLIENT sync type}. Note 
+     * that the type of sync being performed may be subsequently overridden by the SyncML server. In
+     * this case, the {@link #setSyncType(int)} method will be called to indicate the type of sync 
+     * requested by the server. Therefore, implementations must not assume that the sync type returned
+     * by this method will be the type of sync that will actually be performed.
+     *   
+     * @return The type of sync that should be performed. Must be a valid {@link SyncML#SYNC_TYPE_ONE_WAY_CLIENT sync type}.
+     */
+    public int getSyncType();
+
+    /** 
+     * Called to set the type of sync that should be performed during the sync session. <br/><br/>
+     * 
+     * This method is typically called when the SyncML server requests that a different type of sync
+     * from the one {@link #setSyncType(int) originally specified} must be performed. 
+     *   
+     * @param syncType the type of sync that should be performed. Will be a valid {@link SyncML#SYNC_TYPE_ONE_WAY_CLIENT sync type}.
+     */
+    public void setSyncType(int syncType);
+
+    
+    /** 
+     * Called to retrieve the Experimental Meta Information (EMI) Extensions defined by the record store. <br/><br/>
+     * 
+     * Implementations can use these EMI extensions to provide extra information to the SyncML server such 
+     * as the preferred conflict resolution method, the max amount of data to sync, etc. Some extensions 
+     * supported by the Critical Path SyncML server are defined {@link #EMI_PARAM_CLIENT_TIME here}.
+     *  
+     * @return A set of EMI extensions to pass to the server. May be null or empty.
+     */
+    public String[] getMetaInfoExtensions();
+    
+    /** 
+     * Called to set the Experimental Meta Information (EMI) Extensions for the record store. <br/><br/>
+     * 
+     * Implementations can use this method to examine the EMI extensions received from the SyncML server 
+     * and to act on them as appropriate. Some extensions supported by the Critical Path SyncML server 
+     * are defined {@link #EMI_PARAM_CLIENT_TIME here}.
+     *  
+     * @param extensions a set of EMI extensions received from the server. May be null or empty.
+     */
+    public void setMetaInfoExtensions(String[] extensions);
+   
+    
+    /** 
+     * Called to indicate that the sync session is about to start. <br/><br/>
+     * 
+     * This method will be called just before a new sync session is started (i.e. before any communication
+     * has taken place with the SyncML server). <br/><br/>
+     * 
+     * Implementations can use this method to perform any required initialization (e.g. lock access to 
+     * the local store, generate a new 'next' sync anchor, etc). If an exception is thrown by this 
+     * method, the entire sync session will be aborted.
+     *  
+     * @throws StoreException if the store could not be initialized.
+     * 
+     * @see SyncListener#onSyncStart()
+     */
+    public void onSyncStart()
+        throws StoreException;
+    
+    /** 
+     * Called to indicate that the sync session has been suspended. <br/><br/>
+     * 
+     * This method will be called if the sync session has been suspended, regardless of how the
+     * suspension was triggered (i.e. intentional or unintentional). <br/><br/> 
+     * 
+     * Implementations can use this method to perform any required temporary cleanup (e.g. unlock 
+     * access to the local store, etc). Because the session may be resumed at a later time, implementations 
+     * should retain any state information. The one exception is that the 'next' anchor should be discarded
+     * so that a new anchor can be generated if the session is resumed. <br/><br/>
+     * 
+     * Once a session has been suspended, it can either be {@link SyncManager#resumeSync(String) resumed} 
+     * or {@link SyncManager#stopSync() cancelled}.
+     * 
+     * @see SyncListener#onSyncSuspend()
+     */
+    public void onSyncSuspend();
+    
+    /** 
+     * Called to indicate that the sync session is being resumed. <br/><br/>
+     * 
+     * This method will be called before attempting to {@link SyncManager#resumeSync(String) resume} 
+     * a previously suspended sync session for this record store. Implementations should use this method
+     * to determine if the session can be resumed for this store and throw an exception if it cannot. Note 
+     * that throwing an exception will only end the sync session for this store - other record stores being 
+     * synced within the same session may still be resumed successfully.
+     * 
+     * @throws StoreException if the sync session for the record store should not be resumed.
+     */
+    public void onSyncResume()
+        throws StoreException;
+    
+    /** 
+     * Called to indicate that the sync session has completed. <br/><br/>
+     * 
+     * This method will be called as the sync session ends, regardless of how the end of the session was 
+     * reached (i.e. normal session end, user-initiated session stop or error condition). <br/><br/> 
+     * 
+     * Implementations can use this method to perform any required cleanup (e.g. unlock access to the 
+     * local store, store the 'next' sync anchor, etc).
+     * 
+     * @param success       indicates whether or not the sync session was successful.
+     * @param statusCode    the {@link SyncML#STATUS_OK status code} indicating why the session failed. Will be zero or a valid SyncML status code.
+     * @param statusData    any additional status information (e.g. {@link SyncML#REASON_TOTAL_DATA_LIMIT_EXCEEDED reason code}, etc). May be null.
+     * 
+     * @see SyncListener#onSyncEnd(boolean, int, String)
+     */
+    public void onSyncEnd(boolean success, int statusCode, String statusData);
+    
+    
+    /**
+     * Called to retrieve all records in the local store. <br/><br/>
+     * 
+     * Implementations must return a collection of {@link Record Record} objects which represent all 
+     * records currently present in the local store. This method will only be used when performing 
+     * either a two-way slow sync or a refresh from client sync. <br/><br/>
+     * 
+     * Note that this method may be called multiple times during a single sync session. Therefore, 
+     * implementations should cache the list of records rather than calculating them every time. 
+     * Implementations may also add additional records to the returned collection in response to 
+     * {@link #onAddResult(String, int, String) status results} from the server. <br/><br/>
+     * 
+     * Also note that the order of the records in the returned collection is important (especially 
+     * when dealing with record stores that are hierarchical in nature). Records pushed onto the 
+     * stack first will be sent to the SyncML server (and therefore processed) first. For example,
+     * a record representing a "folder" should always be added to the collection before a record
+     * representing a "file" within that same "folder".
+     * 
+     * @return The collection of all records in the local store. May be null or empty.
+     * @throws StoreException if the records could not be retrieved.
+     */
+    public ConsumableStack getAllRecords()
+        throws StoreException;
+
+    /**
+     * Called to retrieve the records that have been modified in the local store since the last successful sync. <br/><br/>
+     * 
+     * Implementations must return a collection of {@link Record Record} objects which represent the records 
+     * that have been added, modified, deleted, copied or moved since the last successful sync session. Only 
+     * changes that occurred between the last and next sync anchors should be returned. This method will only 
+     * be used when performing either a two-way sync or a one-way from client sync. <br/><br/>
+     * 
+     * Note that this method may be called multiple times during a single sync session. Therefore, 
+     * implementations should cache the list of records rather than calculating them every time. 
+     * Implementations may also add additional records to the returned collection in response to 
+     * {@link #onAddResult(String, int, String) status results} from the server. <br/><br/>
+     * 
+     * Also note that the order of the records in the returned collection is important (especially 
+     * when dealing with record stores that are hierarchical in nature). Records pushed onto the 
+     * stack first will be sent to the SyncML server (and therefore processed) first. For example,
+     * a record representing a "folder" should always be added to the collection before a record
+     * representing a "file" within that same "folder".
+     * 
+     * @return A collection of changes that have occurred in the local store since the last successful sync session. May be null or empty.
+     * @throws StoreException if the changes could not be retrieved.
+     */
+    public ConsumableStack getChangedRecords()
+        throws StoreException;
+
+    
+    /** 
+     * Called to indicate the {@link SyncML#STATUS_OK servers response} to a session resume request from the client. <br/><br/>
+     * 
+     * Implementations can use this method to examine the {@link SyncML#STATUS_OK status code} 
+     * and perform any relevant action on the local store (e.g. log event, update internal state, etc). <br/><br/>
+     *  
+     * If the status code indicates an error, the sync session for the record store will not be resumed and
+     * will end in error. However, other record stores being synced within the same session may still succeed 
+     * in being resumed. <br/><br/>
+     * 
+     * Note that if the status code is 508 ({@link SyncML#STATUS_REFRESH_REQUIRED refresh required}), a slow 
+     * sync of the record store must be triggered as soon as the current sync session ends. 
+     * 
+     * @param statusCode    the SyncML {@link SyncML#STATUS_OK status code} returned by the server. Will be zero or a valid SyncML status code.
+     * @param statusData    any additional status information (e.g. {@link SyncML#REASON_TOTAL_DATA_LIMIT_EXCEEDED reason code}, etc). May be null.
+     */
+    public void onResumeResult(int statusCode, String statusData);
+    
+    /** 
+     * Called to indicate the {@link SyncML#STATUS_OK servers response} to an add request from the client. <br/><br/>
+     * 
+     * Implementations can use this method to examine the {@link SyncML#STATUS_OK status code} 
+     * and perform any relevant action on the local store (e.g. log event, update internal state, etc).
+     * 
+     * @param localId       the local ID of the record that has been added to the local store.
+     * @param statusCode    the SyncML {@link SyncML#STATUS_OK status code} returned by the server. Will be zero or a valid SyncML status code.
+     * @param statusData    any additional status information (e.g. {@link SyncML#REASON_TOTAL_DATA_LIMIT_EXCEEDED reason code}, etc). May be null.
+     */
+    public void onAddResult(String localId, int statusCode, String statusData);
+   
+    /** 
+     * Called to indicate the {@link SyncML#STATUS_OK servers response} to a replace request from the client. <br/><br/>
+     * 
+     * Implementations can use this method to examine the {@link SyncML#STATUS_OK status code} 
+     * and perform any relevant action on the local store (e.g. log event, update internal state, etc).
+     * 
+     * @param localId       the local ID of the record that had been replaced in the local store.
+     * @param statusCode    the SyncML {@link SyncML#STATUS_OK status code} returned by the server. Will be zero or a valid SyncML status code.
+     * @param statusData    any additional status information (e.g. {@link SyncML#REASON_TOTAL_DATA_LIMIT_EXCEEDED reason code}, etc). May be null.
+     */
+    public void onReplaceResult(String localId, int statusCode, String statusData);
+    
+    /** 
+     * Called to indicate the {@link SyncML#STATUS_OK servers response} to a delete request from the client. <br/><br/>
+     * 
+     * Implementations can use this method to examine the {@link SyncML#STATUS_OK status code} 
+     * and perform any relevant action on the local store (e.g. log event, update internal state, etc).
+     * 
+     * @param localId       the local ID of the record that had been deleted in the local store.
+     * @param statusCode    the SyncML {@link SyncML#STATUS_OK status code} returned by the server. Will be zero or a valid SyncML status code.
+     * @param statusData    any additional status information (e.g. {@link SyncML#REASON_TOTAL_DATA_LIMIT_EXCEEDED reason code}, etc). May be null.
+     */
+    public void onDeleteResult(String localId, int statusCode, String statusData);
+
+    /** 
+     * Called to indicate the {@link SyncML#STATUS_OK servers response} to a move request from the client. <br/><br/>
+     * 
+     * Implementations can use this method to examine the {@link SyncML#STATUS_OK status code} 
+     * and perform any relevant action on the local store (e.g. log event, update internal state, etc).
+     * 
+     * @param localId       the local ID of the record that had been moved in the local store.
+     * @param statusCode    the SyncML {@link SyncML#STATUS_OK status code} returned by the server. Will be zero or a valid SyncML status code.
+     * @param statusData    any additional status information (e.g. {@link SyncML#REASON_TOTAL_DATA_LIMIT_EXCEEDED reason code}, etc). May be null.
+     */
+    public void onMoveResult(String localId, int statusCode, String statusData);
+    
+    /** 
+     * Called to indicate the {@link SyncML#STATUS_OK servers response} to a copy request from the client. <br/><br/>
+     * 
+     * Implementations can use this method to examine the {@link SyncML#STATUS_OK status code} 
+     * and perform any relevant action on the local store (e.g. log event, update internal state, etc).
+     * 
+     * @param localId       the local ID of the record that had been copied in the local store.
+     * @param targetLocalId the local ID of the record that is the copy of the original record in the local store.
+     * @param statusCode    the SyncML {@link SyncML#STATUS_OK status code} returned by the server. Will be zero or a valid SyncML status code.
+     * @param statusData    any additional status information (e.g. {@link SyncML#REASON_TOTAL_DATA_LIMIT_EXCEEDED reason code}, etc). May be null.
+     */
+    public void onCopyResult(String localId, String targetLocalId, int statusCode, String statusData);
+
+    
+    /**
+     * Called to indicate the number of changes that the SyncML server will send to the client. <br/><br/>
+     * 
+     * Note that the server will only provide this information if the client has explicitly specified
+     * that it supports the <code>{@link DeviceCapabilities#isNumberOfChangesSupported() NumberOfChanges}</code>
+     * feature. 
+     * 
+     * @param changeCount the number of changes that will be sent to the client. Will be zero or positive.
+     * 
+     * @see Device#getCapabilities()
+     */
+    public void onNumberOfChanges(int changeCount);
+    
+    /** 
+     * Called to indicate that a record is about to be added to the local store. <br/><br/>
+     * 
+     * Implementations can use this method to perform any setup operations such as opening output 
+     * streams, identifying the parent record, etc. A call to this method will be followed by one 
+     * or more calls to {@link #addRecordData(byte[])} and a final call to {@link #addRecordEnd(boolean)}. <br/><br/>
+     * 
+     * Implementations must not commit any data to the local store until {@link #addRecordEnd(boolean) addRecordEnd(true)}
+     * is called. <br/><br/> 
+     * 
+     * Note that the specified parent IDs (both local and global) are only relevant for record stores that 
+     * are hierarchical in nature (e.g files/folders, etc). If this is the case, the parent IDs refer to 
+     * the record that is to be the parent of the new record (i.e. where the new record should be created), 
+     * with a parent ID of {@link Record#ROOT_ID} referring to the root record. Typically, the <code>parentLocalId</code> 
+     * can be used to identify the parent record. However, if no <code>parentLocalId</code> is supplied, 
+     * implementations must be able to use the <code>parentGlobalId</code> instead. In this scenario, 
+     * the <code>parentGlobalId</code> is guaranteed to match the <code>globalId</code> of a previous record
+     * added during the same sync session. Therefore, it is recommended that implementations temporarily 
+     * cache any <code>globalId</code> values during a sync session to cater for this.
+     *  
+     * @param parentLocalId  the local ID of the record which should be the parent of the new record. May be null or empty.
+     * @param parentGlobalId the global ID of the record which should be the parent of the new record. May be null or empty.
+     * @param globalId       the global ID of the record which should be added. May be null or empty.
+     * @param contentType    the MIME type of the data contained in the record which should be added. May be null.
+     * @throws StoreException   if the record should not be added to the local store.
+     */
+    public void addRecordBegin(String parentLocalId, String parentGlobalId, String globalId, ContentType contentType) 
+        throws StoreException;
+
+    /** 
+     * Called to supply the data of the record that is being added to the local store. <br/><br/>
+     * 
+     * Implementations should cache the specified data and expect that more calls to this method 
+     * may be made (as is likely to be the case when dealing with large objects). A call to this 
+     * method will be followed by a final call to {@link #addRecordEnd(boolean)}. <br/><br/>
+     * 
+     * Implementations must not commit any data to the local store until {@link #addRecordEnd(boolean) addRecordEnd(true)}
+     * is called.
+     *  
+     * @param data the data of the record to be added to the local store. Will not be null or empty.
+     * @throws StoreException   if the records' data couldn't be cached.
+     */
+    public void addRecordData(byte[] data) 
+        throws StoreException;
+
+    /**
+     * Called to indicate that the current request to add a record to the local store should be committed or cancelled. <br/><br/>
+     * 
+     * If <code>commit</code> is <code>true</code>, implementations must add a new record to the local store 
+     * to encapsulate any cached data received so far and return a non-null non-empty string uniquely identifying 
+     * the new record. If <code>commit</code> is <code>false</code>, any cached data should be discarded without
+     * being added to the local store and <code>null</code> returned.
+     * 
+     * @param commit set to <code>true</code> if a new record should be added or <code>false</code> to cancel the operation.
+     * @return The local ID that has been assigned to the new record or <code>null</code> if <code>commit</code> is <code>false</code>.
+     * @throws StoreException           if the record cannot be added to the local store.
+     * @throws AlreadyExistsException   if the record is already present in the local store.
+     */
+    public String addRecordEnd(boolean commit) 
+        throws StoreException, AlreadyExistsException;
+    
+    
+    /** 
+     * Called to indicate that a record is about to be replaced in the local store. <br/><br/>
+     * 
+     * Implementations can use this method to perform any setup operations such as opening output 
+     * streams, identifying the local record, etc. A call to this method will be followed by one 
+     * or more calls to {@link #replaceRecordData(byte[])} and a final call to {@link #replaceRecordEnd(boolean)}. <br/><br/>
+     * 
+     * Implementations must not commit any data to the local store until {@link #replaceRecordEnd(boolean) replaceRecordEnd(true)}
+     * is called. <br/><br/>
+     * 
+     * If <code>fieldLevelReplace</code> is <code>true</code>, implementations must only update those 
+     * fields contained in the record data. If <code>fieldLevelReplace</code> is <code>false</code>, 
+     * implementations must replace the entire record with the specified data.
+     *  
+     * @param localId           the local ID of the record that is to be replaced in the local store. Will not be null or empty.
+     * @param contentType       the MIME type of the data contained in the record. May be null.
+     * @param fieldLevelReplace set to <code>true</code> if a field level replace should be performed.
+     * @throws StoreException           if the record should not be replaced in the local store.
+     * @throws NoSuchRecordException    if the specified record is not present in the local store.
+     */
+    public void replaceRecordBegin(String localId, ContentType contentType, boolean fieldLevelReplace) 
+        throws StoreException, NoSuchRecordException;
+
+    /** 
+     * Called to supply the data of the record that is being replaced in the local store. <br/><br/>
+     * 
+     * Implementations should cache the specified data and expect that more calls to this method 
+     * may be made (as is likely to be the case when dealing with large objects). A call to this 
+     * method will be followed by a final call to {@link #replaceRecordEnd(boolean)}. <br/><br/>
+     * 
+     * Implementations must not commit any data to the local store until {@link #replaceRecordEnd(boolean) replaceRecordEnd(true)}
+     * is called.
+     *  
+     * @param data the data of the record to be replaced in the local store. Will not be null or empty.
+     * @throws StoreException   if the records' data couldn't be cached.
+     */
+    public void replaceRecordData(byte[] data) 
+        throws StoreException;
+
+    /**
+     * Called to indicate that the current request to replace a record in the local store should be committed or cancelled. <br/><br/>
+     * 
+     * If <code>commit</code> is <code>true</code>, implementations must replace the contents of the specified 
+     * record with any cached data received so far, leaving the local ID of the record unchanged. If <code>commit</code> 
+     * is <code>false</code>, any cached data should be discarded without being replaced in the local store.
+     * 
+     * @param commit set to <code>true</code> if the record should be replaced or <code>false</code> to cancel the operation.
+     * @return The local ID that has been assigned to the record or <code>null</code> if the ID has not been changed.
+     * @throws StoreException if the record cannot be replaced in the local store.
+     */
+    public String replaceRecordEnd(boolean commit) 
+        throws StoreException;
+    
+    
+    /**
+     * Called to delete the record with the specified local ID from the local store. <br/><br/>
+     * 
+     * Implementations must delete the record with the specified ID from the local store.
+     * 
+     * @param localId the local ID of the record that is to be deleted from the local store. Will not be null or empty.
+     * @throws StoreException           if the record cannot be deleted from the local store.
+     * @throws NoSuchRecordException    if the specified record is not present in the local store.
+     */
+    public void deleteRecord(String localId) 
+        throws StoreException, NoSuchRecordException;
+
+    
+    /**
+     * Called to move the record with the specified local ID in the local store. <br/><br/>
+     * 
+     * Implementations must move the record with the specified ID in the local store so that it has
+     * the record with the specified parent ID as its parent, leaving its own local ID unchanged. <br/><br/>
+     * 
+     * Note that the specified parent IDs (both local and global) are only relevant for record stores that 
+     * are hierarchical in nature (e.g files/folders, etc). If this is the case, the parent IDs refer to 
+     * the record that is to be the parent of the moved record (i.e. where the record should be moved to), 
+     * with a parent ID of {@link Record#ROOT_ID} referring to the root record. Typically, the <code>toParentLocalId</code> 
+     * can be used to identify the parent record. However, if no <code>toParentLocalId</code> is supplied, 
+     * implementations must be able to use the <code>toParentGlobalId</code> instead. In this scenario, 
+     * the <code>toParentGlobalId</code> is guaranteed to match the global ID of a previous record
+     * added during the same sync session (see {@link #addRecordBegin(String, String, String, ContentType)}).
+     * 
+     * @param localId           the local ID of the record which is to be moved in the local store. Will not be null or empty.
+     * @param toParentLocalId   the local ID of the record which should be the parent of the moved record. May be null or empty.
+     * @param toParentGlobalId  the global ID of the record which should be the parent of the moved record. May be null or empty.
+     * @param data              optional data associated with the move. Can be null.
+     * @throws StoreException           if the record cannot be moved in the local store.
+     * @throws NoSuchRecordException    if the specified record is not present in the local store.
+     */
+    public void moveRecord(String localId, String toParentLocalId, String toParentGlobalId, byte[] data) 
+        throws StoreException, NoSuchRecordException;
+
+    
+    /**
+     * Called to create a copy of the record with the specified local ID in the local store. <br/><br/>
+     * 
+     * Implementations must create a copy of the record with the specified ID in the local store and 
+     * return a non-null non-empty string uniquely identifying the copied record. <br/><br/>
+     * 
+     * Note that the specified parent IDs (both local and global) are only relevant for record stores that 
+     * are hierarchical in nature (e.g files/folders, etc). If this is the case, the parent IDs refer to 
+     * the record that is to be the parent of the copied record (i.e. where the record should be copied to), 
+     * with a parent ID of {@link Record#ROOT_ID} referring to the root record. Typically, the <code>toParentLocalId</code> 
+     * can be used to identify the parent record. However, if no <code>toParentLocalId</code> is supplied, 
+     * implementations must be able to use the <code>toParentGlobalId</code> instead. In this scenario, 
+     * the <code>toParentGlobalId</code> is guaranteed to match the global ID of a previous record
+     * added during the same sync session (see {@link #addRecordBegin(String, String, String, ContentType)}).
+     * 
+     * @param localId           the local ID of the record which is to be copied in the local store. Will not be null or empty.
+     * @param toParentLocalId   the local ID of the record which should be the parent of the copied record. May be null or empty.
+     * @param toParentGlobalId  the global ID of the record which should be the parent of the copied record. May be null or empty.
+     * @return The local ID that has been assigned to the new record. Must not be null or empty.
+     * @param data              optional data associated with the copy. Can be null.
+     * @throws StoreException           if the record cannot be copied in the local store.
+     * @throws NoSuchRecordException    if the specified record is not present in the local store.
+     * @throws AlreadyExistsException   if the copy of the record is already present in the local store.
+     */
+    public String copyRecord(String localId, String toParentLocalId, String toParentGlobalId, byte[] data) 
+        throws StoreException, NoSuchRecordException, AlreadyExistsException;
+}

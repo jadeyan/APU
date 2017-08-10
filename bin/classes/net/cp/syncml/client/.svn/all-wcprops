@@ -1,0 +1,53 @@
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/syncmobilestack/!svn/ver/463/tags/SYNCMLLIB-2_1_009/java/src/net/cp/syncml/client
+END
+SyncListener.java
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/svn/syncmobilestack/!svn/ver/463/tags/SYNCMLLIB-2_1_009/java/src/net/cp/syncml/client/SyncListener.java
+END
+SyncML.java
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/svn/syncmobilestack/!svn/ver/463/tags/SYNCMLLIB-2_1_009/java/src/net/cp/syncml/client/SyncML.java
+END
+SyncManager.java
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/svn/syncmobilestack/!svn/ver/463/tags/SYNCMLLIB-2_1_009/java/src/net/cp/syncml/client/SyncManager.java
+END
+overview.html
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/svn/syncmobilestack/!svn/ver/463/tags/SYNCMLLIB-2_1_009/java/src/net/cp/syncml/client/overview.html
+END
+SyncException.java
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/svn/syncmobilestack/!svn/ver/463/tags/SYNCMLLIB-2_1_009/java/src/net/cp/syncml/client/SyncException.java
+END
+Transport.java
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/svn/syncmobilestack/!svn/ver/463/tags/SYNCMLLIB-2_1_009/java/src/net/cp/syncml/client/Transport.java
+END
+ServerAlert.java
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/svn/syncmobilestack/!svn/ver/463/tags/SYNCMLLIB-2_1_009/java/src/net/cp/syncml/client/ServerAlert.java
+END
+package.html
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/svn/syncmobilestack/!svn/ver/463/tags/SYNCMLLIB-2_1_009/java/src/net/cp/syncml/client/package.html
+END

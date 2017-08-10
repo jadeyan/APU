@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<!-- 
+     Top-level ANT build file used to build the Mobile Client Toolkit
+-->
+
+
+<project 
+    name="mobile-toolkit"
+    basedir="."
+    default="all">
+	
+    <tstamp/>
+
+    
+    <!-- The location of the build tools -->
+    <property name="buildtools.dir" location="build"/>
+    	
+    <!-- The location of the utility applications -->
+    <property name="tools.dir" location="tools"/>
+    
+    <!-- The location of additional libraries -->
+    <property name="lib.dir" location="lib"/>
+    <property name="classpath" value="${lib.dir}/ext/sdk_motorola_iden.jar"/>
+    
+    
+    <!-- Import the common build tools -->
+    <import file="${buildtools.dir}/buildtools.xml"/>
+
+
+    <!-- Target for building all binaries -->
+    <target name="all" description="Builds all binaries" depends="j2me"/>
+
+    <!-- Target for removing all binaries -->
+    <target name="clean" description="Removes all binaries" depends="j2me.clean">
+        <delete dir="${mtk.classes.dir}"/>
+    </target>
+
+
+    <!-- Target for building all J2ME binaries -->
+    <target name="j2me" description="Builds all J2ME binaries">
+        <!-- Load the required build tools -->
+        <mtk.antenna.load/>
+        <mtk.signtask.load/>
+
+        <!-- Build the toolkit itself -->
+        <echo/>
+        <echo message="Building J2ME toolkit at '${mtk.src.dir}' to '${mtk.classes.dir}/j2me'..."/>
+        <mkdir dir="${mtk.classes.dir}/j2me"/>
+        <wtkbuild srcdir="${mtk.src.dir}" destdir="${mtk.classes.dir}/j2me" includes="net/cp/mtk/common/**,net/cp/mtk/j2me/**" classpath="${classpath}"/>
+            
+        <!-- Build the utility applications -->
+        <mtk.subant baseDir="${tools.dir}/j2me" target="all"/>
+    </target>
+    
+    <!-- Target for removing all J2ME binaries -->
+    <target name="j2me.clean">
+        <delete dir="${mtk.classes.dir}/j2me"/>
+        <mtk.subant baseDir="${tools.dir}/j2me" target="clean"/>
+    </target>
+</project>

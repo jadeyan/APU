@@ -1,0 +1,192 @@
+<body>
+
+These packages comprise a SyncML client implementation which can be used to sync multiple local record 
+stores with some remote SyncML server.
+
+
+<hr/>
+<h3>API Usage</h3>
+Before this client can be used, the following interfaces must first be implemented:
+    <ol>
+        <li> Implement the {@link net.cp.syncml.client.store.RecordStore RecordStore} interface to provide the 
+             SyncML client with access to a local record store. Your implementation should provide the ability to 
+             add/delete/modify records, retrieve all the records in the store, compute the changes that have 
+             occurred since the last successful sync session, etc. You will also need to implement the 
+             {@link net.cp.syncml.client.store.Record Record} interface to encapsulate a single record within the 
+             record store. 
+        <li> Implement the {@link net.cp.syncml.client.devinfo.Device Device} interface to provide the SyncML 
+             client with details about the physical device on which it is running.
+        <li> Implement the {@link net.cp.syncml.client.Transport Transport} interface to allow the SyncML client 
+             to communicate with some remote Sync ML server. HTTP transport is typically used for this.
+        <li> Implement the {@link net.cp.syncml.client.SyncListener SyncListener} interface to allow the SyncML 
+             client to provide feedback during a sync session. This would typically be used to drive a user interface
+             providing the user with progress updates.
+        <li> Implement the {@link net.cp.syncml.client.util.Logger Logger} interface to allow the SyncML client 
+             to log activity during a sync session.
+    </ol>
+Once the above has been completed, create an instance of the {@link net.cp.syncml.client.SyncManager SyncManager} 
+class and {@link net.cp.syncml.client.SyncManager#startSync(RecordStore[], String) start} a sync session.
+
+
+<hr/>
+<h3>Session Overview</h3>
+The following is a description of a typical SyncML session:
+    <ol>
+        <li> {@link net.cp.syncml.client.SyncListener#onSyncStart() SyncListener.onSyncStart()} is called.
+        <li> {@link net.cp.syncml.client.store.RecordStore#onSyncStart() RecordStore.onSyncStart()} is called for
+             each record store that is to be synced. The sync session will be aborted if any exceptions are thrown.
+
+        <li> {@link net.cp.syncml.client.Transport#getOutputStream() Transport.getOutputStream()} is called to 
+             retrieve the output stream to use to send a message to the SyncML server.
+        <li> An "initialization" <a href="#MessageDescription">message</a> is created containing an 
+             <a href="#AlertCmd">Alert command</a> for each record store to be synced. This message is then sent to 
+             the SyncML server.
+        <li> {@link net.cp.syncml.client.Transport#getInputStream() Transport.getInputStream()} is called to 
+             retrieve the input stream to use to read the response from the SyncML server. This response will typically
+             include the following:
+                <ul>
+                    <li> The status for each of the Alert commands sent to the server. If a status indicates that a refresh 
+                         sync is required, {@link net.cp.syncml.client.store.RecordStore#setSyncType(int) RecordStore.setSyncType(SYNC_TYPE_TWO_WAY_SLOW)}
+                         will be called for the associated record store.
+                    <li> An Alert command for each record store indicating the exact type of sync that should be performed.
+                         {@link net.cp.syncml.client.store.RecordStore#setSyncType(int) RecordStore.setSyncType(...)} will be 
+                         called for each associated record store.
+                    <li> A request for the device information of the device on which the client is running.
+                </ul>
+        <li> {@link net.cp.syncml.client.Transport#cleanup() Transport.cleanup()} is called.
+
+        <li> {@link net.cp.syncml.client.Transport#getOutputStream() Transport.getOutputStream()} is called to 
+             retrieve the output stream to use to send a message to the SyncML server.
+        <li> A "client update" <a href="#MessageDescription">message</a> is created containing a <a href="#SyncCmd">Sync command</a> 
+             for each record store to be synced. In addition, the <a href="#DevInfo">device information</a> is included 
+             if it was previously requested by the server.
+        <li> {@link net.cp.syncml.client.Transport#getInputStream() Transport.getInputStream()} is called to 
+             retrieve the input stream to use to read the response from the SyncML server. This response will include the status for 
+             each individual "Add", "Replace", "Delete", "move" or "Copy" Sync commands that were sent to the server.
+             {@link net.cp.syncml.client.store.RecordStore#onAddResult(String, int, String) RecordStore.onAddResult(...)},
+             {@link net.cp.syncml.client.store.RecordStore#onReplaceResult(String, int, String) RecordStore.onReplaceResult(...)},
+             {@link net.cp.syncml.client.store.RecordStore#onDeleteResult(String, int, String) RecordStore.onDeleteResult(...)},
+             {@link net.cp.syncml.client.store.RecordStore#onMoveResult(String, int, String) RecordStore.onMoveResult(...)} or 
+             {@link net.cp.syncml.client.store.RecordStore#onCopyResult(String, String, int, String) RecordStore.onCopyResult(...)} will be called 
+             as appropriate. Also note that {@link net.cp.syncml.client.SyncListener#onAddResult(int, String) SyncListener().onAddResult(...)}, 
+             {@link net.cp.syncml.client.SyncListener#onReplaceResult(int, String) SyncListener().onReplaceResult(...)},
+             {@link net.cp.syncml.client.SyncListener#onDeleteResult(int, String) SyncListener().onDeleteResult(...)},
+             {@link net.cp.syncml.client.SyncListener#onMoveResult(int, String) SyncListener().onMoveResult(...)} and
+             {@link net.cp.syncml.client.SyncListener#onCopyResult(int, String) SyncListener().onCopyResult(...)} will also be called if necessary.
+        <li> If the client still has updates to send to the SyncML server (which is usually the case when syncing large objects), 
+             {@link net.cp.syncml.client.Transport#cleanup() Transport.cleanup()} is called and steps 7 to 10 are repeated.
+        <li> The last message received from the server will also contains the server updates (if any) that should be applied to the local record stores. 
+             {@link net.cp.syncml.client.store.RecordStore#addRecordBegin(String, String, String, ContentType) RecordStore.addRecordBegin(...)},
+             {@link net.cp.syncml.client.store.RecordStore#replaceRecordBegin(String, ContentType, boolean) RecordStore.replaceRecordBegin(...)},
+             {@link net.cp.syncml.client.store.RecordStore#deleteRecord(String) RecordStore.deleteRecord(...)},
+             {@link net.cp.syncml.client.store.RecordStore#moveRecord(String, String, String, byte[]) RecordStore.moveRecord(...)}, and
+             {@link net.cp.syncml.client.store.RecordStore#copyRecord(String, String, String, byte[]) RecordStore.copyRecord(...)} will be called as appropriate.
+             Also note that {@link net.cp.syncml.client.SyncListener#onAddRequest(int) SyncListener().onAddRequest(...)}, 
+             {@link net.cp.syncml.client.SyncListener#onReplaceRequest(int) SyncListener().onReplaceRequest(...)},
+             {@link net.cp.syncml.client.SyncListener#onDeleteRequest(int) SyncListener().onDeleteRequest(...)},
+             {@link net.cp.syncml.client.SyncListener#onMoveRequest(int) SyncListener().onMoveRequest(...)} and
+             {@link net.cp.syncml.client.SyncListener#onCopyRequest(int) SyncListener().onCopyRequest(...)} will also be called if necessary.
+        <li> {@link net.cp.syncml.client.Transport#cleanup() Transport.cleanup()} is called.
+
+        <li> {@link net.cp.syncml.client.Transport#getOutputStream() Transport.getOutputStream()} is called to 
+             retrieve the output stream to use to send a message to the SyncML server.
+        <li> A <a href="#MessageDescription">message</a> is created containing the results of any previous "Add", "Replace" or
+             "Delete" requests received from the server. This message may also contain a <a href="#MapCmd">Map command</a> for any
+             record stores that were the recipient of an "Add" request.
+        <li> {@link net.cp.syncml.client.Transport#getInputStream() Transport.getInputStream()} is called to 
+             retrieve the input stream to use to read the response from the SyncML server. This response will include the status for 
+             each Map command (if any) sent to the server.
+        <li> If the server still has updates to send to the client (which is usually the case when syncing large objects), 
+             steps 11 to 16 are repeated.
+        <li> {@link net.cp.syncml.client.Transport#cleanup() Transport.cleanup()} is called.
+
+        <li> {@link net.cp.syncml.client.store.RecordStore#onSyncEnd(boolean, int, String) RecordStore.onSyncEnd(...)} is called for
+             each record store that has been synced.
+        <li> {@link net.cp.syncml.client.SyncListener#onSyncEnd(boolean, int, String) SyncListener.onSyncEnd(...)} is called.
+    </ol>
+
+
+<hr/>
+<h3><a name="MessageDescription">SyncML Message Description</h3>
+Every message that the client sends to the SyncML server will contain a header which encapsulates the following:
+    <ul>
+        <li> The session ID as supplied to {@link net.cp.syncml.client.SyncManager#startSync(RecordStore[], String) SyncManager.startSync(...)}.
+        <li> The ID of the local device as returned by {@link net.cp.syncml.client.devinfo.Device#getDeviceID() Device.getDeviceID()}.
+        <li> The ID of the SyncML server as returned by {@link net.cp.syncml.client.Transport#getTargetURI() Transport.getTargetURI()}.
+        <li> The maximum allowed message size as returned by {@link net.cp.syncml.client.Transport#getMaxMsgSize() Transport.getMaxMsgSize()}.
+        <li> Any required authentication details. The username and password supplied when creating the 
+             {@link net.cp.syncml.client.SyncManager SyncManager} instance will be used for this.
+    </ul>
+
+The message body itself will contain one or more of the following:
+
+<h4><a name="AlertCmd">Alert Command</h4>
+An Alert command is sent to the SyncML server for each record store that is to be synced. Each Alert command 
+encapsulates the following:
+    <ul>
+        <li> The ID of the local store as returned by {@link net.cp.syncml.client.store.RecordStore#getClientURI() RecordStore.getClientURI()}.
+        <li> The ID of the remote store as returned by {@link net.cp.syncml.client.store.RecordStore#getServerURI() RecordStore.getServerURI()}.
+        <li> The record store anchor associated with the current sync session as returned by 
+             {@link net.cp.syncml.client.store.RecordStore#getNextAnchor() RecordStore.getNextAnchor()}.
+        <li> The record store anchor associated with the last successful sync session as returned by 
+             {@link net.cp.syncml.client.store.RecordStore#getLastAnchor() RecordStore.getLastAnchor()} if it is available.
+        <li> The preferred type of sync to perform as returned by {@link net.cp.syncml.client.store.RecordStore#getSyncType() RecordStore.getSyncType()}.
+        <li> Any meta information extensions as returned by {@link net.cp.syncml.client.store.RecordStore#getMetaInfoExtensions() RecordStore.getMetaInfoExtensions()}.
+    </ul>
+
+<h4><a name="SyncCmd">Sync Command</h4>
+A Sync command is sent to the SyncML server for each record store that is to be synced. Each Sync command 
+encapsulates the following:
+    <ul>
+        <li> The ID of the local store as returned by {@link net.cp.syncml.client.store.RecordStore#getClientURI() RecordStore.getClientURI()}.
+        <li> The ID of the remote store as returned by {@link net.cp.syncml.client.store.RecordStore#getServerURI() RecordStore.getServerURI()}.
+        <li> The records to be synced as returned by either {@link net.cp.syncml.client.store.RecordStore#getChangedRecords() RecordStore.getChangedRecords()}
+             (if performing a two-way sync or a one-way from client sync) or {@link net.cp.syncml.client.store.RecordStore#getAllRecords() RecordStore.getAllRecords()}
+             (if performing a two-way slow sync or a refresh from client sync). For each record returned, the following information is included:
+                <ul>
+                    <li> The change type as returned by {@link net.cp.syncml.client.store.Record#getChangeType() Record.getChangeType()}
+                         indicates the type of action to request ("Add", "Replace" or "Delete").
+                    <li> The local ID of the record as returned by {@link net.cp.syncml.client.store.Record#getLocalId() Record.getLocalId()}
+                    <li> The local ID of the parent of the record (if any) as returned by {@link net.cp.syncml.client.store.Record#getParentId() Record.getParentId()}
+                    <li> The content type of the data (if any) contained in the record as returned by {@link net.cp.syncml.client.store.Record#getContentType() Record.getContentType()}.
+                    <li> The size of the data contained in the record as returned by {@link net.cp.syncml.client.store.Record#getDataSize() Record.getDataSize()}
+                         if the data (if any) must be split across multiple messages due to the "max message size" setting.
+                    <li> The data (if any) contained in the record as returned by {@link net.cp.syncml.client.store.Record#getData(byte[], int) Record.getData(...)}.
+                </ul>
+    </ul>
+
+<h4><a name="MapCmd">Map Command</h4>
+A Map command is sent to the SyncML server in response to "Add" requests from the server. Each Map command encapsulates 
+the following:
+    <ul>
+        <li> The ID of the local store that was the recipient of the "Add" requests.
+        <li> The ID of the remote store that was the originator of the "Add" requests.
+        <li> One Map item for each "Add" request from the server. Each Map item contains the following:
+                <ul>
+                    <li> The remote ID of the record in the remote record store.
+                    <li> The local ID of the newly added record as returned by {@link net.cp.syncml.client.store.RecordStore#addRecordEnd(boolean) RecordStore.addRecordEnd(...)}.
+                </ul>
+    </ul>
+
+<h4><a name="DevInfo">Device Information</h4>
+Device information encapsulates the following:
+    <ul>
+        <li> The ID of the device as returned by {@link net.cp.syncml.client.devinfo.Device#getDeviceID() Device.getDeviceID()}.
+        <li> The type of the device as returned by {@link net.cp.syncml.client.devinfo.Device#getDeviceType() Device.getDeviceType()}.
+        <li> The manufacturer of the device as returned by {@link net.cp.syncml.client.devinfo.Device#getManufacturer() Device.getManufacturer()}.
+        <li> The model of the device as returned by {@link net.cp.syncml.client.devinfo.Device#getModel() Device.getModel()}.
+        <li> The OEM of the device as returned by {@link net.cp.syncml.client.devinfo.Device#getOem() Device.getOem()}.
+        <li> The software version of the device as returned by {@link net.cp.syncml.client.devinfo.Device#getSoftwareVersion() Device.getSoftwareVersion()}.
+        <li> The hardware version of the device as returned by {@link net.cp.syncml.client.devinfo.Device#getHardwareVersion() Device.getHardwareVersion()}.
+        <li> The firmware version of the device as returned by {@link net.cp.syncml.client.devinfo.Device#getFirmwareVersion() Device.getFirmwareVersion()}.
+        <li> The capabilities of the device (supported content types, extensions, etc) as returned by 
+             {@link net.cp.syncml.client.devinfo.Device#getCapabilities() Device.getCapabilities()}.
+        <li> For each record store, the following information is included:
+                <ul>
+                    <li> The ID of the store as returned by {@link net.cp.syncml.client.store.RecordStore#getClientURI() RecordStore.getClientURI()}.
+                    <li> The display name of the store as returned by {@link net.cp.syncml.client.store.RecordStore#getDisplayName() RecordStore.getDisplayName()}.
+                    <li> The capabilities of the store (free memory, supported content types, max GUID size, etc) as returned by 
+                         {@link net.cp.syncml.client.store.RecordStore#getCapabilities() RecordStore.getCapabilities()}.
+                </ul>
+    </ul>
+</body>

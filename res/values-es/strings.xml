@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Agenda CoIP</string>
+    <string name="splash_cp">Corporate IP</string>
+    <string name="app_name_bold"><b>Agenda Corporate IP</b></string>
+    <string name="status_last">Resumen sincronización </string>
+    <string name="status_sync_notes">Pulse en el botón "Sincronizar" para realizar una copia de su agenda del teléfono a la red o actualizar los últimos cambios</string>
+    <string name="status_default_sync_date">Todavía no se ha sincronizado</string>
+    <string name="status_on">, a</string>
+    <string name="status_sent">Actualizaciones enviadas: </string>
+    <string name="status_received">Actualizaciones recibidas: </string>
+    <string name="status_errors">Errores: </string>
+    <string name="status">Estado</string>
+    <string name="status_notes">para consultar los datos de la última sincronización, pulse "Ver Registro"</string>
+
+    <!-- Menu strings -->
+    <string name="menu_settings">Configuración</string>
+    <string name="menu_sync_log">Ver Registro</string>
+    <string name="menu_about">Acerca de</string>
+    <string name="menu_help">Ayuda</string>
+    <string name="menu_exit">Salir</string>
+    <string name="menu_reset_sync_log">Reiniciar contadores</string>
+    <string name="menu_terms_and_conditions">Términos y Condiciones</string>
+
+    <!-- Status strings -->
+    <string name="status_starting">Inicio</string>
+    <string name="status_resuming">Reanudando...</string>
+    <string name="status_suspending">Parando...</string>
+    <string name="status_initializing">Inicialización</string>
+    <string name="status_suspended">Suspendido</string>
+    <string name="status_temp_problem">Problema temporal</string>
+    <string name="status_press_resume">Pulse Reanudar para continuar</string>
+    <string name="status_success">Éxito</string>
+    <string name="status_failed">Fallo</string>
+    <string name="status_check_settings">Compruebe la configuración</string>
+    <string name="status_operation_failed">Error en la operación</string>
+    <string name="status_operation_conflict">Resolución de Conflictos</string>
+    <string name="status_no_updates">No hay actualizaciones</string>
+    <string name="status_incomplete">Incompleto</string>
+    <string name="status_aborted_by_user">Cancelado por usuario</string>
+    <string name="status_connection_error">Error de conexión</string>
+    <string name="status_credentials_error">nombre de usuario y / o contraseña erróneo. Inténtelo de nuevo o consulte la Ayuda para obtener más información.</string>
+    <string name="status_device_full">Dispositivo lleno</string>
+    <string name="status_sync_complete">Sincronización finalizada</string>
+    <string name="status_receiving_updates">Recibiendo actualizaciones</string>
+    <string name="status_checking_contacts">Comprobando contactos</string>
+    <string name="status_sending_updates">Envío de actualizaciones</string>
+    <string name="status_loading_contacts">Cargando contactos</string>
+    <string name="status_deleting_contact">Eliminando contactos</string>
+
+    <!-- Terms and Conditions dialog -->
+    <string name="accept"><B>Aceptar</B></string>
+    <string name="decline">Rechazar</string>
+
+    <!-- Login Dialog -->
+    <string name="enter_account_details">Introduzca los detalles de la cuenta:</string>
+    <string name="empty_credentials_error">Por favor, asegúrese que  nombre de usuario y contraseña no están vacíos</string>
+    <string name="empty_server_name_and_port_error">Por favor, asegúrese que el nombre de host del servidor no está vacío.</string>
+    <string name="port_number_should_be_a_decimal_number">Por favor, asegúrese de que el número de puerto es un número entero.</string>
+    <string name="registered_account">Usted necesita tener una cuenta de Agenda Personal Única para poder utilizar esta aplicación.</string>
+    <string name="agree_terms_and_conditions">Al utilizar este servicio, usted acepta los términos y condiciones de APU. Para revisarlos por favor seleccionar términos en el menú.</string>
+    <string name="check_credentials_text">Estamos a punto de confirmar su usuario y contraseña y realizar una copia de seguridad de sus contactos. También vamos a restablecer los contactos que ya tienes en tu cuenta APU a su móvil.\n\nPulse Continuar para iniciar o Cancelar para hacerlo más adelante</string>
+
+    <!-- Post Sync Dialog -->
+    <string name="post_sync_msg_text">Este es el mensaje de texto para la notificación de sincronización</string>
+
+    <!-- Pre Sync Dialog -->
+    <string name="pre_sync_msg_text">¿Seguro de que desea sincronizar?</string>
+
+    <!-- Home Screen / MainActivity Strings -->
+
+
+    <!-- Button Strings -->
+    <string name="suspend">Suspender</string>
+    <string name="resume">Reanudar</string>
+    <string name="sync">Sincronizar</string>
+    <string name="sign_in">Acceder</string>
+    <string name="ok">OK</string>
+    <string name="cont">Continuar</string>
+    <string name="cancel">Cancelar</string>
+    <string name="abort">Interrumpir</string>
+    <string name="syncing">Sincronizando...</string>
+    <string name="resuming">Reanudando</string>
+    <string name="suspending">Parando</string>
+    <string name="cancelling">Cancelando...</string>
+    <string name="reset">Reiniciar</string>
+
+    <!-- General Strings -->
+    <string name="heading_placeholder"></string>
+    <string name="details_placeholder"></string>
+    <string name="syncing_contacts">Sincronizando</string>
+    <string name="sync_in_progress">Sincronización en curso:</string>
+    <string name="sis_received">Solicitud de sincronización en línea recibida. Pulse aquí para sincronizar.</string>
+    <string name="cis_received">Contactos han cambiado en el teléfono. Pulse aquí para sincronizar</string>
+    <string name="cis_no_password">Haga clic aquí para escribir sus credenciales para sincronizar</string>
+
+    <!-- Sync Log Strings -->
+    <string name="last_sync">Última sincronización</string>
+    <string name="contacts">Contactos</string>
+    <string name="phone">Teléfono</string>
+    <string name="server">Servidor</string>
+    <string name="added">Añadido</string>
+    <string name="edited">Actualizado</string>
+    <string name="deleted">Borrado</string>
+    <string name="error">Errores</string>
+    <string name="conflict">Conflictos</string>
+    <string name="default_count">0</string>
+    <string name="to_date">Hasta la fecha</string>
+    <string name="times_start">Usted ha sincronizado</string>
+    <string name="times_end">veces desde el último reset</string>
+    <string name="sync_log_header">Registro sincronización</string>
+    <string name="last_sync_counters"></string>
+    <string name="total_sync_counters_header">Total hasta la fecha</string>
+    <string name="total_sync_counters"></string>
+    <string name="last_sync_phone_errors_header">Errores en teléfono</string>
+    <string name="last_sync_phone_errors"></string>
+    <string name="last_sync_server_errors_header">Errores en servidor</string>
+    <string name="last_sync_server_errors"></string>
+
+    <!-- Preference Strings (Categories) -->
+    <string name="gen_settings">Configuración general</string>
+    <string name="sync_options">Opciones de sincronización</string>
+    <string name="contact_options">Opciones de contacto</string>
+
+    <!-- Preference Strings (Account Details PreferenceScreen) -->
+    <string name="acc_details">Detalles de usuario</string>
+    <string name="acc_details_summary">Nombre de usuario y contraseña</string>
+    <string name="acc_username">Nombre de usuario</string>
+    <string name="acc_password">Contraseña</string>
+    <string name="acc_rem_password">Recordar contraseña</string>
+    <string name="acc_server_hostname">Nombre servidor</string>
+    <string name="acc_server_port">Puerto del servidor</string>
+    <string name="acc_use_ssl">Conectar usando SSL</string>
+
+    <!-- Preference Strings (Auto Sync PreferenceScreen) -->
+    <string name="auto_sync">Sincronización automática</string>
+    <string name="auto_sync_summary">Ajustes de la sincronización automática</string>
+    <string name="auto_sync_settings">Ajustes de sincronización automática</string>
+    <string name="auto_sync_online">Solicitud de sinc. online</string>
+    <string name="auto_sync_online_summary">Activar solicitudes online</string>
+    <string name="auto_sync_changes">Autosinc. por cambios</string>
+    <string name="auto_sync_changes_summary">Habilitar la sincronización automática cuando se detecten cambios en los contactos</string>
+    <string name="auto_sync_detect">Detectar cambios</string>
+    <string name="auto_sync_detect_summary">Número mínimo de cambios para sincronizar</string>
+    <string name="auto_sync_period">Sinc. Periódica</string>
+    <string name="auto_sync_period_days">Intervalo periódico sinc</string>
+    <string name="auto_sync_period_days_summary">Intervalo en días</string>
+    <string name="auto_sync_period_time">Hora de inicio (HH: MM):</string>
+    <string name="auto_sync_period_time_note">Por favor, ajuste el tiempo de sincronización</string>
+
+    <!-- Preference Strings (Sync Mode settings) -->
+    <string name="sync_mode">En red Movistar</string>
+    <string name="sync_mode_summary">Sincronización de contactos en red Movistar</string>
+
+    <string-array name="sync_mode_options">
+        <item>Automático</item>
+        <item>Recordarme</item>
+        <item>Nunca sincronizar</item>
+    </string-array>
+    <string-array name="sync_mode_options_values">
+        <item>2</item>
+        <item>1</item>
+        <item>0</item>
+    </string-array>
+
+    <!-- Preference Strings (Roaming Mode settings) -->
+    <string name="roam_mode">En itinerancia</string>
+    <string name="roam_mode_summary">Sincronización de contactos en itinerancia</string>
+
+    <!-- Preference String (Wifi Mode settings) -->
+    <string name="wifi_mode">En WIFI</string>
+    <string name="wifi_mode_summary">Sincronización de contactos en redes WIFI</string>
+
+    <!-- Preference Strings (Conflict Resolution) -->
+    <string name="conflict_res">Resolución de Conflictos</string>
+    <string name="conflict_res_summary">Ajustes de resolución de conflictos en la sincronización de contactos</string>
+
+    <string-array name="conflict_res_options">
+        <item>Teléfono sobrescribe al servidor</item>
+        <item>Servidor sobrescribe al teléfono</item>
+        <item>Crear duplicados</item>
+        <item>Ignorar cambios</item>
+    </string-array>
+    <string-array name="conflict_res_options_values">
+        <item>4</item>
+        <item>2</item>
+        <item>8</item>
+        <item>16</item>
+    </string-array>
+
+    <!-- AboutDialog Strings -->
+    <string name="copyright">© 2013 Telefónica España S.A.\n\n http://www.agenda.corporateip.telefonica.es</string>
+    <string name="version">Versión</string>
+    <string name="build">, build</string>
+
+    <!-- SyncProgressDialog Strings -->
+    <string name="progess_title">Sincronización en curso:</string>
+
+    <!-- Main Dialog Strings -->
+    <string name="sync_summary">Resumen</string>
+    <string name="sync_date">Todavía no se ha sincronizado</string>
+
+    <!-- General Strings -->
+    <string name="server_alert">Servidor inició sincronización...</string>
+    <string name="downloading_resources">Descarga de recursos...</string>
+    <string name="download_complete">Descarga Completa</string>
+    <string name="loading_resources">Cargando recursos de fichero</string>
+    <string name="error_downloading">Error en descarga de recurso</string>
+    <string name="error_locating">Error localizando depliegue de SMS</string>
+    <string name="contacts_changed"> Cambios en contactos en teléfono. Sincronizando...</string>
+    <string name="minimum_error">Error: El número mínimo de contactos para sincronizar debe estar entre 1 y 100</string>
+    <string name="minimum_days_error">Error: El intervalo mínimo de sincronización es 1</string>
+    <string name="days_range_error">Error: El intervalo de sincronización debe estar ser entre 1 y 365 dias</string>
+    <string name="login_server_hostname_hint">servidor: puerto</string>
+    <string name="slow_sync_alert">Se van a transferir todos los contactos de su agenda al servidor. Este proceso puede llevar unos minutos. Puede dejar la aplicación en segundo plano pulsando la tecla "Home" de su teléfono</string>
+    <!-- Location of the main Help file -->
+    <string name="config_app_helpfile">file:///android_asset/default/help/es/Contacts_Help/index.html</string>
+    <string name="maxmun_days_error">Error: El intervalo máximo de sincronización es 365</string>
+    <string name="config_app_termsandcondition">file:///android_asset/terms.html</string>
+
+</resources>

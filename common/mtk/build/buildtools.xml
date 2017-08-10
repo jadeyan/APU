@@ -1,0 +1,347 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<!-- 
+     Common ANT build file containing common build properties and macros.
+
+     Any properties defined here can be overridden by defining the same 
+     property before importing this file.
+     
+     WARNING: any properties/macros/targets defined in this file should be 
+     prefixed with "mtk." to avoid name conflicts.
+-->
+
+
+<project name="mtk.buildtools"> 
+    
+    <!-- Allow access to all environment variables -->
+    <property environment="mtk.env"/>
+    
+    <!-- Determine the location of the Mobile Toolkit (relative to this (imported) file) -->
+    <dirname property="mtk.buildtools.dir" file="${ant.file.mtk.buildtools}"/>
+    <dirname property="mtk.dir" file="${mtk.buildtools.dir}"/>
+    
+    <!-- The location of the Mobile Toolkit libraries and extensions -->
+    <property name="mtk.lib.dir" location="${mtk.dir}/lib"/>
+    <property name="mtk.ext.dir" location="${mtk.lib.dir}/ext"/>
+    
+    <!-- The location of the Mobile Toolkit source -->
+    <property name="mtk.src.dir" location="${mtk.dir}/src"/>
+    
+    <!-- The location of the Mobile Toolkit classes -->
+    <property name="mtk.classes.dir" location="${mtk.dir}/classes"/>
+    <property name="mtk.j2me.classes.dir" location="${mtk.classes.dir}/j2me"/>
+
+    <!-- 
+        Properties controling the signing of J2ME applications (used as input to <signtask>). 
+        It is expected that the "mtk.sign.enable" and "mtk.sign.password" properties will be overridden when the 
+        top-level build file is executed. For example:
+            ant -Dmtk.sign.enable=true -Dmtk.sign.password=<Password>
+    -->
+    <property name="mtk.sign.enable" value="false"/>
+    <property name="mtk.sign.server" value="mob385-2.eng.cpth.ie"/>
+    <property name="mtk.sign.user" value="sign_request"/>
+    <property name="mtk.sign.password" value=""/>
+    <property name="mtk.sign.putPath" value="/home/signer/signing_inbox"/>
+    <property name="mtk.sign.getPath" value="/home/signer/signing_outbox"/>
+    <property name="mtk.sign.waitBeforeDownload" value="5000"/>
+    <property name="mtk.sign.cert.verisign" value="1"/>
+    <property name="mtk.sign.cert.nii_android" value="8"/>
+    <property name="mtk.sign.cert.nii_cp" value="16"/>
+    <property name="mtk.sign.certs" value="${mtk.sign.cert.verisign}"/>
+
+    <!-- Use these settings to access the signing server from outside the Critical Path firewall -->
+    <!--
+    <property name="mtk.sign.enable" value="false"/>
+    <property name="mtk.sign.server" value="i05.cpth.ie"/>
+    <property name="mtk.sign.user" value="sign_req"/>
+    <property name="mtk.sign.password" value=""/>
+    <property name="mtk.sign.putPath" value="/home/sign_req/signing_inbox"/>
+    <property name="mtk.sign.getPath" value="/home/sign_req/signing_outbox"/>
+    <property name="mtk.sign.waitBeforeDownload" value="30000"/>
+    -->
+
+    
+    <!-- Copies the Mobile Toolkit source for the specified target platform to the specified directory -->
+    <macrodef name="mtk.copyMtkSource">
+        <attribute name="destDir" description="The path to the directory where the MTK source should be copied to"/>
+        <attribute name="platform" description="The target platform (i.e. 'j2me')"/>
+        <sequential>
+            <copy todir="@{destDir}" overwrite="true" includeEmptyDirs="true" failonerror="true">
+                <fileset dir="${mtk.src.dir}" includes="net/cp/mtk/common/,net/cp/mtk/@{platform}/"/>
+            </copy>
+        </sequential>
+    </macrodef>
+
+    <!-- Preprocesses the Mobile Toolkit source for the specified target platform to the specified directory - assumes the Antenna build tools have already been loaded (see "mtk.antenna.load" below) -->
+    <macrodef name="mtk.preprocessMtkSource">
+        <attribute name="destDir" description="The path to the directory where the processed MTK source should be placed"/>
+        <attribute name="platform" description="The target platform (i.e. 'j2me')"/>
+        <attribute name="device" description="The device that the source should be processed for (e.g. 'Nokia/6280')" default="Generic/Java"/>
+        <attribute name="symbols" description="The defined symbols as a comma-separated list of key=value pairs or keys (e.g. 'FOO,BAR=2,BAZ=abc')" default=""/>
+        <element name="symbolsFiles" description="The defined symbols as a collection of wtkpreprocess 'symbols_file' elements" optional="yes"/>
+        <sequential>
+            <echo/>
+            <echo message="Preprocessing the Mobile Toolkit source for device '@{device}' and platform '@{platform}' to '@{destDir}'..."/>
+            
+            <!-- copy the source for the specified platform into a single directory -->
+            <delete dir="${mtk.dir}/src_platform"/>
+            <mtk.copyMtkSource destDir="${mtk.dir}/src_platform" platform="@{platform}"/>
+
+            <!-- preprocess the source -->
+            <wtkpreprocess srcdir="${mtk.dir}/src_platform" destdir="@{destDir}" device="@{device}" symbols="@{symbols}" printsymbols="true">
+                <symbolsFiles/>
+            </wtkpreprocess>                
+
+            <!-- clean up -->
+            <delete dir="${mtk.dir}/src_platform"/>
+        </sequential>
+    </macrodef>
+    
+
+    <!-- Loads and configures the Ant Contrib tasks -->
+    <macrodef name="mtk.antcontrib.load">
+        <sequential>
+            <echo/>
+            <echo message="Loading Ant Contrib tasks (see http://ant-contrib.sourceforge.net/)..."/>
+
+            <taskdef resource="net/sf/antcontrib/antlib.xml" classpath="${mtk.lib.dir}/ant-contrib-1.0b3.jar"/>
+        </sequential>
+    </macrodef>
+
+
+    <!-- Loads and configures the Antenna build tools (i.e. <wtkXXX>) - this requires an installed wireless toolkit (e.g. Sun WTK version 2.5.2) -->
+    <macrodef name="mtk.antenna.load">
+        <attribute name="wtkHome" description="The path to the directory containing the Wireless Toolkit to use" default=""/>
+        <attribute name="wtkCldcVersion" description="The targeted CLDC version" default="1.1"/>
+        <attribute name="wtkMidpVersion" description="The targeted MIDP version" default="2.0"/>
+        <sequential>
+            <echo/>
+            <echo message="Loading Antenna WTK tasks..."/>
+            
+            <!-- try to locate the Sun WTK in the default locations -->
+            <available file="D:/WTK25" type="dir" property="mtk.default.wtk.home" value="D:/WTK25"/>
+            <!--available file="C:/Program Files/WTK2.5.2" type="dir" property="mtk.default.wtk.home" value="C:/Program Files/WTK2.5.2"/-->
+            <available file="D:/Software/SunWTK" type="dir" property="mtk.default.wtk.home" value="D:/Software/SunWTK"/>
+        
+            <!-- if the "wtkHome" was specified, use it - otherwise, use the default location -->
+            <condition property="mtk.wtk.home" value="@{wtkHome}" else="${mtk.default.wtk.home}">
+                <not><equals arg1="@{wtkHome}" arg2="" trim="true"/></not>
+            </condition>
+
+            <!-- make sure the selected WTK is actually present -->
+            <available file="${mtk.wtk.home}" type="dir" property="wtk.home" value="${mtk.wtk.home}"/>
+            <fail unless="wtk.home" message="ERROR: Failed to find the wireless toolkit"/>
+
+            <!-- install Proguard if it's not already present -->
+            <copy file="${mtk.lib.dir}/proguard.jar" todir="${wtk.home}/bin" overwrite="false" failonerror="true"/>
+            
+            <!-- load the Antenna task (enabling all available APIs) -->
+            <echo message="Antenna is using the WTK at '${wtk.home}'"/>
+            <property name="wtk.cldc.version" value="@{wtkCldcVersion}"/>
+            <property name="wtk.midp.version" value="@{wtkMidpVersion}"/>
+            <property name="wtk.optionalpda.enabled" value="true"/>
+            <property name="wtk.mmapi.enabled" value="true"/>
+            <property name="wtk.wma.enabled" value="true"/>
+            <taskdef resource="antenna.properties" classpath="${mtk.lib.dir}/antenna-bin-1.2.1-beta.jar"/>
+        </sequential>
+    </macrodef>
+
+
+    <!-- Loads and configures the J2MEPolish build tools (i.e. <j2mepolish>) -->
+    <macrodef name="mtk.j2mepolish.load">
+        <attribute name="polishHome" description="The path to the directory containing J2MEPolish" default=""/>
+        <sequential>
+            <echo/>
+            <echo message="Loading J2MEPolish tasks..."/>
+                
+            <!-- try to locate J2MEPolish in the default locations -->
+            <available file="D:/J2ME-Polish-2.0.4" type="dir" property="mtk.default.polish.home" value="D:/J2ME-Polish-2.0.4"/>
+        
+            <!-- if the "polishHome" was specified, use it - otherwise, use the default location -->
+            <condition property="mtk.polish.home" value="@{polishHome}" else="${mtk.default.polish.home}">
+                <not><equals arg1="@{polishHome}" arg2="" trim="true"/></not>
+            </condition>
+                    
+             <!-- make sure the selected location is actually present -->
+            <available file="${mtk.polish.home}" type="dir" property="polish.home" value="${mtk.polish.home}"/>
+            <fail unless="polish.home" message="ERROR: Failed to find J2MEPolish"/>
+
+            <!-- load the J2MEPolish tasks and associated properties -->
+            <property file="${polish.home}/global.properties"/>
+            <taskdef name="j2mepolish" classname="de.enough.polish.ant.PolishTask" classpath="${polish.home}/lib/enough-j2mepolish-build.jar:${polish.home}/lib/jdom.jar"/>
+        </sequential>
+    </macrodef>
+                
+
+    <!-- Loads the task used to sign J2ME MIDlets (i.e. <signtask>) -->
+    <macrodef name="mtk.signtask.load">
+        <sequential>
+            <echo/>
+            <echo message="Loading SignTask..."/>
+            
+            <!-- load the SignTask task -->
+            <taskdef name="signtask" classname="SignTask" classpath="${mtk.lib.dir}/SignTask.jar:${mtk.lib.dir}/jftp.jar"/>
+        </sequential>
+    </macrodef>
+    
+    <!-- Signs the specified J2ME MIDlet suite -->
+    <macrodef name="mtk.signtask.signMidlet">
+        <attribute name="localDir" description="The path of the directory containing the JAD/JAR to be signed"/>
+        <attribute name="JADFileName" description="The name of the JAD file to sign"/>
+        <attribute name="JARFileName" description="The name of the JAR file to sign"/>
+        <attribute name="enabled" description="Whether or not signing is enabled" default="${mtk.sign.enable}"/>
+        <attribute name="server" description="The hostname of the signing server" default="${mtk.sign.server}"/>
+        <attribute name="username" description="The name of the user with access to the signing server" default="${mtk.sign.user}"/>
+        <attribute name="password" description="The password of the user with access to the signing server" default="${mtk.sign.password}"/>
+        <attribute name="putPath" description="The path on the server where the unsigned application should be put" default="${mtk.sign.putPath}"/>
+        <attribute name="getPath" description="The path on the server where the signed application can be retrieved from" default="${mtk.sign.getPath}"/>
+        <attribute name="certs" description="A bitmask indicating which certificates should be used to sign the application" default="${mtk.sign.certs}"/>
+        <sequential>
+            <echo/>
+            <echo message="Signing MIDlet suite at '@{localDir}/@{JADFileName}'..."/>
+            
+            <!-- sign the application -->
+            <signtask localDir="@{localDir}" JADFileName="@{JADFileName}" JARFileName="@{JARFileName}" enabled="@{enabled}" server="@{server}" userName="@{username}" password="@{password}" certs="@{certs}" putPath="@{putPath}" getPath="@{getPath}" waitBeforeDownload="${mtk.sign.waitBeforeDownload}"/>
+
+            <!-- cleanup any temp files -->
+            <delete dir="@{localDir}" includes="memova.ready.*"/>
+        </sequential>
+    </macrodef>
+    
+
+    <!-- Loads the ZKM obfuscator tasks (i.e. <zkm>) -->
+    <macrodef name="mtk.zkm.load">
+        <sequential>
+            <echo/>
+            <echo message="Loading ZKM obfuscator tasks..."/>
+            
+            <!-- load the ZKM task -->
+            <taskdef name="zkm" classname="ZKMTask" classpath="${mtk.lib.dir}/zkmObfuscator.jar"/>
+        </sequential>
+    </macrodef>
+
+    <!-- Runs the ZKM obfuscator -->
+    <macrodef name="mtk.zkm.obfuscate">
+        <attribute name="baseDir" description="The base directory"/>
+        <attribute name="scriptFile" description="The path to the obfuscation script to use"/>
+        <sequential>
+            <echo/>
+            <echo message="Running ZKM obfuscator script '@{scriptFile}' from '@{baseDir}'..."/>
+            
+            <!-- load the ZKM task -->
+            <zkm scriptFileName="@{scriptFile}" defaultDirectoryName="@{baseDir}"/>
+        </sequential>
+    </macrodef>
+
+    
+    <!-- Loads the tasks used to access subversion (SVN) servers (i.e. <svn>) - requires a command-line "svn" client (e.g. SlikSVN) on the PATH -->
+    <macrodef name="mtk.svn.load">
+        <sequential>
+            <echo/>
+            <echo message="Loading SVN client (svnant)..."/>
+            
+            <!-- load the Svnant task -->
+            <typedef resource="org/tigris/subversion/svnant/svnantlib.xml" classpath="${mtk.lib.dir}/svnant.jar:${mtk.lib.dir}/svnClientAdapter.jar"/>
+        </sequential>
+    </macrodef>
+
+    <!-- Fails the build if the version of specified resource isn't suitable for release builds (i.e. only tagged version can be used) -->
+    <macrodef name="mtk.svn.checkVersion">
+        <attribute name="url" description="The URL of the resource to check"/>
+        <sequential>
+            <fail message="Resource '@{url}' must be a tagged revision (trunk or branches are not allowed)">
+                <condition>
+                    <or>
+                        <contains string="@{url}" substring="trunk" casesensitive="false"/>
+                        <contains string="@{url}" substring="branches" casesensitive="false"/>
+                    </or>
+                </condition>
+            </fail>
+        </sequential>
+    </macrodef>
+
+    <!-- Checks out the resource at the specified URL from an SVN server -->
+    <macrodef name="mtk.svn.export">
+        <attribute name="url" description="The URL of the resource to export"/>
+        <attribute name="dir" description="The path of the directory where the resource should be placed"/>
+        <attribute name="username" description="The name of the user with access to the SVN server"/>
+        <attribute name="password" description="The password of the user with access to the SVN server"/>
+        <sequential>
+            <echo/>
+            <echo message="Checking out '@{url}' to '@{dir}'..."/>
+
+            <!-- export the required resources -->
+            <delete dir="@{dir}" quiet="false"/>
+            <svn username="@{username}" password="@{password}" svnkit="true" javahl="false" failonerror="true">
+                <export srcUrl="@{url}" destPath="@{dir}"/>
+            </svn> 
+        </sequential>
+    </macrodef>
+
+
+    <!-- Fails the build if the version of specified revision isn't suitable for release builds (i.e. only tagged revisions can be used) -->
+    <macrodef name="mtk.cvs.checkVersion">
+        <attribute name="module" description="The name of the module to check"/>
+        <attribute name="tag" description="The version/tag of the module to check"/>
+        <sequential>
+            <fail message="Revision '@{tag}' of module '@{module}' must be a tagged revision (HEAD or BRANCHs are not allowed)">
+                <condition>
+                    <or>
+                        <equals arg1="@{tag}" arg2="HEAD" trim="true" casesensitive="false"/>
+                        <contains string="@{tag}" substring="BRANCH" casesensitive="false"/>
+                    </or>
+                </condition>
+            </fail>
+        </sequential>
+    </macrodef>
+
+    <!-- Checks out the resource at the specified path on the specified CVS server (i.e. <cvs>) - requires a command-line "cvs" client (e.g. CVSNT) on the PATH -->
+    <macrodef name="mtk.cvs.export">
+        <attribute name="cvsRoot" description="The CVSROOT identifying the CVS server"/>
+        <attribute name="cvsPath" description="The path of the resource to export"/>
+        <attribute name="dir" description="The path of the directory where the resource should be placed"/>
+        <attribute name="tag" description="The CVS tag identifying the version of the resource to export" default="HEAD"/>
+        <sequential>
+            <echo/>
+            <echo message="Checking out version '@{tag}' of '@{cvsRoot}/@{cvsPath}' to '@{dir}'..."/>
+
+            <!-- export the required resources -->
+            <delete dir="@{dir}" quiet="false"/>
+            <cvs command="export -d '@{dir}'" cvsRoot="@{cvsRoot}" package="@{cvsPath}" tag="@{tag}" failonerror="true"/>
+        </sequential>
+    </macrodef>
+
+
+    <!-- Packages the application source in the specified directory into the specified tarball -->
+    <macrodef name="mtk.tar.src">
+        <attribute name="destfile" description="The path to the file containing the packaged source" default="Src.tar.gz"/>
+        <attribute name="srcDir" description="The path to the directory containing the source to be packaged" default="."/>
+        <attribute name="excludes" description="A comma-separated list of file patterns to exclude from the source package" default="**/*.class,**/*.tar.gz"/>
+        <attribute name="compression" description="The compression to use ('none', 'gzip' or 'bzip2')" default="gzip"/>
+        <sequential>
+            <echo/>
+            <echo message="Packing source at '@{srcDir}' to '@{destfile}'..."/>
+
+            <delete file="@{destfile}" quiet="true"/>
+            <tar destfile="@{destfile}" compression="@{compression}">
+                <tarfileset dir="@{srcDir}" excludes="@{excludes}"/>
+            </tar>
+        </sequential>
+    </macrodef>
+    
+    
+    <!-- Runs the build files for the sub-projects found the specified directory and sub-directories -->
+    <macrodef name="mtk.subant">
+        <attribute name="baseDir" description="The path to the base directory containing the sub-projects" default="."/>
+        <attribute name="target" description="The target to execute" default=""/>
+        <attribute name="inheritall" description="Should the sub-projects inherit the properties of the parent project" default="true"/>
+        <sequential>
+            <subant inheritall="@{inheritall}" failonerror="true">
+                <target name="@{target}"/>
+                <fileset dir="@{baseDir}" includes="**/build.xml"/>
+            </subant>
+        </sequential>
+    </macrodef>
+    
+</project>

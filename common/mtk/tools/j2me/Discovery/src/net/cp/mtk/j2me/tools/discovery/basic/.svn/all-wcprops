@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 114
+/svn/mobiletools/!svn/ver/112/Java/tags/MTK-1_0_005/tools/j2me/Discovery/src/net/cp/mtk/j2me/tools/discovery/basic
+END
+RMS.java
+K 25
+svn:wc:ra_dav:version-url
+V 123
+/svn/mobiletools/!svn/ver/112/Java/tags/MTK-1_0_005/tools/j2me/Discovery/src/net/cp/mtk/j2me/tools/discovery/basic/RMS.java
+END
+SystemProperties.java
+K 25
+svn:wc:ra_dav:version-url
+V 136
+/svn/mobiletools/!svn/ver/112/Java/tags/MTK-1_0_005/tools/j2me/Discovery/src/net/cp/mtk/j2me/tools/discovery/basic/SystemProperties.java
+END
+CharacterSets.java
+K 25
+svn:wc:ra_dav:version-url
+V 133
+/svn/mobiletools/!svn/ver/112/Java/tags/MTK-1_0_005/tools/j2me/Discovery/src/net/cp/mtk/j2me/tools/discovery/basic/CharacterSets.java
+END
+SystemMemory.java
+K 25
+svn:wc:ra_dav:version-url
+V 132
+/svn/mobiletools/!svn/ver/112/Java/tags/MTK-1_0_005/tools/j2me/Discovery/src/net/cp/mtk/j2me/tools/discovery/basic/SystemMemory.java
+END
+Midlet.java
+K 25
+svn:wc:ra_dav:version-url
+V 126
+/svn/mobiletools/!svn/ver/112/Java/tags/MTK-1_0_005/tools/j2me/Discovery/src/net/cp/mtk/j2me/tools/discovery/basic/Midlet.java
+END

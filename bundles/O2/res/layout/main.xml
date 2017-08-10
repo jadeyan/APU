@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@drawable/background">
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:layout_width="fill_parent"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:paddingTop="10dp"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/status"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:text="@string/status_last"
+            android:layout_alignParentTop="true"
+            android:textColor="@color/solid_white"
+            android:textSize="15sp" android:background="@color/pms_2747">
+        </TextView>
+
+        <TextView
+            android:id="@+id/syncdate"
+            android:layout_height="wrap_content"
+            android:layout_width="fill_parent"
+            android:gravity="center_horizontal"
+            android:text="@string/status_default_sync_date"
+            android:layout_below="@+id/status"
+            android:textColor="@color/solid_black"
+            android:textSize="15sp"
+            android:background="@drawable/ic_panel_background_last_sync">
+        </TextView>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:visibility="gone"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="80dp">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/memova_logo"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:gravity="center"
+        android:layout_height="fill_parent"
+        android:orientation="horizontal">
+
+        <Button android:id="@+id/sync_btn"
+            android:text="@string/sync"
+            android:background="@drawable/button_softgradient"
+            android:textColor="@color/solid_white"
+            android:layout_width="100sp"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:paddingBottom="10sp"
+            android:paddingTop="10sp"/>
+
+    </LinearLayout>
+
+</LinearLayout>
+

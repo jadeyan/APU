@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@drawable/background"
+    >
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp" android:background="@color/pms_2747">
+
+        <TextView
+            android:layout_height="wrap_content"
+            android:text="@string/last_sync"
+            android:layout_alignParentTop="true"
+            android:textSize="15sp"
+            android:layout_width="fill_parent"
+            android:gravity="center_horizontal"
+            android:textColor="@color/solid_white">
+        </TextView>
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/ic_panel_background_post_sync"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp">
+        <TextView
+            android:id="@+id/post_sync_status"
+            android:layout_height="wrap_content"
+            android:textColor="@color/solid_black"
+            android:textSize="15sp"
+            android:layout_width="fill_parent"
+            android:gravity="center_horizontal">
+        </TextView>
+
+    </LinearLayout>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:gravity="center_horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:background="@drawable/ic_panel_background_single_post_sync">
+
+        <TextView
+            android:id="@+id/post_sync_msg"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:text="@string/post_sync_msg_text"
+            android:textColor="@color/solid_black"
+            android:textSize="15sp">
+        </TextView>
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="10dp">
+    </View>
+
+    <LinearLayout
+         android:orientation="horizontal"
+         android:gravity="center"
+         android:layout_width="fill_parent"
+         android:layout_height="fill_parent">
+         <Button
+             android:text="@string/ok"
+             android:id="@+id/post_sync_ok_btn"
+             android:layout_width="100sp"
+             android:layout_height="wrap_content"
+             android:textSize="12sp"
+             android:paddingBottom="10sp"
+             android:paddingTop="10sp"
+             android:textColor="@color/solid_white"
+             android:background="@drawable/button_softgradient">
+         </Button>
+     </LinearLayout>
+</LinearLayout>

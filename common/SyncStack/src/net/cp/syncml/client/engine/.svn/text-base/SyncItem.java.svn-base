@@ -1,0 +1,60 @@
+/**
+ * Copyright © 2004-2007 Critical Path, Inc. All Rights Reserved.
+ */
+package net.cp.syncml.client.engine;
+
+
+/**
+ * A class representing a data item.
+ *
+ * @author Denis Evoy
+ */
+public class SyncItem
+{
+    public String targetUri;                    //the target URI of the item
+    public String sourceUri;                    //the target URI of the item
+    public String targetParentUri;              //the target URI of the parent of the item
+    public String sourceParentUri;              //the target URI of the parent of the item
+    public Metinf metinf;                       //the meta information associated with the item
+    public byte[] data;                         //the item data
+    public boolean moreData;                    //indicates if there is more data associated with the item
+    
+    //item state when handling chunked data
+    public long totalSize;                      //the total number of bytes in the item
+    public long chunkedBytesSent;               //the number of bytes of the item that have been sent to the server    
+    public long chunkedBytesReceived;           //the number of bytes of the item that have been received from the server
+    public int discardCount;                    //the number of bytes of the item that should be discarded
+
+    
+    public SyncItem()
+    {
+        super();
+        
+        clear();
+    }
+    
+    
+    public String getUri()
+    {
+        if (sourceUri != null)
+            return sourceUri;
+        
+        return targetUri;
+    }
+
+
+    public void clear()
+    {
+        targetUri = null;
+        sourceUri = null;
+        targetParentUri = null;
+        sourceParentUri = null;
+        metinf = null;
+        data = null;
+        moreData = false;
+        totalSize = 0;
+        chunkedBytesSent = 0;
+        chunkedBytesReceived = 0;
+        discardCount = 0;
+    }
+}

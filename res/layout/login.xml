@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout 
+	xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent" 
+    android:layout_height="fill_parent"
+    android:fillViewport="true" android:orientation="vertical" android:background="@drawable/background">
+    <TextView android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:paddingTop="2dp"
+        android:paddingBottom="3dp"
+        android:text="@string/app_name_bold"
+        android:textSize="15sp"
+        android:background="@color/title_bar_bg"
+        android:textColor="@color/solid_white"/>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ScrollView" 
+    android:layout_width="fill_parent" 
+    android:fillViewport="true" android:layout_height="100dp" android:layout_weight="1">
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+
+    <!-- <LinearLayout
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/ic_title_background_login"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp">
+
+        <TextView
+            android:layout_height="wrap_content"
+            android:text="@string/enter_account_details"
+            android:layout_alignParentTop="true"
+            android:textSize="15sp"
+            android:layout_width="fill_parent"
+            android:gravity="center_horizontal"
+            android:textColor="@color/solid_white">
+        </TextView>
+    </LinearLayout> -->
+
+    <LinearLayout
+        android:id="@+id/loginview"
+        android:layout_marginTop="30dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:layout_width="fill_parent" android:layout_height="wrap_content">
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:gravity="center_horizontal"
+            android:orientation="vertical" android:layout_gravity="left">
+            <!-- <TextView android:id="@+id/TextView01" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="@string/acc_username" android:textColor="@color/solid_black"></TextView> -->
+            <View
+                android:layout_width="fill_parent"
+                android:layout_height="10dp">
+            </View>
+            <EditText
+                android:text=""
+                android:id="@+id/login_acc_username"
+                android:hint="@string/acc_username"
+                android:layout_width="fill_parent" android:layout_height="wrap_content">
+            </EditText>
+            <View
+                android:layout_width="fill_parent"
+                android:layout_height="10dp">
+            </View>
+            <!-- <TextView
+                android:text="@string/acc_password"
+                android:id="@+id/text_acc_password"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/solid_black">
+            </TextView> -->
+            <View
+                android:layout_width="fill_parent"
+                android:id="@+id/view1"
+                android:layout_height="10dp">
+            </View>
+            <EditText
+                android:text=""
+                android:hint="@string/acc_password"
+                android:id="@+id/login_acc_password"
+                android:layout_width="fill_parent"
+                android:inputType="textPassword" android:layout_height="wrap_content">
+            </EditText>
+            <!-- <View android:layout_width="fill_parent" android:layout_height="10dp"></View>
+            <TextView android:id="@+id/text_acc_username" android:layout_width="fill_parent" android:layout_height="wrap_content" android:textColor="@color/solid_black" android:text="@string/acc_server_hostname"></TextView>
+            <View android:layout_width="fill_parent" android:layout_height="10dp"></View>
+            <EditText android:layout_width="fill_parent" android:inputType="text" android:id="@+id/login_server_hostname" android:hint="@string/login_server_hostname_hint" android:layout_height="wrap_content"></EditText> -->
+            <View android:layout_width="fill_parent" android:layout_height="10dp"></View>
+            <!-- <CheckBox android:layout_width="match_parent" android:text="@string/acc_use_ssl" android:textColor="@color/solid_black" android:id="@+id/login_connect_using_ssl" android:layout_height="wrap_content"></CheckBox> -->
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/terms_textviews"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp" android:layout_marginBottom="10dp" android:layout_marginTop="10dp">
+
+        <TextView
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:textSize="15sp"
+            android:autoLink="none"
+            android:layout_width="fill_parent"
+            android:paddingBottom="10dp"
+            android:textColor="@color/sync_font_deep_gray" android:text="@string/registered_account">
+        </TextView>
+
+        <TextView
+            android:layout_height="wrap_content"
+            android:text="@string/agree_terms_and_conditions"
+            android:layout_alignParentTop="true"
+            android:textSize="15sp"
+            android:autoLink="web"
+            android:layout_width="fill_parent"
+            android:textColor="@color/sync_font_deep_gray">
+        </TextView>
+    </LinearLayout>
+</LinearLayout>
+</ScrollView>
+<LinearLayout android:orientation="horizontal" 
+    android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:paddingBottom="10dp"
+        android:layout_width="fill_parent" android:layout_height="wrap_content">
+        <Button android:layout_weight="1" 
+            android:text="@string/sign_in" 
+            android:textColor="@color/solid_white"
+            android:textSize="20sp"
+            android:layout_height="wrap_content" 
+            android:id="@+id/login_ok_btn" 
+            android:background="@drawable/ic_button_background"
+            android:layout_width="fill_parent"></Button>
+        <View android:layout_width="10dp"
+            android:layout_height="10dp"/>
+        <Button android:layout_weight="1" 
+            android:text="@string/cancel" 
+            android:textColor="@color/solid_white"
+            android:textSize="20sp"
+            android:layout_height="wrap_content" 
+            android:id="@+id/login_cancel_btn"
+            android:background="@drawable/ic_button_background" 
+            android:layout_width="fill_parent"></Button>
+    </LinearLayout>
+</LinearLayout>

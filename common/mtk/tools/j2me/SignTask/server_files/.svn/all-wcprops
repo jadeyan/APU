@@ -1,0 +1,53 @@
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/mobiletools/!svn/ver/112/Java/tags/MTK-1_0_005/tools/j2me/SignTask/server_files
+END
+cleaner.sh
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/svn/mobiletools/!svn/ver/112/Java/tags/MTK-1_0_005/tools/j2me/SignTask/server_files/cleaner.sh
+END
+process_remote_files.sh
+K 25
+svn:wc:ra_dav:version-url
+V 108
+/svn/mobiletools/!svn/ver/112/Java/tags/MTK-1_0_005/tools/j2me/SignTask/server_files/process_remote_files.sh
+END
+signjar.sh
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/svn/mobiletools/!svn/ver/112/Java/tags/MTK-1_0_005/tools/j2me/SignTask/server_files/signjar.sh
+END
+JadTool.jar
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/svn/mobiletools/!svn/ver/112/Java/tags/MTK-1_0_005/tools/j2me/SignTask/server_files/JadTool.jar
+END
+signjad.sh
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/svn/mobiletools/!svn/ver/112/Java/tags/MTK-1_0_005/tools/j2me/SignTask/server_files/signjad.sh
+END
+autosigner.sh
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/svn/mobiletools/!svn/ver/112/Java/tags/MTK-1_0_005/tools/j2me/SignTask/server_files/autosigner.sh
+END
+restart_signing_service.sh
+K 25
+svn:wc:ra_dav:version-url
+V 111
+/svn/mobiletools/!svn/ver/112/Java/tags/MTK-1_0_005/tools/j2me/SignTask/server_files/restart_signing_service.sh
+END
+manualsigner.sh
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/svn/mobiletools/!svn/ver/112/Java/tags/MTK-1_0_005/tools/j2me/SignTask/server_files/manualsigner.sh
+END

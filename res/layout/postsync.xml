@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/title_bar_bg"
+        android:gravity="center_horizontal"
+        android:paddingBottom="3dp"
+        android:paddingTop="2dp"
+        android:text="@string/app_name_bold"
+        android:textColor="@color/solid_white"
+        android:textSize="15sp" />
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:background="@drawable/main_background"
+        android:orientation="vertical" >
+
+        <ScrollView
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="vertical" >
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:orientation="vertical"
+                android:paddingTop="50dp" >
+
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical" >
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/logo" />
+
+                    <View
+                        android:layout_width="fill_parent"
+                        android:layout_height="20dp" />
+
+                    <TextView
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_horizontal"
+                        android:text="@string/last_sync"
+                        android:textColor="@color/sync_font_deep_gray"
+                        android:textSize="18sp" >
+                    </TextView>
+
+                    <View
+                        android:layout_width="fill_parent"
+                        android:layout_height="20dp" />
+
+                    <TextView
+                        android:id="@+id/post_sync_status"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_horizontal"
+                        android:lineSpacingExtra="15dp"
+                        android:textColor="@color/sync_font_deep_gray"
+                        android:textSize="18sp" >
+                    </TextView>
+                </LinearLayout>
+
+                <!--
+        <LinearLayout
+	        android:orientation="vertical"
+	        android:gravity="center_horizontal"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:background="@drawable/ic_panel_background_post_sync"
+	        android:layout_marginLeft="10dp"
+	        android:layout_marginRight="10dp">
+	        <TextView
+	            android:id="@+id/post_sync_status"
+	            android:layout_height="wrap_content"
+	            android:textColor="@color/solid_black"
+	            android:textSize="15sp"
+	            android:layout_width="fill_parent"
+	            android:gravity="center_horizontal">
+	        </TextView>
+	
+	    </LinearLayout>
+	
+	    <View
+	        android:layout_width="fill_parent"
+	        android:layout_height="10dp">
+	    </View>
+                -->
+
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="horizontal" >
+
+                    <Button
+                        android:id="@+id/post_sync_ok_btn"
+                        android:layout_width="250sp"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/ic_button_background"
+                        android:text="@string/ok"
+                        android:textColor="@color/solid_white"
+                        android:textSize="20sp" >
+                    </Button>
+                </LinearLayout>
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+
+</LinearLayout>

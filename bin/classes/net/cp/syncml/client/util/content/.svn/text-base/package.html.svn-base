@@ -1,0 +1,11 @@
+<body>
+
+    The package containing classes for handling file and folder data sync. <br/><br/>
+    
+    This package is intended for use by those attempting to implement a content (i.e. file and folder)
+    {@link net.cp.syncml.client.store.RecordStore record store}. In particular, the included classes
+    can be used to the parse data during incoming {@link net.cp.syncml.client.store.RecordStore#addRecordData(byte[] data) Add} 
+    and {@link net.cp.syncml.client.store.RecordStore#replaceRecordData(byte[] data) Replace} requests.
+    See {@link net.cp.syncml.client.util.content.ContentCodepage} for more details.
+
+</body>

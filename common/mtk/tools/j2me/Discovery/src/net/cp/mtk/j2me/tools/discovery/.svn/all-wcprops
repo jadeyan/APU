@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 108
+/svn/mobiletools/!svn/ver/112/Java/tags/MTK-1_0_005/tools/j2me/Discovery/src/net/cp/mtk/j2me/tools/discovery
+END
+Logger.java
+K 25
+svn:wc:ra_dav:version-url
+V 120
+/svn/mobiletools/!svn/ver/112/Java/tags/MTK-1_0_005/tools/j2me/Discovery/src/net/cp/mtk/j2me/tools/discovery/Logger.java
+END
+SetupForm.java
+K 25
+svn:wc:ra_dav:version-url
+V 123
+/svn/mobiletools/!svn/ver/112/Java/tags/MTK-1_0_005/tools/j2me/Discovery/src/net/cp/mtk/j2me/tools/discovery/SetupForm.java
+END
+DiscoveryMIDlet.java
+K 25
+svn:wc:ra_dav:version-url
+V 129
+/svn/mobiletools/!svn/ver/112/Java/tags/MTK-1_0_005/tools/j2me/Discovery/src/net/cp/mtk/j2me/tools/discovery/DiscoveryMIDlet.java
+END
+TestRunForm.java
+K 25
+svn:wc:ra_dav:version-url
+V 125
+/svn/mobiletools/!svn/ver/112/Java/tags/MTK-1_0_005/tools/j2me/Discovery/src/net/cp/mtk/j2me/tools/discovery/TestRunForm.java
+END

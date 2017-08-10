@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="cp-syncml"
+         basedir="." 
+         default="all">
+
+    <!-- Setup Properties -->
+    <tstamp/>
+    <property name="jwt.bootstrap" value="${jwt}/lib/cldcapi10.jar${path.separator}${jwt}/lib/midpapi10.jar"/>
+    <property name="jwt.preverify" value="${jwt}/bin/preverify"/>
+
+    <property name="pg.proguard" value="${pg}/lib/proguard.jar"/>
+    
+    <property name="src" value="src"/>
+    <property name="src.target" value="cp-syncml-src-java.tar.gz"/>
+        
+    <property name="bin" value="bin"/>
+    <property name="bin.classes" value="${bin}/classes"/>
+    <property name="bin.classes.jwt" value="${bin}/classes-jwt"/>
+    <property name="bin.target" value="cp-syncml-bin-java.tar.gz"/>    
+
+    <property name="lib" value="lib"/>
+
+    <property name="docs.root" value="docs"/>
+    <property name="docs.api" value="${docs.root}/api"/>
+    <property name="docs.target" value="${docs.root}/cp-syncml-docs.tar.gz"/>
+
+    <property name="jar.root" value="${bin}"/>
+    <property name="jar.target" value="${jar.root}/cp-syncml.jar"/>    
+    <property name="jar.target.jwt" value="${jar.root}/cp-syncml-jwt.jar"/>    
+    <property name="jar.target.jwt.pg" value="${jar.root}/cp-syncml-jwt-pg.jar"/>    
+    <property name="jar.target.test" value="${jar.root}/cp-syncml-test.jar"/>    
+
+    <property name="revision" value="${DSTAMP}"/>
+    <property name="version" value="2.1.0.0-${revision}"/>
+
+    <echo message="Performing Build..."/>
+    <echo message="Build Date: ${TSTAMP} ${TODAY}"/>
+    <echo message="Build Version: ${version}"/>
+
+
+    <!-- Get the Mobile Toolkit from the SVN server (requires the Svnant libraries in the "lib" directory) --> 
+    <property name="mtk.dir" location="common/mtk"/>
+    <property name="mtk.url" value="http://gforge.cpth.ie/svn/mobiletools/Java/tags/MTK-1_0_003"/>
+    <echo message="Getting Mobile Toolkit from '${mtk.url}' to '${mtk.dir}'..."/>
+    <delete dir="${mtk.dir}" quiet="true"/>
+    <typedef resource="org/tigris/subversion/svnant/svnantlib.xml" classpath="${lib}/svnant.jar:${lib}/svnClientAdapter.jar"/>
+    <svn username="${svn.user}" password="${svn.password}" javahl="false" failonerror="true">
+        <export srcUrl="${mtk.url}" destPath="${mtk.dir}"/>
+    </svn>
+    <import file="${mtk.dir}/build/buildtools.xml"/>
+        
+
+    <!-- Setup the classpath to include the relevant external libraries -->
+    <path id="classpath">
+        <fileset dir="${lib}">
+            <include name="**/*.jar"/>
+            <include name="**/*.zip"/>
+        </fileset>
+    </path>
+
+    
+    <!-- Target defining the default build action -->
+    <target name="all" 
+        description="Rebuild everything" 
+        depends="clean,tar-src,compile-source,compile-source-jwt,jar,jar-jwt,optimize-pg,compile-javadocs,tar-bin">
+    </target>
+
+
+    <!-- Target for removing any built binaries and directories -->
+    <target name="clean" 
+        description="Clean the build directory" 
+        depends="clean-source,clean-jar,clean-javadocs,clean-tar">
+    </target>
+
+
+    <!-- Target for building the main jar files -->
+    <target name="jar" description="Create the JAR file" depends="compile-source">
+        <jar
+            destfile="${jar.target}"
+            basedir="${bin.classes}"
+            excludes="**/test/**"
+            compress="true">
+            <manifest>
+                <attribute name="Specification-Title" value="SyncML Client API"/>
+                <attribute name="Specification-Version" value="${version}"/>
+                <attribute name="Specification-Vendor" value="Critical Path"/>
+                <attribute name="Implementation-Title" value="SyncML Client API"/>
+                <attribute name="Implementation-Version" value="${version}"/> 
+                <attribute name="Implementation-Vendor" value="Critical Path"/>
+            </manifest>
+        </jar>
+        <jar
+            destfile="${jar.target.test}"
+            basedir="${bin.classes}"
+            includes="**/test/**"
+            compress="true">
+        </jar>
+    </target>
+
+    <!-- Target for removing the main jar files -->
+    <target name="clean-jar">
+        <delete file="${jar.target}" quiet="true"/>
+        <delete file="${jar.target.jwt}" quiet="true"/>
+        <delete file="${jar.target.jwt.pg}" quiet="true"/>
+        <delete file="${jar.target.test}" quiet="true"/>
+    </target>
+    
+
+    <!-- Target for compiling the Java source -->
+    <target name="compile-source">
+        <mkdir dir="${bin.classes}"/>
+        <javac
+            srcdir="${src}"
+            destdir="${bin.classes}"
+            classpathref="classpath" 
+            sourcepath="${mtk.src.dir}"
+            includes="net/cp/syncml/**,net/cp/mtk/common/**"
+            source="1.1"
+            target="1.1"
+            debug="on">
+        </javac>
+    </target>
+    
+    <!-- Target for compiling the Java source under Java Wireless Toolkit (ignoring the test tool) -->
+    <target name="compile-source-jwt" if="jwt">
+        <mkdir dir="${bin.classes.jwt}"/>
+        <mtk.antenna.load/>
+        <wtkbuild 
+            srcdir="${src}" 
+            destdir="${bin.classes.jwt}" 
+            sourcepath="${mtk.src.dir}"
+            includes="net/cp/syncml/**,net/cp/mtk/common/**"
+            excludes="**/test/**"
+            debug="off"
+            preverify="true"
+        />
+    </target>
+    
+    <!-- Target for building the JWT jar file -->
+    <target name="jar-jwt" if="jwt">
+        <jar
+            destfile="${jar.target.jwt}"
+            basedir="${bin.classes.jwt}"
+            excludes="**/test/**"
+            compress="true">
+            <manifest>
+                <attribute name="Specification-Title" value="SyncML Client API"/>
+                <attribute name="Specification-Version" value="${version}"/>
+                <attribute name="Specification-Vendor" value="Critical Path"/>
+                <attribute name="Implementation-Title" value="SyncML Client API"/>
+                <attribute name="Implementation-Version" value="${version}"/> 
+                <attribute name="Implementation-Vendor" value="Critical Path"/>
+            </manifest>
+        </jar>
+    </target>
+
+    <!-- Target for optimizing the JWT jars using ProGuard -->
+    <target name="optimize-pg" if="pg">
+        <echo message="Optimizing JWT jar using ProGuard..."/>
+        <java jar="${pg.proguard}" failonerror="true" fork="true">
+            <arg value="-injars ${jar.target.jwt}"/>
+            <arg value="-outjars ${jar.target.jwt.pg}"/>
+            <arg value="-libraryjars '${jwt}/lib/cldcapi10.jar'"/>
+            <arg value="-keep public class * {public protected *;}"/>
+        </java>
+    </target>
+
+    <!-- Target for removing the compiled Java sources -->
+    <target name="clean-source">
+        <delete dir="${bin.classes}" quiet="true"/>
+        <delete dir="${bin.classes.jwt}" quiet="true"/>
+    </target>
+
+
+    <!-- Target for building the Javadocs (only includes the external API) -->
+    <target name="compile-javadocs">
+        <mkdir dir="${docs.api}"/>
+        <javadoc
+            destdir="${docs.api}"
+            classpathref="classpath" 
+            classpath="${bin.classes}"
+            author="true"
+            version="true"
+            overview="${src}/net/cp/syncml/client/overview.html"
+            windowtitle="Critical Path SyncML Client API Documentation"
+            doctitle="Critical Path SyncML Client API Documentation"
+            private="false"
+            package="false">
+            <link href="http://download.oracle.com/javase/6/docs/api"/>
+            <packageset dir="${src}">
+                <include name="net/cp/syncml/client"/>
+                <include name="net/cp/syncml/client/devinfo"/>
+                <include name="net/cp/syncml/client/store"/>
+                <include name="net/cp/syncml/client/util"/>
+                <include name="net/cp/syncml/client/util/wbxml"/>
+                <include name="net/cp/syncml/client/util/content"/>
+            </packageset>
+        </javadoc>
+        <tar destfile="${docs.target}" compression="gzip" >
+            <tarfileset dir="${docs.api}">
+                <include name="**"/>
+            </tarfileset>
+        </tar>
+    </target>
+
+    <!-- Target for removing the Javadocs -->
+    <target name="clean-javadocs">
+        <delete dir="${docs.api}" quiet="true"/>
+        <delete file="${docs.target}" quiet="true"/>
+    </target>
+
+
+    <!-- Target for creating a tar file containing binaries and documentation -->
+    <target name="tar-bin" depends="jar,compile-javadocs">
+        <delete file="${bin.target}" quiet="true"/>
+        <tar destfile="${bin.target}" compression="gzip">
+            <tarfileset dir="." includes="${lib}/*.jar" excludes="svn*.jar"/>
+            <tarfileset dir=".">
+                <include name="README.txt"/>
+                <include name="SyncClientApp.bat"/>
+                <include name="${jar.target}"/>
+                <include name="${jar.target.test}"/>
+                <include name="${docs.target}"/>
+            </tarfileset>
+        </tar>
+    </target>
+
+    <!-- Target for creating a tar file containing the source environment -->
+    <target name="tar-src">
+        <delete file="${src.target}" quiet="true"/>
+        <tar destfile="${src.target}" compression="gzip">
+            <tarfileset dir="." excludes="bin/**/*"/>
+        </tar>
+    </target>
+
+    <!-- Target for removing the tar files -->
+    <target name="clean-tar">
+        <delete file="${bin.target}" quiet="true"/>
+        <delete file="${src.target}" quiet="true"/>
+    </target>
+        
+</project>

@@ -1,0 +1,184 @@
+/**
+ * Copyright © 2004-2007 Critical Path, Inc. All Rights Reserved.
+ */
+package net.cp.syncml.client.devinfo;
+
+import net.cp.syncml.client.*;
+import net.cp.syncml.client.util.Logger;
+
+
+/**
+ * An interface defining the device on which a sync client runs. <br/><br/>
+ * 
+ * Implementations should provide information about the device such as its unique ID, 
+ * device type, capabilities, etc.
+ * 
+ * @see DeviceCapabilities
+ * @see SyncManager#SyncManager(Device, Transport, String, String, SyncListener, Logger)
+ *  
+ * @author Denis Evoy
+ */
+public interface Device
+{
+    /** Defines a phone device. */
+    public static final String DEVICE_TYPE_PHONE =          "phone";
+    
+    /** Defines a pager device. */
+    public static final String DEVICE_TYPE_PAGER =          "pager";
+    
+    /** Defines a handheld PDA device. */
+    public static final String DEVICE_TYPE_HANDHELD =       "handheld";
+    
+    /** Defines a palm-size PDA device. */
+    public static final String DEVICE_TYPE_PDA =            "pda";
+    
+    /** Defines a Windows smartphone device. */
+    public static final String DEVICE_TYPE_SMARTPHONE =     "smartphone";
+    
+    /** Defines a server computer device. */
+    public static final String DEVICE_TYPE_SERVER =         "server";
+    
+    /** Defines a server computer device. */
+    public static final String DEVICE_TYPE_WORKSTATION =    "workstation";
+    
+    
+    /** Defines a device extension specifying the name of the client application. */
+    public static final String DEVICE_EXT_CP_APP_NAME =     "X-CP-ApplicationName";
+    
+    /** Defines a device extension specifying the version of the client application. */
+    public static final String DEVICE_EXT_CP_APP_VERSION =  "X-CP-ApplicationVersion";
+    
+    /** Defines a device extension specifying the capability ID of the client application. */
+    public static final String DEVICE_EXT_CP_CAP_ID =       "X-CP-ClientCapabilityId";
+    
+    /** Defines a device extension specifying the display name of the device. */
+    public static final String DEVICE_EXT_CP_DEVICE_NAME =  "X-CP-DeviceName";
+    
+    /** Defines a device extension specifying the unique IDs of any memory cards associated with the device. */
+    public static final String DEVICE_EXT_CP_MEM_CARD_IDS = "X-CP-MemoryCardId";
+    
+    
+    /**
+     * Returns a unique identifier that identifies the device. <br/><br/>
+     * 
+     * Implementations must return a globally unique identifier. However, it is only likely 
+     * to cause problems if it is not unique amongst the devices owned by the user. For example, 
+     * on a GSM mobile phone, this should be the IMEI of the device.
+     * 
+     * @return The unique identifier for this device. Must not be null or empty.
+     */
+    public String getDeviceID();
+
+    /**
+     * Returns the type of the device. <br/><br/>
+     * 
+     * Implementations should return the type of the device. One of the well defined
+     * {@link #DEVICE_TYPE_HANDHELD types} can be returned although other values can be specified.
+     * 
+     * @return The type of the device. Must not be null or empty.
+     */
+    public String getDeviceType();
+
+    /** 
+     * Called to retrieve the capabilities of the device. <br/><br/>
+     * 
+     * Implementations must return the capabilities of the device.
+     *   
+     * @return The capabilities of the device. Must not be null.
+     */
+    public DeviceCapabilities getCapabilities();
+
+    /**
+     * Returns the name of the manufacturer of the device. <br/><br/>
+     * 
+     * Implementations should return the name of the manufacturer of the device (e.g. "Nokia"). 
+     * 
+     * @return The name of the manufacturer of the device. Must not be null or empty.
+     */
+    public String getManufacturer();
+
+    /**
+     * Returns the name of the model of the device. <br/><br/>
+     * 
+     * Implementations should return the model name or model number of the device (e.g. "3510i"). 
+     * 
+     * @return The name of the model of the device. Must not be null or empty.
+     */
+    public String getModel();
+
+    /**
+     * Returns the name of the Original Equipment Manufacturer (OEM) of the device. <br/><br/>
+     * 
+     * Implementations should return the name of the Original Equipment Manufacturer of the device. 
+     * 
+     * @return The name of the OEM of the device. May be null or empty.
+     */
+    public String getOem();
+
+    /**
+     * Returns the version number of the hardware of the device. <br/><br/>
+     * 
+     * Implementations should return the version number of the hardware of the device. 
+     * 
+     * @return The version number of the hardware of the device. Must not be null or empty.
+     */
+    public String getHardwareVersion();
+
+    /**
+     * Returns the version number of the firmware of the device. <br/><br/>
+     * 
+     * Implementations should return the version number of the firmware of the device. 
+     * 
+     * @return The version number of the firmware of the device. Must not be null or empty.
+     */
+    public String getFirmwareVersion();
+
+    /**
+     * Returns the version number of the software of the device. <br/><br/>
+     * 
+     * Implementations should return the version number of the software of the device. 
+     * 
+     * @return The version number of the software of the device. Must not be null or empty.
+     */
+    public String getSoftwareVersion();
+    
+    
+    /**
+     * Returns the client nonce value that should be sent to the SyncML server. <br/><br/>
+     * 
+     * The specified value will be used to challenge the server to authenticate itself to the client 
+     * using MD5 authentication. The server will not be challenged to authenticate itself if no nonce
+     * is returned, or if the returned nonce is the same as the one returned previously. <br/><br/>
+     * 
+     * Note that implementations should not consider the nonce as having been received by the server
+     * until {@link #onClientNonceSent()} is called.
+     * 
+     * @return The client generated nonce value. May be null or empty.
+     */
+    public String getClientNonce();
+    
+    /** 
+     * Called to indicate that the last client nonce has been successfully delivered to the server. <br/><br/>
+     * 
+     * Implementations should persist the last client nonce so that it can be used to validate an incoming 
+     * server alert (if such functionality is supported). Care should be taken to also persist the old
+     * nonce value so that it can be used to validate an incoming server alert, if the alert could not be 
+     * validated using the last nonce. This is described in chapter 12 of the <a href="http://www.openmobilealliance.org/Technical/release_program/docs/copyrightclick.aspx?pck=DS&file=V1_2_1-20070810-A/OMA-TS-DS_Protocol-V1_2_1-20070810-A.pdf"> OMA DS 1.2.1 specification.</a>
+     */
+    public void onClientNonceSent();
+    
+    
+    /**
+     * Sets the last nonce value that was received from the SyncML server. <br/><br/>
+     * 
+     * The specified value will automatically be used the next time that MD5 authentication is required to be 
+     * sent to the SyncML server. <br/><br/>
+     * 
+     * In addition, implementations should persist this value so that it can be used to validate incoming server 
+     * alerts (if such functionality is supported). This is described in chapter 12 of the 
+     * <a href="http://www.openmobilealliance.org/Technical/release_program/docs/copyrightclick.aspx?pck=DS&file=V1_2_1-20070810-A/OMA-TS-DS_Protocol-V1_2_1-20070810-A.pdf"> OMA DS 1.2.1 specification.</a>
+     * 
+     * @param nonce The last server generated nonce value. May be null or empty.
+     */
+    public void setServerNonce(String nonce);
+}

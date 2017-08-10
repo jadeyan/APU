@@ -1,0 +1,93 @@
+/**
+ * Copyright © 2010 Critical Path, Inc. All Rights Reserved.
+ */
+
+package net.cp.mtk.j2me.io;
+
+
+import javax.microedition.io.Connection;
+
+import net.cp.mtk.common.CommonUtils;
+
+
+/**
+ * Utility class containing some useful methods for handling files/folders.
+ * 
+ * @author Denis Evoy
+ */
+public abstract class FileUtils
+{
+    private static final byte[] MAGIC_JPEG =    { (byte)0xFF, (byte)0xD8 };
+    private static final byte[] MAGIC_BMP  =    { (byte)0x42, (byte)0x4D };
+    private static final byte[] MAGIC_PNG =     { (byte)0x89, (byte)0x50, (byte)0x4E, (byte)0x47, (byte)0x0D, (byte)0x0A, (byte)0x1A, (byte)0x0A };
+    private static final byte[] MAGIC_GIF89a =  { (byte)0x47, (byte)0x49, (byte)0x46, (byte)0x38, (byte)0x39, (byte)0x61 };
+    private static final byte[] MAGIC_GIF87a =  { (byte)0x47, (byte)0x49, (byte)0x46, (byte)0x38, (byte)0x37, (byte)0x61 };
+    
+    
+    private FileUtils()
+    {
+        super();
+    }
+    
+
+    /**
+     * Closes the specified connection, ignoring any exceptions that occur.
+     * 
+     * @param connection the connection to close.
+     */
+    public static void closeFile(Connection connection)
+    {
+        if (connection == null)
+            return;
+
+        try
+        {
+            connection.close();
+        }
+        catch (Throwable e)
+        {
+            //ignore
+        }
+    }
+    
+    /**
+     * Returns the extension of a file based on the specified contents.
+     * 
+     * We use some well known "magic numbers" to identify the file type. The following file types can currently be identified:
+     * <ul>
+     *      <li> JPEG
+     *      <li> BMP
+     *      <li> PNG
+     *      <li> GIF (89a and 87a)
+     * </ul>
+     * 
+     * @param contents the contents or partial contents (usually the first few bytes) of the file. May be null or empty.
+     * @return the file extension (e.g. ".jpg", ".png"), or null if the file type couldn't be recognised. 
+     */
+    public static String getFileExtensionFromContents(byte[] contents)
+    {
+        //too small to tell
+        if ( (contents == null) || (contents.length < 2) )
+            return null;
+        
+        //JPEG - FF D8
+        if (CommonUtils.isEquals(contents, 0, MAGIC_JPEG, 0, MAGIC_JPEG.length, true))
+            return ".jpg";
+        
+        //BMP - 42 4D
+        if (CommonUtils.isEquals(contents, 0, MAGIC_BMP, 0, MAGIC_BMP.length, true))
+            return ".bmp";
+        
+        //PNG - 89 50 4E 47 0D 0A 1A 0A
+        if (CommonUtils.isEquals(contents, 0, MAGIC_PNG, 0, MAGIC_PNG.length, true))
+            return ".png";
+        
+        //GIF 89a - 47 49 46 38 39 61
+        //GIF 87a - 47 49 46 38 37 61
+        if ( (CommonUtils.isEquals(contents, 0, MAGIC_GIF87a, 0, MAGIC_GIF87a.length, true)) ||
+             (CommonUtils.isEquals(contents, 0, MAGIC_GIF89a, 0, MAGIC_GIF89a.length, true)) )
+            return ".gif";
+
+        return null;
+    }
+}

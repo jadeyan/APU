@@ -1,0 +1,12 @@
+<body>
+
+    The base package containing the SyncML client. <br/><br/>
+
+    This package (and sub-packages) encapsulates the implementation of a SyncML client. It also includes 
+    the main class used to {@link net.cp.syncml.client.SyncManager manage} sync sessions. <br/><br/>
+
+    Users of this SyncML client must first implement the {@link net.cp.syncml.client.Transport Transport}, 
+    {@link net.cp.syncml.client.SyncListener SyncListener} and {@link net.cp.syncml.client.util.Logger Logger}
+    interfaces from this package before using the client.
+
+</body>

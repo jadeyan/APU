@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/svn/syncmobilestack/!svn/ver/463/tags/SYNCMLLIB-2_1_009/java/src/net/cp/syncml/client/test/store
+END
+Utils.java
+K 25
+svn:wc:ra_dav:version-url
+V 108
+/svn/syncmobilestack/!svn/ver/463/tags/SYNCMLLIB-2_1_009/java/src/net/cp/syncml/client/test/store/Utils.java
+END
+DesktopFileStore.java
+K 25
+svn:wc:ra_dav:version-url
+V 119
+/svn/syncmobilestack/!svn/ver/463/tags/SYNCMLLIB-2_1_009/java/src/net/cp/syncml/client/test/store/DesktopFileStore.java
+END
+DesktopVcardStore.java
+K 25
+svn:wc:ra_dav:version-url
+V 120
+/svn/syncmobilestack/!svn/ver/463/tags/SYNCMLLIB-2_1_009/java/src/net/cp/syncml/client/test/store/DesktopVcardStore.java
+END
+DesktopFileRecord.java
+K 25
+svn:wc:ra_dav:version-url
+V 120
+/svn/syncmobilestack/!svn/ver/463/tags/SYNCMLLIB-2_1_009/java/src/net/cp/syncml/client/test/store/DesktopFileRecord.java
+END
+DesktopVcard.java
+K 25
+svn:wc:ra_dav:version-url
+V 115
+/svn/syncmobilestack/!svn/ver/463/tags/SYNCMLLIB-2_1_009/java/src/net/cp/syncml/client/test/store/DesktopVcard.java
+END

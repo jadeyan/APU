@@ -1,0 +1,224 @@
+/**
+ * Copyright © 2010 Critical Path, Inc. All Rights Reserved.
+ */
+
+package net.cp.mtk.j2me.tools.discovery;
+
+
+import java.util.Calendar;
+import java.util.Date;
+
+import javax.microedition.lcdui.Alert;
+import javax.microedition.lcdui.AlertType;
+import javax.microedition.lcdui.Display;
+import javax.microedition.lcdui.Displayable;
+import javax.microedition.lcdui.Form;
+import javax.microedition.lcdui.StringItem;
+import javax.microedition.midlet.*;
+
+import net.cp.mtk.common.StringUtils;
+
+
+public class DiscoveryMIDlet extends MIDlet
+{
+    private boolean started;
+    private boolean paused;
+    
+    private TestRunForm testRunForm;
+
+
+    public DiscoveryMIDlet()
+    {
+        started = false;
+        paused = false;
+
+        testRunForm = null;
+    }
+
+    protected void startApp() throws MIDletStateChangeException
+    {
+        if (started == false)
+        {
+            //initialize logging
+            Logger.initialize(null);
+            
+            //show the test setup form
+            showSetupForm();
+
+            Logger.log("Application started");
+            started = true;
+        }
+        else if (paused == true)
+        {
+            Logger.log("Application resumed");
+            paused = false;
+        }
+        else
+        {
+            Logger.logIssue(Logger.SEVERITY_MEDIUM, "MIDlet.startApp() called even though MIDlet is already running");
+        }
+    }
+
+    protected void pauseApp()
+    {
+        if (started == false)
+        {
+            Logger.logIssue(Logger.SEVERITY_MEDIUM, "MIDlet.startApp() called even though MIDlet is not running");
+        }
+        else if (paused == false)
+        {
+            Logger.log("Application paused");
+            paused = true;
+        }
+        else
+        {
+            Logger.logIssue(Logger.SEVERITY_MEDIUM, "MIDlet.pauseApp() called even though MIDlet is already paused");
+        }
+    }
+
+    protected void destroyApp(boolean unconditional)
+    {
+        if (unconditional)
+            Logger.log("Application destroyed unconditionally");
+        else
+            Logger.log("Application destroyed");
+            
+        Logger.shutdown();        
+        started = false;
+        paused = false;
+    }
+    
+    private void showSetupForm()
+    {
+        //this form calls "startTests()" below to actually start the tests
+        SetupForm setupForm = new SetupForm(this);
+        Display.getDisplay(this).setCurrent(setupForm);
+    }
+    
+    public void startTests(String outputUrl)
+    {
+        if (testRunForm != null)
+            return;
+
+        //create and display the tester form (which actually runs the tests)
+        testRunForm = new TestRunForm(this, outputUrl);
+        Display.getDisplay(this).setCurrent(testRunForm);
+    }
+    
+    public void setTestStatus(String status)
+    {
+        if (testRunForm != null)
+            testRunForm.setTestStatus(status);
+    }
+
+    public void quitApp()
+    {
+        destroyApp(true);
+        notifyDestroyed();
+    }
+    
+    public Alert showError(String message, Throwable cause)
+    {
+        if (cause != null)
+            message = message + "\n\n" + cause;
+        return showAlert("ERROR", message, AlertType.ERROR);
+    }
+
+    public Alert showAlert(String title, String text, AlertType type)
+    {
+        return showAlert(title, text, type, null);
+    }
+    
+    public Alert showAlert(String title, String text, AlertType type, Displayable next)
+    {
+        Alert alert = new Alert(title, text, null, type);
+        alert.setTimeout(Alert.FOREVER);
+        if (next != null)
+            Display.getDisplay(this).setCurrent(alert, next);
+        else
+            Display.getDisplay(this).setCurrent(alert);
+            
+        return alert;
+    }
+    
+    public static String dateToString(long date)
+    {
+        if (date < 0)
+            return "xxxx/xx/xx xx:xx:xx:xxx";
+        
+        StringBuffer buffer = new StringBuffer(32);
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(new Date(date));
+        int year = cal.get(Calendar.YEAR);
+        buffer.append(year);
+        buffer.append("/");
+        int month = cal.get(Calendar.MONTH) + 1;
+        if (month < 10)
+            buffer.append("0");
+        buffer.append(month);
+        buffer.append("/");
+        int day = cal.get(Calendar.DAY_OF_MONTH);
+        if (day < 10)
+            buffer.append("0");
+        buffer.append(day);
+        buffer.append(" ");
+        int hour = cal.get(Calendar.HOUR_OF_DAY);
+        if (hour < 10)
+            buffer.append("0");
+        buffer.append(hour);
+        buffer.append(":");
+        int minute = cal.get(Calendar.MINUTE);
+        if (minute < 10)
+            buffer.append("0");
+        buffer.append(minute);
+        buffer.append(":");
+        int second = cal.get(Calendar.SECOND);
+        if (second < 10)
+            buffer.append("0");
+        buffer.append(second);
+        buffer.append(":");
+        int millisecond = cal.get(Calendar.MILLISECOND);
+        if (millisecond < 10)
+            buffer.append("00");
+        else if (millisecond < 100)
+            buffer.append("0");
+        buffer.append(millisecond);
+        
+        return buffer.toString();
+    }
+    
+    public static String pad(long value, int size)
+    {
+        return pad(value, size, ' ');
+    }
+    
+    public static String pad(long value, int size, char padCharacter)
+    {
+        return pad(Long.toString(value), size, padCharacter);
+    }
+    
+    public static String pad(String value, int size)
+    {
+        return pad(value, size, ' ');
+    }
+
+    public static String pad(String string, int width, char padCharacter)
+    {
+        return StringUtils.alignString(string, width, true, padCharacter, "...");
+    }
+    
+    public static void addEmptyLine(Form form)
+    {
+        StringItem item = new StringItem(null, "    ");
+        item.setPreferredSize(form.getWidth(), -1);
+        form.append(item);
+    }    
+
+    public static StringItem addText(Form form, String label, String text)
+    {
+        StringItem item = new StringItem(label, text);
+        item.setPreferredSize(form.getWidth(), -1);
+        form.append(item);
+        return item;
+    }
+}

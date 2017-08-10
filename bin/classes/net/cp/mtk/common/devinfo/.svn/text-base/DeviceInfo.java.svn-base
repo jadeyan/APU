@@ -1,0 +1,172 @@
+/**
+ * Copyright © 2010 Critical Path, Inc. All Rights Reserved.
+ */
+
+package net.cp.mtk.common.devinfo;
+
+
+/**
+ * A class providing various information about a mobile device.
+ * 
+ * This class should be overridden by device-specific classes which actually retrieve the required information. 
+ * 
+ * @author Denis Evoy
+ */
+public class DeviceInfo
+{
+    /** Indicates that it is unknown if the user is currently roaming. */
+    public static final byte ROAMING_UNKNOWN =          0;
+    
+    /** Indicates that the user is currently roaming. */
+	public static final byte ROAMING_YES =              1;
+
+	/** Indicates that the user is not currently roaming. */
+	public static final byte ROAMING_NO =               2;
+
+
+    /** Indicates that it is unknown what type of network the device is currently connected to. */
+    public static final byte NETWORK_TYPE_UNKNOWN =     0;
+    
+    /** Indicates that the device currently has no network connection. */
+    public static final byte NETWORK_TYPE_NONE =        1;
+    
+    /** Indicates that the device is currently connected to a wireless LAN. */
+    public static final byte NETWORK_TYPE_WLAN =        2;
+    
+    /** Indicates that the device is currently connected to a Bluetooth network. */
+    public static final byte NETWORK_TYPE_BLUETOOTH =   3;
+    
+    /** Indicates that the device is currently connected to a mobile network (GSM, CDMA, EDGE, 3G, etc). */
+    public static final byte NETWORK_TYPE_MOBILE =      4;
+    
+
+    /** Create a new device info object. */
+	public DeviceInfo()
+	{
+	    super();
+	}
+	
+
+    /** 
+     * Returns the manufacturer of the device.
+     * 
+     * @return the manufacturer of the device, or null if it is unknown.
+     */
+    public String getManufacturer()
+    {
+        return null;
+    }
+
+    /** 
+     * Returns the model of the device.
+     * 
+     * @return the model of the device, or null if it is unknown.
+     */
+    public String getModel()
+    {
+        String model = getProperty("device.model");
+        if (model != null)
+            return model;
+            
+        return getProperty("microedition.platform");
+    }
+
+    /** 
+     * Returns the current locale of the device.
+     *  
+     * @return the current locale of the device, or null if the locale is unknown.
+     */
+    public String getLocale()
+    {
+        String locale = getProperty("microedition.locale");
+        if (locale != null)
+            return locale;
+
+        return null;
+    }
+
+	/** 
+	 * Returns the type of network the device is connected to.
+	 * 
+	 * @return the type of network (NETWORK_TYPE_XXX) the device is connected to, or NETWORK_TYPE_UNKNOWN if it is not known.
+	 */
+	public byte getNetworkType()
+	{
+		return NETWORK_TYPE_UNKNOWN;
+	}
+    
+    /** 
+     * Returns the identifier of the network that the device is currently connected.
+     * 
+     * @return the identifier of the network that the device is currently connected to, or null if the network is unknown.
+     */
+	public NetworkIdentifier getNetworkId()
+    {
+        return null;
+    }
+
+    /** 
+     * Returns the roaming state of the device.
+     * 
+     * @return the roaming state (ROAMING_XXX) of the device, or ROAMING_UNKNOWN if it is not known.
+     */
+    public byte getRoamingState()
+    {
+        return ROAMING_UNKNOWN;
+    }
+
+	/** 
+	 * Returns the IEMI of the device.
+	 * 
+	 * @return the IEMI of the device, or null if it is not known.
+	 */
+	public String getIMEI()
+	{
+	    return null;
+	}
+
+    /** 
+     * Returns the IMSI of the SIM card on the device.
+     * 
+     * @return the IMSI of the device, or null if it is not known.
+     */
+    public String getIMSI()
+    {
+        return null;
+    }
+
+    /** 
+     * Returns the MSISDN associated with the SIM card on the device.
+     * 
+     * @return the users MSISDN, or null if it is not known.
+     */
+    public String getMSISDN()
+    {
+        return null;
+    }
+
+    /** 
+     * Returns the Push-To-Talk ID associated with the SIM card on the device.
+     * 
+     * @return the users Push-To-Talk ID, or null if it is not known.
+     */
+    public String getPTTId()
+    {
+        return null;
+    }
+    
+    
+    /** 
+     * Returns the value of the specified property.
+     * 
+     * @return the value of the specified property, or null if the property isn't present or is empty.
+     */
+    protected String getProperty(String name)
+    {
+        String value = System.getProperty(name);
+        if (value != null)
+            value.trim();
+        
+        return ( (value != null) && (value.length() > 0) ) ? value : null;
+    }
+}

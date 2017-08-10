@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svn/syncmobilestack/!svn/ver/463/tags/SYNCMLLIB-2_1_009/java/src/net/cp/syncml/client/test
+END
+TestSyncListener.java
+K 25
+svn:wc:ra_dav:version-url
+V 113
+/svn/syncmobilestack/!svn/ver/463/tags/SYNCMLLIB-2_1_009/java/src/net/cp/syncml/client/test/TestSyncListener.java
+END
+CmdLineParser.java
+K 25
+svn:wc:ra_dav:version-url
+V 110
+/svn/syncmobilestack/!svn/ver/463/tags/SYNCMLLIB-2_1_009/java/src/net/cp/syncml/client/test/CmdLineParser.java
+END
+DesktopDevice.java
+K 25
+svn:wc:ra_dav:version-url
+V 110
+/svn/syncmobilestack/!svn/ver/463/tags/SYNCMLLIB-2_1_009/java/src/net/cp/syncml/client/test/DesktopDevice.java
+END
+HTTPTransport.java
+K 25
+svn:wc:ra_dav:version-url
+V 110
+/svn/syncmobilestack/!svn/ver/463/tags/SYNCMLLIB-2_1_009/java/src/net/cp/syncml/client/test/HTTPTransport.java
+END
+SyncClientApp.java
+K 25
+svn:wc:ra_dav:version-url
+V 110
+/svn/syncmobilestack/!svn/ver/463/tags/SYNCMLLIB-2_1_009/java/src/net/cp/syncml/client/test/SyncClientApp.java
+END
+TestSyncLogger.java
+K 25
+svn:wc:ra_dav:version-url
+V 111
+/svn/syncmobilestack/!svn/ver/463/tags/SYNCMLLIB-2_1_009/java/src/net/cp/syncml/client/test/TestSyncLogger.java
+END

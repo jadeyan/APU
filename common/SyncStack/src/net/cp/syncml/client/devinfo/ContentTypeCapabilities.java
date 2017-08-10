@@ -1,0 +1,107 @@
+/**
+ * Copyright © 2004-2007 Critical Path, Inc. All Rights Reserved.
+ */
+package net.cp.syncml.client.devinfo;
+
+import net.cp.syncml.client.store.RecordStoreCapabilities;
+
+
+/**
+ * A class encapsulating a content type and associated properties. <br/><br/>
+ * 
+ * In addition to the standard content type details, this class also allows
+ * multiple properties to be associated with a content type.
+ * 
+ * @see RecordStoreCapabilities#getContentTypeCapabilities() 
+ *
+ * @author Denis Evoy
+ */
+public class ContentTypeCapabilities extends ContentType
+{
+    private ContentTypeProperty[] ctProperties;                 //the properties associated with the content type (if any)
+    private boolean cfFieldLevelSupported;                      //indicates if field level replace is supported for the content type
+
+    
+    /**
+     * Creates a new content type with the specified type.
+     * 
+     * @param mainType  the main type part of the content type (audio, image, etc). Must not be null or empty.
+     * @param subType   the sub type part of the content type (jpeg, wav, etc). Must not be null or empty.
+     */
+    public ContentTypeCapabilities(String mainType, String subType)
+    {
+        super(mainType, subType);
+        
+        ctProperties = null;
+        cfFieldLevelSupported = false;
+    }
+
+    /**
+     * Creates a new content type with the specified type and version.
+     * 
+     * @param mainType  the main type part of the content type (audio, image, etc). Must not be null or empty.
+     * @param subType   the sub type part of the content type (jpeg, wav, etc). Must not be null or empty.
+     * @param version   the version of the content type. May be null or empty.
+     */
+    public ContentTypeCapabilities(String mainType, String subType, String version)
+    {
+        super(mainType, subType, version);
+        
+        ctProperties = null;
+        cfFieldLevelSupported = false;
+    }
+
+    /**
+     * Creates a new content type with the specified type, version and properties.
+     * 
+     * @param mainType              the main type part of the content type (audio, image, etc). Must not be null or empty.
+     * @param subType               the sub type part of the content type (jpeg, wav, etc). Must not be null or empty.
+     * @param version               the version of the content type. May be null or empty.
+     * @param properties            the supported properties of the content type. May be null or empty.
+     * @param fieldLevelSupported   indicates whether or not the content type supports field level replace.
+     */
+    public ContentTypeCapabilities(String mainType, String subType, String version, ContentTypeProperty[] properties, boolean fieldLevelSupported)
+    {
+        super(mainType, subType, version);
+
+        ctProperties = properties;
+        cfFieldLevelSupported = fieldLevelSupported; 
+    }
+
+    /**
+     * Creates a new content type from the specified content type and properties.
+     * 
+     * @param contentType           the content type. Must not be null or empty.
+     * @param properties            the supported properties of the content type. May be null or empty.
+     * @param fieldLevelSupported   indicates whether or not the content type supports field level replace.
+     */
+    public ContentTypeCapabilities(ContentType contentType, ContentTypeProperty[] properties, boolean fieldLevelSupported)
+    {
+        super(contentType.getMainType(), contentType.getSubType(), contentType.getVersion());
+
+        ctProperties = properties;
+        cfFieldLevelSupported = fieldLevelSupported; 
+    }
+
+    
+    /**
+     * Returns the properties associated with the content type.
+     * 
+     * @return The properties associated with the content type. May be null or empty.
+     */
+    public ContentTypeProperty[] getProperties()
+    {
+        return ctProperties;
+    }
+    
+    
+    /**
+     * Returns <code>true</code> if the content type supports field level replace.
+     * 
+     * @return <code>true</code> if the content type supports field level replace.
+     */
+    public boolean isFieldLevelSupported()
+    {
+        return cfFieldLevelSupported;
+    }
+}

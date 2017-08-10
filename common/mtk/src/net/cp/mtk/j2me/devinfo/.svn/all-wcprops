@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/mobiletools/!svn/ver/112/Java/tags/MTK-1_0_005/src/net/cp/mtk/j2me/devinfo
+END
+MotorolaIdenDeviceInfo.java
+K 25
+svn:wc:ra_dav:version-url
+V 107
+/svn/mobiletools/!svn/ver/112/Java/tags/MTK-1_0_005/src/net/cp/mtk/j2me/devinfo/MotorolaIdenDeviceInfo.java
+END
+SonyEricssonDeviceInfo.java
+K 25
+svn:wc:ra_dav:version-url
+V 107
+/svn/mobiletools/!svn/ver/112/Java/tags/MTK-1_0_005/src/net/cp/mtk/j2me/devinfo/SonyEricssonDeviceInfo.java
+END
+NokiaDeviceInfo.java
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/svn/mobiletools/!svn/ver/112/Java/tags/MTK-1_0_005/src/net/cp/mtk/j2me/devinfo/NokiaDeviceInfo.java
+END
+HuaweiDeviceInfo.java
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/svn/mobiletools/!svn/ver/112/Java/tags/MTK-1_0_005/src/net/cp/mtk/j2me/devinfo/HuaweiDeviceInfo.java
+END

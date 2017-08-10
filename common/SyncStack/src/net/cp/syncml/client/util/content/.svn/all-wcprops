@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/svn/syncmobilestack/!svn/ver/463/tags/SYNCMLLIB-2_1_009/java/src/net/cp/syncml/client/util/content
+END
+ContentObject.java
+K 25
+svn:wc:ra_dav:version-url
+V 118
+/svn/syncmobilestack/!svn/ver/463/tags/SYNCMLLIB-2_1_009/java/src/net/cp/syncml/client/util/content/ContentObject.java
+END
+ContentCodepage.java
+K 25
+svn:wc:ra_dav:version-url
+V 120
+/svn/syncmobilestack/!svn/ver/463/tags/SYNCMLLIB-2_1_009/java/src/net/cp/syncml/client/util/content/ContentCodepage.java
+END
+Attributes.java
+K 25
+svn:wc:ra_dav:version-url
+V 115
+/svn/syncmobilestack/!svn/ver/463/tags/SYNCMLLIB-2_1_009/java/src/net/cp/syncml/client/util/content/Attributes.java
+END
+ContentFolder.java
+K 25
+svn:wc:ra_dav:version-url
+V 118
+/svn/syncmobilestack/!svn/ver/463/tags/SYNCMLLIB-2_1_009/java/src/net/cp/syncml/client/util/content/ContentFolder.java
+END
+ContentHandler.java
+K 25
+svn:wc:ra_dav:version-url
+V 119
+/svn/syncmobilestack/!svn/ver/463/tags/SYNCMLLIB-2_1_009/java/src/net/cp/syncml/client/util/content/ContentHandler.java
+END
+ContentFile.java
+K 25
+svn:wc:ra_dav:version-url
+V 116
+/svn/syncmobilestack/!svn/ver/463/tags/SYNCMLLIB-2_1_009/java/src/net/cp/syncml/client/util/content/ContentFile.java
+END
+package.html
+K 25
+svn:wc:ra_dav:version-url
+V 112
+/svn/syncmobilestack/!svn/ver/463/tags/SYNCMLLIB-2_1_009/java/src/net/cp/syncml/client/util/content/package.html
+END

@@ -1,0 +1,641 @@
+/**
+ * Copyright © 2010 Critical Path, Inc. All Rights Reserved.
+ */
+
+package net.cp.mtk.j2me.tools.discovery.files;
+
+
+import java.io.DataInputStream;
+import java.io.OutputStream;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Enumeration;
+
+import javax.microedition.io.Connector;
+import javax.microedition.io.file.FileConnection;
+import javax.microedition.io.file.FileSystemRegistry;
+
+import net.cp.mtk.common.io.StreamUtils;
+import net.cp.mtk.j2me.tools.discovery.Logger;
+import net.cp.mtk.j2me.tools.discovery.DiscoveryMIDlet;
+
+
+public class FileSystem
+{
+    private static int curFileIndex = 0;
+    private static boolean modifyTimeTested = false;
+
+    public static void evaluate(DiscoveryMIDlet midlet)
+    {
+        Logger.log("");
+        Logger.log("-----------------------------------");
+        Logger.log("FILESYSTEM (JSR-75):");
+        Logger.log("");
+
+        //show all files in the file system
+        midlet.setTestStatus("Testing Files...");
+        curFileIndex = 0;
+        logFiles(midlet);
+
+        Logger.log("-----------------------------------");
+    }
+
+    public static void closeFile(FileConnection file)
+    {
+        try
+        {
+            if (file != null)
+                file.close();
+        }
+        catch (Throwable ex)
+        {
+            //ignore
+        }
+    }
+    
+    public static String getParentUrl(String url)
+    {
+        if (url == null)
+            return null;
+
+        url = url.trim();
+        int index = url.lastIndexOf('/', (url.length() - 2));
+        if (index != -1)
+            return url.substring(0, index + 1);
+        return url;
+    }
+    
+    private FileSystem()
+    {
+        super();
+    }
+
+    private static void logFiles(DiscoveryMIDlet midlet)
+    {
+        try
+        {
+            //make sure the FileConnection API is supported
+            String fileConVersion = System.getProperty("microedition.io.file.FileConnection.version");
+            if ( (fileConVersion == null) || (fileConVersion.length() <= 0) )
+            {
+                Logger.logIssue(Logger.SEVERITY_CRITICAL, "FileSystem: the FileConnection API (JSR-75) is not supported");
+                return;
+            }
+                
+            //get the list of file system roots
+            int rootCount = 0;
+            Logger.log("[Type] [RWH] [" + DiscoveryMIDlet.pad("Last Modified Date", 23) + "] [" + DiscoveryMIDlet.pad("Size", 12) + "] [URL]");
+            Enumeration rootPaths = FileSystemRegistry.listRoots();
+            while (rootPaths.hasMoreElements()) 
+            {
+                String rootPath = (String)rootPaths.nextElement();
+                
+                //check that the root path doesn't have a "file:" prefix
+                String rootUrl = "file:///" + rootPath;
+                if (rootPath.startsWith("file:"))
+                {
+                    Logger.logIssue(Logger.SEVERITY_MEDIUM, "File ('" + rootPath + "'): root path is incorrectly prefixed with 'file:'");
+                    rootPath = rootUrl;     //the path is already a URL
+                }
+
+                logFiles(midlet, rootUrl, true);
+                rootCount++;
+            }
+            
+            //make sure some roots were returned
+            if (rootCount <= 0)
+                Logger.logIssue(Logger.SEVERITY_HIGH, "FileSystem: no file system roots listed");
+        }
+        catch (Throwable e)
+        {
+            Logger.logIssue(Logger.SEVERITY_HIGH, "FileSystem: failed to retrieve list of file system roots", e);
+        }
+    }
+
+    private static void logFiles(DiscoveryMIDlet midlet, String url, boolean isRoot)
+    {
+        //open the file/directory
+        FileConnection file = null;
+        try
+        {
+            //try to open the file in read-write mode
+            file = (FileConnection)Connector.open(url);
+        }
+        catch (Throwable e)
+        {
+            try
+            {
+                //try to open the file in read-only mode
+                file = (FileConnection)Connector.open(url, Connector.READ);
+                Logger.logIssue(Logger.SEVERITY_LOW, "File ('" + url + "'): file can only be opened in read-only mode", e);
+            }
+            catch (Throwable e1)
+            {
+                if (isRoot)
+                    Logger.logIssue(Logger.SEVERITY_HIGH, "File ('" + url + "'): failed to open file system root", e1);
+                else
+                    Logger.logIssue(Logger.SEVERITY_LOW, "File ('" + url + "'): failed to open file", e1);
+
+                return;
+            }
+        }
+        
+        String info = "";
+        try
+        {
+            //perform some sanity checks
+            curFileIndex++;
+            midlet.setTestStatus("Testing file " + curFileIndex + "...");
+            checkFile(file, url, isRoot);
+            
+            info = "canRead/canWrite/isHidden";
+            String fileAttrs = getFileAttrs(file);
+            info = "lastModified";
+            String fileDate = getFileDate(file);
+
+            info = "isDirectory";
+            if (file.isDirectory())
+            {
+                if (isRoot)
+                {
+                    info = "usedSize";
+                    Logger.log("[Root] [" + fileAttrs + "] [" + fileDate + "] [" + DiscoveryMIDlet.pad(file.usedSize(), 12) + "] " + file.getURL());
+                }
+                else
+                {
+                    info = "directorySize(true)";
+                    Logger.log("[Dir ] [" + fileAttrs + "] [" + fileDate + "] [" + DiscoveryMIDlet.pad(file.directorySize(true), 12) + "] " + file.getURL());
+                }
+                
+                //if the directory is accessible, perform some additional tests
+                info = "canRead/canWrite";
+                if ( (file.canRead()) && (file.canWrite()) )
+                {
+                    doFileTests(file);
+                    doDirTests(file);
+                }
+
+                //recursively log each file/directory in the directory
+                info = "list(*, true)";
+                Enumeration childNames = file.list("*", true);
+                closeFile(file);
+                file = null;
+                while (childNames.hasMoreElements()) 
+                {
+                    String childName = (String)childNames.nextElement();
+                    logFiles(midlet, url + childName, false);
+                }
+            }
+            else
+            {
+                //make sure the file size can be determined
+                info = "fileSize";
+                if (file.fileSize() < 0)
+                    Logger.logIssue(Logger.SEVERITY_HIGH, "File ('" + file.getURL() + "'): size of file is unknown (" + file.fileSize() + ")");
+                
+                Logger.log("[File] [" + fileAttrs + "] [" + fileDate + "] [" + DiscoveryMIDlet.pad(file.fileSize(), 12) + "] " + file.getURL());
+            }
+        }
+        catch (Throwable e)
+        {
+            Logger.logIssue(Logger.SEVERITY_HIGH, "File ('" + url + "'): failed (at '" + info + "') to log details of file", e);
+        }
+        finally
+        {
+            closeFile(file);
+        }
+    }
+    
+    private static void checkFile(FileConnection file, String url, boolean isRoot)
+    {
+        String info = "";
+        try
+        {
+            //perform some sanity checks
+            info = "isOpen";
+            if (! file.isOpen())
+                Logger.logIssue(Logger.SEVERITY_HIGH, "File ('" + file.getURL() + "'): open file is reported as being closed");
+            info = "exists";
+            if (! file.exists())
+                Logger.logIssue(Logger.SEVERITY_HIGH, "File ('" + file.getURL() + "'): open file is reported as being non-existent");
+            
+            //check that the file path doesn't have a "file:" prefix
+            info = "getPath";
+            String filePath = file.getPath();
+            if (filePath.startsWith("file:"))
+                Logger.logIssue(Logger.SEVERITY_MEDIUM, "File ('" + file.getURL() + "'): file path ('" + filePath + "') is incorrectly prefixed with 'file:'");
+
+            //check that the file path end with '/' (indicating a directory)
+            if (! filePath.endsWith("/"))
+                Logger.logIssue(Logger.SEVERITY_MEDIUM, "File ('" + file.getURL() + "'): file path ('" + filePath + "') doesn't have a trailing '/' to indicate that it is a directory");
+
+            //check that the file name doesn't have a "file:" prefix
+            info = "getName";
+            String fileName = file.getName();
+            if (fileName.startsWith("file:"))
+                Logger.logIssue(Logger.SEVERITY_MEDIUM, "File ('" + file.getURL() + "'): file name ('" + fileName + "') is incorrectly prefixed with 'file:'");
+
+            info = "isDirectory";
+            if (file.isDirectory())
+            {
+                //check that the directory URL ends with '/' (indicating a directory)
+                info = "getURL";
+                String fileUrl = file.getURL();
+                if (! fileUrl.endsWith("/"))
+                    Logger.logIssue(Logger.SEVERITY_MEDIUM, "File ('" + file.getURL() + "'): directory URL doesn't have a trailing '/' to indicate that it is a directory");
+
+                //check that the directory name end with '/' (indicating a directory)
+                if (! fileName.endsWith("/"))
+                {
+                    //this seems to be quite normal when dealing with the root of the file system
+                    if (isRoot)
+                        Logger.logIssue(Logger.SEVERITY_LOW, "File ('" + file.getURL() + "'): file system root name ('" + fileName + "') doesn't have a trailing '/' to indicate that it is a directory");
+                    else
+                        Logger.logIssue(Logger.SEVERITY_MEDIUM, "File ('" + file.getURL() + "'): directory name ('" + fileName + "') doesn't have a trailing '/' to indicate that it is a directory");
+                }
+                
+                //check that the directory size is reported
+                info = "directorySize(false)";
+                long directorySize = file.directorySize(false);
+                if (directorySize < 0)
+                    Logger.logIssue(Logger.SEVERITY_MEDIUM, "File ('" + file.getURL() + "'): directory size is unknown (" + directorySize + ")");
+                info = "directorySize(true)";
+                directorySize = file.directorySize(true);
+                if (directorySize < 0)
+                    Logger.logIssue(Logger.SEVERITY_MEDIUM, "File ('" + file.getURL() + "'): directory size (including sub-directories) is unknown (" + directorySize + ")");
+                
+                if (isRoot)
+                {
+                    //check that the total/used/free file-system sizes are reported
+                    info = "totalSize";
+                    long totalSize = file.totalSize();
+                    info = "usedSize";
+                    long usedSize = file.usedSize();
+                    info = "availableSize";
+                    long freeSize = file.availableSize();
+                    if (totalSize <= 0)
+                        Logger.logIssue(Logger.SEVERITY_MEDIUM, "File ('" + file.getURL() + "'): file system root total size is unknown (" + totalSize + ")");
+                    if (usedSize < 0)
+                        Logger.logIssue(Logger.SEVERITY_MEDIUM, "File ('" + file.getURL() + "'): file system root used size is unknown (" + usedSize + ")");
+                    if (freeSize < 0)
+                        Logger.logIssue(Logger.SEVERITY_MEDIUM, "File ('" + file.getURL() + "'): file system root free size is unknown (" + freeSize + ")");
+                    if ( (totalSize > 0) && (usedSize >= 0) && (freeSize >= 0) )
+                    {
+                        if ((usedSize + freeSize) != totalSize)
+                            Logger.logIssue(Logger.SEVERITY_MEDIUM, "File ('" + file.getURL() + "'): file system root sizes are inaccurate (total=[" + totalSize + "], used=[" + usedSize + "], free=[" + freeSize + "])");
+                    }
+                }
+            }
+        }
+        catch (Throwable e)
+        {
+            Logger.logIssue(Logger.SEVERITY_HIGH, "File ('" + file.getURL() + "'): failed (at '" + info + "') to check file details", e);
+        }
+    }
+    
+    private static void doFileTests(FileConnection dir)
+    {
+        String testUrl = dir.getURL() + "TestFile.txt";
+        FileConnection testFile = null;
+        try
+        {
+            //create an empty file
+            testFile = testCreate(testUrl, false);
+            if (testFile == null)
+                return;
+
+            //perform some sanity checks
+            checkFile(testFile, testUrl, false);
+            if (testFile.isDirectory())
+                Logger.logIssue(Logger.SEVERITY_CRITICAL, "File ('" + testUrl + "'): file is reported as being a directory");
+            
+            //check that the file is empty
+            if (testFile.fileSize() != 0)
+                Logger.logIssue(Logger.SEVERITY_CRITICAL, "File ('" + testUrl + "'): empty file has non-zero size ('" + testFile.fileSize() + "' bytes)");
+            
+            //check the last modified time (if we haven't already tested this)
+            long oldModifiedTime = testFile.lastModified();
+            if (! modifyTimeTested)
+            {
+                //make sure the modified time is valid
+                if (oldModifiedTime < 0)
+                {
+                    Logger.logIssue(Logger.SEVERITY_HIGH, "FileSystem: file modified time is invalid ('" + oldModifiedTime + "')");
+                }
+                else if (oldModifiedTime == 0)
+                {
+                    Logger.logIssue(Logger.SEVERITY_HIGH, "FileSystem: file modified time is not supported");
+                }
+                else
+                {
+                    //check the granularity of the last modified time
+                    Calendar cal = Calendar.getInstance();
+                    cal.setTime(new Date(oldModifiedTime));
+                    int hour = cal.get(Calendar.HOUR_OF_DAY);
+                    int minute = cal.get(Calendar.MINUTE);
+                    int second = cal.get(Calendar.SECOND);
+                    int millsecond = cal.get(Calendar.MILLISECOND);
+                    if ( (hour <= 0) && (minute <= 0) && (second <= 0) && (millsecond <= 0) )
+                        Logger.logIssue(Logger.SEVERITY_HIGH, "FileSystem: file modified time doesn't have time granularity (only date)");
+                    else if (millsecond <= 0)
+                        Logger.logIssue(Logger.SEVERITY_LOW, "FileSystem: file modified time doesn't have millisecond granularity");
+                }
+
+                try
+                {
+                    //wait for a while before modifying the file, so we can check if the modified time is updated
+                    Thread.sleep(2000);
+                }
+                catch (Throwable e)
+                {
+                    //ignore
+                }
+            }
+            
+            //write some data to the file
+            byte[] data = new byte[100];
+            testWrite(testFile, data, false);
+
+            //reopen the file
+            closeFile(testFile);
+            testFile = null;
+            testFile = (FileConnection)Connector.open(testUrl, Connector.READ_WRITE); 
+            
+            //check that the last modified time has changed (if we haven't already tested this)
+            if (! modifyTimeTested)
+            {
+                modifyTimeTested = true;
+                long newModifiedTime = testFile.lastModified();
+                if (newModifiedTime == oldModifiedTime)
+                    Logger.logIssue(Logger.SEVERITY_HIGH, "FileSystem: file modified time isn't updated when the file is modified");
+            }
+            
+            //check that the file size is correct
+            long newFileSize = testFile.fileSize();
+            if (newFileSize != data.length)
+                Logger.logIssue(Logger.SEVERITY_CRITICAL, "File ('" + testUrl + "'): file size (" + newFileSize + " bytes) doesn't match expected size (" + data.length + " bytes)");
+            
+            //append some data to the file
+            byte[] appendData = new byte[2000];
+            testWrite(testFile, appendData, true);
+
+            //reopen the file
+            closeFile(testFile);
+            testFile = null;
+            testFile = (FileConnection)Connector.open(testUrl, Connector.READ_WRITE); 
+            
+            //check that the file size is correct
+            newFileSize = testFile.fileSize();
+            if (newFileSize != (data.length + appendData.length))
+                Logger.logIssue(Logger.SEVERITY_CRITICAL, "File ('" + testUrl + "'): file size (" + newFileSize + " bytes) doesn't match expected size (" + (data.length + appendData.length) + " bytes)");
+            
+            //read from the file
+            byte[] readData = new byte[data.length + appendData.length];
+            testRead(testFile, readData);
+            
+            //rename the file
+            testRename(testFile, "TestFileRenamed.txt");
+            
+            //change permissions
+            testPermissions(testFile);
+            
+            //truncate the file
+            testTruncate(testFile, 3000);   //file should be unchanged
+            testTruncate(testFile, 200);    //file should be truncated
+            testTruncate(testFile, 0);      //file should be truncated
+        }
+        catch (Throwable e)
+        {
+            Logger.logIssue(Logger.SEVERITY_HIGH, "File ('" + dir.getURL() + "'): failed to perform file tests in this directory", e);
+        }
+        finally
+        {
+            testDelete(testFile);
+            closeFile(testFile);
+        }
+    }
+
+    private static void doDirTests(FileConnection dir)
+    {
+        String testUrl = dir.getURL() + "TestDir/";
+        FileConnection testDir = null;
+        try
+        {
+            //create an empty file
+            testDir = testCreate(testUrl, true);
+            if (testDir == null)
+                return;
+
+            //perform some sanity checks
+            checkFile(testDir, testUrl, false);
+            if (! testDir.isDirectory())
+                Logger.logIssue(Logger.SEVERITY_CRITICAL, "File ('" + testUrl + "'): directory is reported to as being file");
+        }
+        catch (Throwable e)
+        {
+            Logger.logIssue(Logger.SEVERITY_HIGH, "File ('" + dir.getURL() + "'): failed to perform directory tests in this directory", e);
+        }
+        finally
+        {
+            testDelete(testDir);
+            closeFile(testDir);
+        }
+    }
+
+    private static void testRead(FileConnection file, byte[] buffer)
+    {
+        DataInputStream testInputStream = null;
+        try
+        {
+            testInputStream = file.openDataInputStream();
+            testInputStream.readFully(buffer);
+        }
+        catch (Throwable e)
+        {
+            Logger.logIssue(Logger.SEVERITY_CRITICAL, "File ('" + file.getURL() + "'): failed to read " + buffer.length + " bytes from file", e);
+        }
+        finally
+        {
+            StreamUtils.closeStream(testInputStream);
+        }
+    }
+
+    private static void testWrite(FileConnection file, byte[] buffer, boolean append)
+    {
+        boolean flushing = false;
+        OutputStream testOutputStream = null;
+        try
+        {
+            if (append)
+                testOutputStream = file.openOutputStream(file.fileSize());
+            else
+                testOutputStream = file.openOutputStream();
+            testOutputStream.write(buffer);
+            
+            flushing = true;
+            testOutputStream.flush();
+        }
+        catch (Throwable e)
+        {
+            if (flushing)
+                Logger.logIssue(Logger.SEVERITY_CRITICAL, "File ('" + file.getURL() + "'): failed to flush file", e);
+            else
+                Logger.logIssue(Logger.SEVERITY_CRITICAL, "File ('" + file.getURL() + "'): failed to write " + buffer.length + " bytes to file", e);
+        }
+        finally
+        {
+            StreamUtils.closeStream(testOutputStream);
+        }
+    }
+
+    private static FileConnection testCreate(String newFileUrl, boolean isDirectory)
+    {
+        FileConnection newFile = null;
+        try
+        {
+            newFile = (FileConnection)Connector.open(newFileUrl);
+            if (newFile.exists())
+                newFile.delete();
+            
+            if (isDirectory)
+                newFile.mkdir();
+            else
+                newFile.create();
+            return newFile;
+        }
+        catch (Throwable e)
+        {
+            Logger.logIssue(Logger.SEVERITY_HIGH, "File ('" + newFileUrl + "'): failed to create new " + (isDirectory ? "directory" : "file"), e);
+            return null;
+        }
+    }
+
+    private static void testDelete(FileConnection file)
+    {
+        if (file == null)
+            return;
+
+        try
+        {
+            file.delete();
+        }
+        catch (Throwable e)
+        {
+            Logger.logIssue(Logger.SEVERITY_HIGH, "File ('" + file.getURL() + "'): failed to delete file", e);
+        }
+    }
+
+    private static void testRename(FileConnection file, String newName)
+    {
+        FileConnection targetFile = null;
+        try
+        {
+            //make sure the target file doesn't exist
+            String newUrl = "file://" + file.getPath() + newName;
+            targetFile = (FileConnection)Connector.open(newUrl);
+            if (targetFile.exists())
+                targetFile.delete();
+            closeFile(targetFile);
+            targetFile = null;
+
+            file.rename(newName);
+        }
+        catch (Throwable e)
+        {
+            Logger.logIssue(Logger.SEVERITY_HIGH, "File ('" + file.getURL() + "'): failed to rename file to '" + newName + "'", e);
+        }
+        finally
+        {
+            closeFile(targetFile);
+        }
+    }
+
+    private static void testTruncate(FileConnection file, long targetSize)
+    {
+        try
+        {
+            //truncate the file
+            long oldSize = file.fileSize();
+            file.truncate(targetSize);
+            
+            //check that the file size is as expected
+            long newSize = file.fileSize();
+            if (targetSize >= oldSize)
+            {
+                //check that the file has not been truncated
+                if (newSize != oldSize)
+                    Logger.logIssue(Logger.SEVERITY_HIGH, "File ('" + file.getURL() + "'): truncated file has an incorrect size (" + newSize + " bytes)");
+            }
+            else
+            {
+                //check that the file has been truncated
+                if (newSize != targetSize)
+                    Logger.logIssue(Logger.SEVERITY_HIGH, "File ('" + file.getURL() + "'): truncated file has an incorrect size (" + newSize + " bytes)");
+            }
+        }
+        catch (Throwable e)
+        {
+            Logger.logIssue(Logger.SEVERITY_HIGH, "File ('" + file.getURL() + "'): failed to truncate file to " + targetSize + " bytes", e);
+        }
+    }
+
+    private static void testPermissions(FileConnection file)
+    {
+        boolean canReadOrig = file.canRead();
+        boolean canWriteOrig = file.canWrite();
+        boolean isHiddenOrig = file.isHidden();
+        try
+        {
+            //skip toggling the read permission as it's usually not possible to prevent a file from being read 
+            //boolean canReadNew = !canReadOrig;
+            //file.setReadable(canReadNew);
+            //if (file.canRead() != canReadNew)
+            //    Logger.logIssue(Logger.SEVERITY_LOW, "File ('" + file.getURL() + "'): cannot set readable permission to '" + canReadNew + "'");
+
+            //toggle write permission
+            boolean canWriteNew = !canWriteOrig;
+            file.setWritable(canWriteNew);
+            if (file.canWrite() != canWriteNew)
+                Logger.logIssue(Logger.SEVERITY_LOW, "File ('" + file.getURL() + "'): cannot set writable permission to '" + canWriteNew + "'");
+
+            //toggle hidden permission
+            boolean isHiddenNew = !isHiddenOrig;
+            file.setHidden(isHiddenNew);
+            if (file.isHidden() != isHiddenNew)
+                Logger.logIssue(Logger.SEVERITY_LOW, "File ('" + file.getURL() + "'): cannot set hidden permission to '" + isHiddenNew + "'");
+        }
+        catch (Throwable e)
+        {
+            Logger.logIssue(Logger.SEVERITY_HIGH, "File ('" + file.getURL() + "'): failed to set file permissions", e);
+        }
+        finally
+        {
+            try
+            {
+                //restore original permissions
+                file.setReadable(canReadOrig);
+                file.setWritable(canWriteOrig);
+                file.setHidden(isHiddenOrig);
+            }
+            catch (Throwable e)
+            {
+                //ignore
+            }
+        }
+    }
+    
+    private static String getFileAttrs(FileConnection file)
+    {
+        StringBuffer attrs = new StringBuffer();
+        attrs.append( file.canRead() ? "r" : "-" );
+        attrs.append( file.canWrite() ? "w" : "-" );
+        attrs.append( file.isHidden() ? "h" : "-" );
+        return attrs.toString();
+    }
+
+    private static String getFileDate(FileConnection file) 
+    {
+        return DiscoveryMIDlet.dateToString( file.lastModified() );
+    }
+}
+

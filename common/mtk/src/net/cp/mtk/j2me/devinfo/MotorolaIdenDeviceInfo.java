@@ -1,0 +1,149 @@
+/**
+ * Copyright © 2010 Critical Path, Inc. All Rights Reserved.
+ */
+
+package net.cp.mtk.j2me.devinfo;
+
+
+import net.cp.mtk.common.devinfo.DeviceInfo;
+import net.cp.mtk.common.devinfo.NetworkIdentifier;
+
+import com.mot.iden.device.StatusManager;
+import com.mot.iden.customercare.CustomerCare;
+
+
+/**
+ * A class providing various details about a Motorola iDEN device.
+ * 
+ * @author Denis Evoy
+ */
+public class MotorolaIdenDeviceInfo extends DeviceInfo
+{
+    /** Create a new device info object. */
+    public MotorolaIdenDeviceInfo()
+	{
+	    super();
+	}
+	
+    /** 
+     * Returns the manufacturer of the device.
+     * 
+     * @return the manufacturer of the device (i.e. "Motorola").
+     */
+    public String getManufacturer()
+    {
+        return "Motorola";
+    }
+
+    /** 
+     * Returns the model of the device.
+     * 
+     * @return the model of the device, or null if it is unknown.
+     */
+    public String getModel()
+    {
+        return getProperty("iden.device.model");
+    }
+
+    /** 
+     * Returns the type of network the device is connected to.
+     * 
+     * Note: determining the network type is not supported - we only support determining if a network is available.
+     * 
+     * @return the type of network (NETWORK_TYPE_XXX) the device is connected to, or NETWORK_TYPE_UNKNOWN if it is not known.
+     */
+	public byte getNetworkType()
+	{
+	    int signalStatus = StatusManager.getStatus(StatusManager.SIGNAL_STRENGTH);
+	    if ( (signalStatus == StatusManager.NO_SERVICE) || (signalStatus == StatusManager.TRANSMITTER_OFF) || (signalStatus == 0) )
+	        return NETWORK_TYPE_NONE;
+
+		return super.getNetworkType();
+	}
+    
+    /** 
+     * Returns the identifier of the network that the device is currently connected.
+     * 
+     * Note: determining the network ID isn't supported.
+     * 
+     * @return the identifier of the network that the device is currently connected to, or null if the network is unknown.
+     */
+	public NetworkIdentifier getNetworkId()
+    {
+        return super.getNetworkId();
+    }
+
+    /** 
+     * Returns the roaming state of the device.
+     * 
+     * Note: determining the roaming state isn't supported.
+     * 
+     * @return the roaming state (ROAMING_XXX) of the device, or ROAMING_UNKNOWN if it is not known.
+     */
+    public byte getRoamingState()
+    {
+        return super.getRoamingState();
+    }
+
+    /** 
+     * Returns the IEMI of the device.
+     * 
+     * @return the IEMI of the device, or null if it is not known.
+     */
+	public String getIMEI()
+	{
+        String imei = CustomerCare.getClientInfo(CustomerCare.IMEI);
+        if (imei != null)
+            return imei;
+
+        imei = getProperty("com.motorola.IMEI");
+        if (imei != null)
+            return imei;
+
+        imei = getProperty("IMEI");
+        if (imei != null)
+            return imei;
+
+        return super.getIMEI();
+	}
+
+    /** 
+     * Returns the IMSI of the SIM card on the device.
+     * 
+     * Note: determining the IMSI isn't supported.
+     * 
+     * @return the IMSI of the device, or null if it is not known.
+     */
+    public String getIMSI()
+    {
+        return super.getIMSI();
+    }
+
+    /** 
+     * Returns the MSISDN associated with the SIM card on the device.
+     * 
+     * @return the users MSISDN, or null if it is not known.
+     */
+    public String getMSISDN()
+    {
+        String msisdn = CustomerCare.getMyInfo(CustomerCare.LINE_1);
+        if (msisdn != null)
+            return msisdn;
+        
+        return super.getMSISDN();
+    }
+
+    /** 
+     * Returns the Push-To-Talk ID associated with the SIM card on the device.
+     * 
+     * @return the users Push-To-Talk ID, or null if it is not known.
+     */
+    public String getPTTId()
+    {
+        String pttid = CustomerCare.getMyInfo(CustomerCare.PRVT_ID);
+        if (pttid != null)
+            return pttid;
+        
+        return super.getPTTId();
+    }
+}

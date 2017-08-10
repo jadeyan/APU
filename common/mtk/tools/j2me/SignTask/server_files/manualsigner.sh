@@ -1,0 +1,173 @@
+#!/bin/sh
+#
+# A script for signing the Phone Backup application deployable packages.
+#
+# Example: if there are a number of client packages present in the "/tmp/pbc" directory,
+# you could sign them by running the script as follows:
+#     ./manualsigner.sh -p "/tmp/pbc" -s "/tmp/pbc_signed"
+#
+################################################################################
+
+
+# define variables (note: signing server is "mob385-2.eng.cpth.ie")
+SIGN_IN_DIR="/home/signer/signing_inbox"        #the directory on the signing server where the unsigned packages should be placed for signing
+SIGN_OUT_DIR="/home/signer/signing_outbox"      #the directory on the signing server where signed packages are placed
+SIGN_OPTS="7"                                   #the certs used to sign: 1=Verisign, 2=Thawte, 4=GlobalSign
+SIGN_ID=`date +%s`
+
+
+######################
+# Signs the Phone Backup Client for the specified device into the specified output directory.
+#
+# Params: 
+#   1. The full path to the tar file containing the device binaries and resources.
+#   2. The directory where the signed packages should be put
+#   3. The manufacturer of the device.
+#   4. The model of the device.
+#
+# Sets:
+#   None    
+#
+# Returns: 
+#   None
+#
+Sign_Pbc() 
+{
+    # get parameters
+    sp_packageDevice="$1"
+    sp_outDir="$2"
+    sp_manf="$3"
+    sp_model="$4"
+    
+    # determine the value of various other useful variables
+    sp_deviceFilePrefix="CP_Phone_Backup-$sp_manf-$sp_model"
+    sp_jarFile="$sp_deviceFilePrefix.jar"
+    sp_jadFile="$sp_deviceFilePrefix.jad"
+
+    # create a temporary directory
+    sp_tempDir=`/bin/mktemp -d`
+    if [ ! -d "$sp_tempDir" ]; then
+        echo "ERROR: Failed to create temporary directory."
+        exit 1
+    fi
+    
+    # extract the distribution
+    /bin/gunzip -c "$sp_packageDevice" | /bin/tar -xmf - -C "$sp_tempDir"
+
+    # create the sign request
+    /bin/cp "$sp_tempDir/bin/$sp_jarFile" "$SIGN_IN_DIR/$sp_jarFile.$SIGN_ID"
+    /bin/cp "$sp_tempDir/jad/$sp_jadFile" "$SIGN_IN_DIR/$sp_jadFile.$SIGN_ID"
+    /bin/touch "$SIGN_IN_DIR/memova.ready.$SIGN_OPTS.$SIGN_ID"
+    
+    # wait for the request to be processed
+    while [ ! -f "$SIGN_OUT_DIR/$sp_jadFile.$SIGN_ID" ]; do
+        /bin/sleep 1
+    done
+
+    # make sure the signed JAD exists
+    if [ ! -f "$SIGN_OUT_DIR/$sp_jadFile.$SIGN_ID" ]; then
+        echo "ERROR: Could not find signed JAD file '$SIGN_OUT_DIR/$sp_jadFile.$SIGN_ID'."
+        exit 1
+    fi
+    
+    # repackage the signed jad
+    pushd "$sp_tempDir" > /dev/null
+    /bin/cp "$SIGN_OUT_DIR/$sp_jadFile.$SIGN_ID" "jad/$sp_jadFile"
+    /bin/tar -cf "$sp_deviceFilePrefix.tar" *
+    /bin/gzip "$sp_deviceFilePrefix.tar"
+    /bin/cp "$sp_deviceFilePrefix.tar.gz" "$sp_outDir"
+    popd > /dev/null
+    /bin/rm -rf "$sp_tempDir"
+    echo "Signed: $sp_outDir/$sp_deviceFilePrefix.tar.gz"
+}
+
+######################
+# Signs the Phone Backup Client for all devices into the specified output directory.
+#
+# Params: 
+#   1. The directory containing all the client packages that should be signed.
+#   2. The directory where the signed packages should be put
+#
+# Sets:
+#   None    
+#
+# Returns: 
+#   None
+#
+Sign_PbcAll() 
+{
+    spa_packageDir="$1"
+    spa_outDir="$2"
+    
+    # look for all packages and try to sign each one
+    /usr/bin/find $spa_packageDir -name "CP_Phone_Backup-*.tar.gz" -printf "%P\n" | sort | while read spa_package; do
+        # skip the common package
+        if [ "$spa_package" == "CP_Phone_Backup-Common.tar.gz" ]; then
+            continue
+        fi
+
+        # determine the make and model from the package name
+        spa_packageName=`echo "$spa_package" | /bin/sed 's/^CP_Phone_Backup-//' | /bin/sed 's/.tar.gz//'`
+        spa_manf=`echo "$spa_packageName" | /bin/sed 's/-.*$//'`
+        spa_model=`echo "$spa_packageName" | /bin/sed 's/^[a-zA-Z0-9]*-//'`
+        
+        # sign the package for the make and model
+        if [ "$spa_manf" != "" -a "$spa_model" != "" ]; then
+            Sign_Pbc "$spa_packageDir/$spa_package" "$spa_outDir" "$spa_manf" "$spa_model"
+        fi
+    done
+}
+
+
+###################### MAIN ######################
+
+    # get script arguments
+    i_packageDir=
+    i_outDir=
+    while [ $# -gt 0 ]; do
+        case $1 in
+            '-p' )
+                i_packageDir="$2"
+                if [ "$i_packageDir" = "" ]; then
+                    echo "ERROR: No package directory specified."
+                    exit 1
+                fi
+                shift 2
+                ;;
+            '-s' )
+                i_outDir="$2"
+                if [ "$i_outDir" = "" ]; then
+                    echo "ERROR: No output directory specified."
+                    exit 1
+                fi
+                shift 2
+                ;;
+            '-h' | '?' )
+                echo "Usage: $0 [-p <PackageDir>] [-s <SignedDir>] [-h]"
+                echo "    -p   => the directory containing the packages to be signed"
+                echo "    -s   => the directory where all the signed packages should be placed"
+                echo "    -h   => display the installer usage information"
+                exit 1
+                ;;
+            * )
+                shift
+                ;;
+        esac
+    done
+
+    # make sure the output directory exists
+    if [ ! -d "$i_outDir" ]; then
+        echo "ERROR: Invalid output directory specified."
+        exit 1
+    fi
+    
+    # sign all packages
+    echo
+    echo "Signing packages..."
+    Sign_PbcAll "$i_packageDir" "$i_outDir"
+    echo "Signing Complete"
+    
+    exit 0
+    
+##################################################
+    

@@ -1,0 +1,240 @@
+/**
+ * Copyright © 2010 Critical Path, Inc. All Rights Reserved.
+ */
+
+package net.cp.mtk.j2me.tools.discovery.ui;
+
+
+import javax.microedition.lcdui.Canvas;
+import javax.microedition.lcdui.Display;
+import javax.microedition.lcdui.Displayable;
+import javax.microedition.lcdui.Graphics;
+
+import net.cp.mtk.j2me.tools.discovery.Logger;
+import net.cp.mtk.j2me.tools.discovery.DiscoveryMIDlet;
+
+
+public class Lcdui
+{
+    private static final int KEY_CODE_SEARCH_START = -512;
+    private static final int KEY_CODE_SEARCH_END =    512;
+    
+    
+    public static void evaluate(DiscoveryMIDlet midlet)
+    {
+        Logger.log("");
+        Logger.log("-----------------------------------");
+        Logger.log("LCD UI:");
+        Logger.log("");
+
+        //show memory size
+        midlet.setTestStatus("Testing LCDUI...");
+        logDisplay(midlet);
+
+        Logger.log("-----------------------------------");
+    }
+
+    
+    private Lcdui()
+    {
+        super();
+    }
+
+    private static void logDisplay(DiscoveryMIDlet midlet)
+    {
+        Display display = null;
+        Displayable currentForm = null;
+        try
+        {
+            display = Display.getDisplay(midlet);
+            if (display == null)
+            {
+                Logger.logIssue(Logger.SEVERITY_CRITICAL, "Failed to retrieve the applications display object");
+                return;
+            }
+
+            currentForm = display.getCurrent();
+            if (currentForm == null)
+            {
+                Logger.logIssue(Logger.SEVERITY_CRITICAL, "Failed to retrieve the applications current displayable object");
+                return;
+            }
+            
+            TestCanvas testCanvas = new TestCanvas();
+            display.setCurrent(testCanvas);
+            Logger.log("+ Canvas size:                    " + testCanvas.getWidth() + "x" + testCanvas.getHeight() + " (WxH)");
+            Logger.log("+ Form size:                      " + currentForm.getWidth() + "x" + currentForm.getHeight() + " (WxH)");
+            Logger.log("+ Double buffered:                " + testCanvas.isDoubleBuffered());
+            Logger.log("+ Supports pointer events:        " + testCanvas.hasPointerEvents());
+            Logger.log("+ Supports motion events:         " + testCanvas.hasPointerMotionEvents());
+            Logger.log("+ Supports key repeat events:     " + testCanvas.hasRepeatEvents());
+            
+            Logger.log("");
+            Logger.log("+ Best Image Size (Alert):        " + getBestImageWidth(display, Display.ALERT) + "x" + getBestImageHeight(display, Display.ALERT) + " (WxH)");
+            Logger.log("+ Best Image Size (List Item):    " + getBestImageWidth(display, Display.LIST_ELEMENT) + "x" + getBestImageHeight(display, Display.LIST_ELEMENT) + " (WxH)");
+            Logger.log("+ Best Image Size (Choice Item):  " + getBestImageWidth(display, Display.CHOICE_GROUP_ELEMENT) + "x" + getBestImageHeight(display, Display.CHOICE_GROUP_ELEMENT) + " (WxH)");
+
+            Logger.log("");
+            Logger.log("+ Color supported:                " + display.isColor());
+            if (display.isColor())
+                Logger.log("+ Color level:                    " + display.numColors() + " colors");
+            else
+                Logger.log("+ Grey level:                     " + display.numColors() + " greylevels");
+            Logger.log("+ Color (Background):             " + getColor(display, Display.COLOR_BACKGROUND));
+            Logger.log("+ Color (Foreground):             " + getColor(display, Display.COLOR_FOREGROUND));
+            Logger.log("+ Color (Border):                 " + getColor(display, Display.COLOR_BORDER));
+            Logger.log("+ Color (Highlighted Background): " + getColor(display, Display.COLOR_HIGHLIGHTED_BACKGROUND));
+            Logger.log("+ Color (Highlighted Foreground): " + getColor(display, Display.COLOR_HIGHLIGHTED_FOREGROUND));
+            Logger.log("+ Color (Highlighted Border):     " + getColor(display, Display.COLOR_HIGHLIGHTED_BORDER));
+
+            Logger.log("");
+            int alphaLevels =  display.numAlphaLevels();
+            Logger.log("+ Alpha levels:                   " + alphaLevels);
+            Logger.log("+ Alpha blending supported:       " + (alphaLevels > 2));
+            
+            Logger.log("");
+            Logger.log("+ Can flash backlight:            " + display.flashBacklight(2000));
+            Logger.log("+ Can vibrate:                    " + display.vibrate(2000));
+            
+            Logger.log("");
+            Logger.log("+ Standard Game Actions:");
+            Logger.log("    FIRE:  " + getKeyCode(testCanvas, Canvas.FIRE));
+            Logger.log("    UP:    " + getKeyCode(testCanvas, Canvas.UP));
+            Logger.log("    DOWN:  " + getKeyCode(testCanvas, Canvas.DOWN));
+            Logger.log("    LEFT:  " + getKeyCode(testCanvas, Canvas.LEFT));
+            Logger.log("    RIGHT: " + getKeyCode(testCanvas, Canvas.RIGHT));
+            Logger.log("    A:     " + getKeyCode(testCanvas, Canvas.GAME_A));
+            Logger.log("    B:     " + getKeyCode(testCanvas, Canvas.GAME_B));
+            Logger.log("    C:     " + getKeyCode(testCanvas, Canvas.GAME_C));
+            Logger.log("    D:     " + getKeyCode(testCanvas, Canvas.GAME_D));
+            
+            Logger.log("");
+            Logger.log("+ Standard Key Codes:");
+            Logger.log("    [" + DiscoveryMIDlet.pad(getKeyName(testCanvas, Canvas.KEY_NUM0), 30) + "]: " + Canvas.KEY_NUM0);
+            Logger.log("    [" + DiscoveryMIDlet.pad(getKeyName(testCanvas, Canvas.KEY_NUM1), 30) + "]: " + Canvas.KEY_NUM1);
+            Logger.log("    [" + DiscoveryMIDlet.pad(getKeyName(testCanvas, Canvas.KEY_NUM2), 30) + "]: " + Canvas.KEY_NUM2);
+            Logger.log("    [" + DiscoveryMIDlet.pad(getKeyName(testCanvas, Canvas.KEY_NUM3), 30) + "]: " + Canvas.KEY_NUM3);
+            Logger.log("    [" + DiscoveryMIDlet.pad(getKeyName(testCanvas, Canvas.KEY_NUM4), 30) + "]: " + Canvas.KEY_NUM4);
+            Logger.log("    [" + DiscoveryMIDlet.pad(getKeyName(testCanvas, Canvas.KEY_NUM5), 30) + "]: " + Canvas.KEY_NUM5);
+            Logger.log("    [" + DiscoveryMIDlet.pad(getKeyName(testCanvas, Canvas.KEY_NUM6), 30) + "]: " + Canvas.KEY_NUM6);
+            Logger.log("    [" + DiscoveryMIDlet.pad(getKeyName(testCanvas, Canvas.KEY_NUM7), 30) + "]: " + Canvas.KEY_NUM7);
+            Logger.log("    [" + DiscoveryMIDlet.pad(getKeyName(testCanvas, Canvas.KEY_NUM8), 30) + "]: " + Canvas.KEY_NUM8);
+            Logger.log("    [" + DiscoveryMIDlet.pad(getKeyName(testCanvas, Canvas.KEY_NUM9), 30) + "]: " + Canvas.KEY_NUM9);
+            Logger.log("    [" + DiscoveryMIDlet.pad(getKeyName(testCanvas, Canvas.KEY_POUND), 30) + "]: " + Canvas.KEY_POUND);
+            Logger.log("    [" + DiscoveryMIDlet.pad(getKeyName(testCanvas, Canvas.KEY_STAR), 30) + "]: " + Canvas.KEY_STAR);
+            
+            Logger.log("");
+            Logger.log("+ Discovered Key Codes:");
+            discoverKeyCodes(testCanvas);
+        }
+        catch (Throwable e)
+        {
+            Logger.logIssue(Logger.SEVERITY_LOW, "Failed to retrieve display information", e);
+        }
+        finally
+        {
+            if ( (display != null) && (currentForm != null) )
+                display.setCurrent(currentForm);
+        }
+    }
+    
+    private static String getKeyCode(Canvas canvas, int gameAction)
+    {
+        try
+        {
+            return Integer.toString( canvas.getKeyCode(gameAction) );
+        }
+        catch (Throwable e)
+        {
+            Logger.logIssue(Logger.SEVERITY_HIGH, "Failed to get the key code associated with the game action ('" + gameAction + "')", e);
+            return null;
+        }
+    }
+    
+    private static void discoverKeyCodes(Canvas canvas)
+    {
+        for (int i = KEY_CODE_SEARCH_START; i <= KEY_CODE_SEARCH_END; i++)
+        {
+            try
+            {
+                String keyName = canvas.getKeyName(i);
+                if ( (keyName != null) && (keyName.length() > 0) )
+                    Logger.log("    [" + DiscoveryMIDlet.pad(keyName, 30) + "]: " + i);
+            }
+            catch (Throwable e)
+            {
+                //ignore
+            }
+        }
+    }
+    
+    private static String getKeyName(Canvas canvas, int keyCode)
+    {
+        try
+        {
+            return canvas.getKeyName(keyCode);
+        }
+        catch (Throwable e)
+        {
+            Logger.logIssue(Logger.SEVERITY_HIGH, "Failed to get the game action associated with key code ('" + keyCode + "')", e);
+            return null;
+        }
+    }
+    
+    private static String getColor(Display display, int colorSpecifier)
+    {
+        try
+        {
+            return "0x" + Integer.toHexString( display.getColor(colorSpecifier) );
+        }
+        catch (Throwable e)
+        {
+            Logger.logIssue(Logger.SEVERITY_HIGH, "Failed to get the color associated with color specifier ('" + colorSpecifier + "')", e);
+            return null;
+        }
+    }
+    
+    private static String getBestImageWidth(Display display, int imageType)
+    {
+        try
+        {
+            return Integer.toString( display.getBestImageWidth(imageType) );
+        }
+        catch (Throwable e)
+        {
+            Logger.logIssue(Logger.SEVERITY_HIGH, "Failed to get the best image width for image type ('" + imageType + "')", e);
+            return null;
+        }
+    }
+    
+    private static String getBestImageHeight(Display display, int imageType)
+    {
+        try
+        {
+            return Integer.toString( display.getBestImageHeight(imageType) );
+        }
+        catch (Throwable e)
+        {
+            Logger.logIssue(Logger.SEVERITY_HIGH, "Failed to get the best image height for image type ('" + imageType + "')", e);
+            return null;
+        }
+    }
+    
+    
+    private static class TestCanvas extends Canvas
+    {
+        private TestCanvas()
+        {
+            super();
+        }
+        
+        protected void paint(Graphics g)
+        {
+            g.setColor(255, 255, 255);
+            g.fillRect(0, 0, getWidth(), getHeight());
+
+            g.setColor(0, 0, 0);
+            g.drawString("LCDUI Discovery", getWidth()/2, getHeight()/2, Graphics.TOP | Graphics.HCENTER);
+        }
+    }
+}
